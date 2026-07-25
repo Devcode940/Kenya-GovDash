@@ -11,13 +11,14 @@ import {
 } from '@/components/ui/tooltip';
 import {
   Shield, DollarSign, FileText, CheckCircle2, AlertCircle,
-  ExternalLink, BookOpen, Scale, Link2, Info, RefreshCw
+  ExternalLink, BookOpen, Scale, Link2, Info, RefreshCw, Eye
 } from 'lucide-react';
 import { getAuditColor, type Representative, type AuditOpinion, type BudgetPerformance } from '@/lib/kenya-data';
 import { useEaccFeed } from '@/hooks/use-live-feeds';
 import { FeedStatusIndicator, SourceCitationBadge } from '@/components/kenya/KenyaFeedStatus';
 import { getDeclarationStatusColor } from '@/lib/live-feeds/eacc-service';
 import { DATA_GAP_NOTES } from '@/lib/live-feeds/config';
+import { KenyaOversightHub } from '@/components/kenya-oversight/KenyaOversightHub';
 
 interface KenyaAccountabilityPanelProps {
   representative: Representative | null;
@@ -40,7 +41,7 @@ export function KenyaAccountabilityPanel({ representative }: KenyaAccountability
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="audit" className="w-full">
-          <TabsList className="w-full grid grid-cols-5 h-auto">
+          <TabsList className="w-full grid grid-cols-6 h-auto">
             <TabsTrigger value="audit" className="text-xs py-1">
               <Shield className="h-3 w-3 mr-1" />
               Audit
@@ -56,6 +57,10 @@ export function KenyaAccountabilityPanel({ representative }: KenyaAccountability
             <TabsTrigger value="compliance" className="text-xs py-1">
               <Scale className="h-3 w-3 mr-1" />
               Compliance
+            </TabsTrigger>
+            <TabsTrigger value="oversight" className="text-xs py-1">
+              <Eye className="h-3 w-3 mr-1" />
+              Oversight
             </TabsTrigger>
             <TabsTrigger value="sources" className="text-xs py-1">
               <Link2 className="h-3 w-3 mr-1" />
@@ -81,6 +86,11 @@ export function KenyaAccountabilityPanel({ representative }: KenyaAccountability
           {/* Compliance Tab */}
           <TabsContent value="compliance" className="mt-3">
             <ComplianceTab rep={rep} />
+          </TabsContent>
+
+          {/* Oversight Features Tab */}
+          <TabsContent value="oversight" className="mt-3">
+            <KenyaOversightHub countyCode={rep.countyCode ?? 34} />
           </TabsContent>
 
           {/* Sources Tab */}

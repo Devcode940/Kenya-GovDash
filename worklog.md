@@ -216,3 +216,52 @@ Stage Summary:
 - Auto-refreshing data feeds (5-minute intervals) with manual refresh buttons
 - 5 Next.js API routes, 4 service modules, 3 UI components, 1 React hooks module
 - Zero lint errors, build passes successfully
+
+---
+Task ID: 5
+Agent: Main Agent
+Task: Implement 10 new Kenya-specific oversight features (Petitions, CIDP, Revenue, Gender, Borders, Climate, Service Delivery, DPI, Budget Tracker, Civic Participation)
+
+Work Log:
+- Step 1: Created comprehensive data layer src/lib/kenya-oversight-data.ts with all 10 feature types, mock data, and helper functions
+  - Feature 1: PetitionEntry + getPetitionsForCounty (6 petitions: Kajiado, Nairobi, Mombasa, Kisumu, National)
+  - Feature 2: CIDPProject + getCidpForCounty (6 CIDP III projects: Kajiado hospital, water, road, digital, livelihood; Nairobi health)
+  - Feature 3: CountyRevenueEntry + getRevenueForCounty + revenueAutonomyData (6 counties: Kajiado, Nairobi, Mombasa, Kiambu, Turkana, Nakuru)
+  - Feature 4: GenderInclusionEntry + getGenderInclusionForCounty (3 entries: Kajiado, Nairobi, National)
+  - Feature 5: BorderConflictEntry + getConflictsForCounty (3 conflicts: Turkana-Pokot, Meru-Isiolo, Kisii-Nyamira)
+  - Feature 6: ClimateEnvironmentEntry + getClimateForCounty (3 entries: Kajiado, Nairobi, Marsabit)
+  - Feature 7: ServiceDeliveryEntry + getServiceDeliveryForCounty (4 counties: Kajiado, Nairobi, Turkana, Kisumu)
+  - Feature 8: DPIEntry + getDpiForCounty + dpiData (8 counties: Nairobi #1, Kisumu #5, Kiambu #8, Kajiado #15, Mombasa #12, West Pokot #3, Turkana #47, Marsabit #44)
+  - Feature 9: BudgetQuarterlyEntry + getBudgetQuarterlyForCounty (5 entries: Kajiado Q1-Q4 + Full Year, Nairobi Full Year)
+  - Feature 10: CivicParticipationEntry + getCivicParticipationForCounty (3 entries: Kajiado, Nairobi, Turkana)
+  - KENYA_OVERSIGHT_FEATURES registry with all 10 feature cards (id, title, description, icon, color, source)
+- Step 2: Delegated component creation to 2 parallel subagents (5 components each)
+- Step 3: Created 10 oversight component files in src/components/kenya-oversight/
+  - KenyaPetitionTracker.tsx - petitions table, summary stats, category distribution bars, status badges
+  - KenyaCidpDashboard.tsx - CIDP projects list, sector progress, completion bars, milestone tracking
+  - KenyaRevenueAutonomy.tsx - OSR vs equitable share visual split, efficiency bars, comparison table
+  - KenyaGenderInclusion.tsx - women MCA representation bars, youth/PWD counts, CECM percentage, constitutional target comparison
+  - KenyaBorderConflicts.tsx - conflict cards, county pair visual map, severity/status badges, NCIC reference
+  - KenyaClimateEnvironment.tsx - NEMA compliance badge, climate budget, deforestation, water stress, disaster events
+  - KenyaServiceDelivery.tsx - health & education metrics, composite SDI, top/bottom comparison
+  - KenyaDevolutionPerformance.tsx - 4-dimension DPI breakdown, rank, trend arrows, leaderboard
+  - KenyaBudgetTracker.tsx - quarterly absorption progression, pending bills, supplementary budgets, virement alerts
+  - KenyaCivicParticipation.tsx - hearing counts, feedback incorporation bars, civic education budget, Article 196 compliance
+- Step 4: Created KenyaOversightHub.tsx - grid of 10 feature cards with Dialog modal for detail views
+- Step 5: Updated KenyaAccountabilityPanel.tsx
+  - Changed TabsList from grid-cols-5 to grid-cols-6
+  - Added 6th "Oversight" tab with Eye icon
+  - Added TabsContent for oversight rendering KenyaOversightHub with countyCode prop
+  - Imported KenyaOversightHub from '@/components/kenya-oversight/KenyaOversightHub'
+- Step 6: Fixed 5 component files that used `export default` → changed to `export function` for named import compatibility
+- Step 7: Ran lint check — zero errors
+- Step 8: Ran build — successful, all routes registered
+
+Stage Summary:
+- 10 Kenya-specific oversight features fully implemented with source-cited data
+- All data points cite OAG, CoB, TI-Kenya, EACC, KNBS, NEMA, or explicitly state data gaps
+- KenyaOversightHub provides card grid with Dialog modal UX
+- Added as 6th "Oversight" tab in the Accountability Panel
+- Each feature receives countyCode prop and fetches county-specific data
+- Dark mode compatible, compact layout for Dialog display
+- Zero lint errors, build passes successfully
