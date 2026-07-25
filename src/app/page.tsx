@@ -54,6 +54,7 @@ import {
   type ProjectStatus,
   type ComplianceStatus,
 } from "@/lib/data";
+import { OversightHub } from "@/components/oversight/OversightHub";
 
 // ==================== CIRCULAR PROGRESS ====================
 function CircularProgress({
@@ -537,7 +538,7 @@ function AccountabilityView({ rep }: { rep: Representative }) {
 
   return (
     <Tabs defaultValue="promises" className="w-full">
-      <TabsList className="grid w-full grid-cols-4 h-9">
+      <TabsList className="grid w-full grid-cols-5 h-9">
         <TabsTrigger value="promises" className="text-xs px-1">
           <Scale className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
           Promises
@@ -553,6 +554,10 @@ function AccountabilityView({ rep }: { rep: Representative }) {
         <TabsTrigger value="feedback" className="text-xs px-1">
           <MessageSquare className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
           Feedback
+        </TabsTrigger>
+        <TabsTrigger value="oversight" className="text-xs px-1">
+          <Eye className="h-3.5 w-3.5 mr-1 hidden sm:inline" />
+          Oversight
         </TabsTrigger>
       </TabsList>
 
@@ -663,6 +668,10 @@ function AccountabilityView({ rep }: { rep: Representative }) {
             <p className="py-4 text-center text-sm text-muted-foreground">No public feedback available</p>
           )}
         </div>
+      </TabsContent>
+
+      <TabsContent value="oversight" className="mt-3">
+        <OversightHub rep={rep} />
       </TabsContent>
     </Tabs>
   );

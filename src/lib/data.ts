@@ -1602,3 +1602,339 @@ export function countDirectReports(node: Representative): number {
 
 // All representatives flat list
 export const allRepresentatives = flattenTree(governmentData);
+
+// ===================== OVERSIGHT FEATURE DATA =====================
+
+// Feature 1: Conflict of Interest Tracker
+export type ConflictType = "Business Tie" | "Family Connection" | "Stock Holding" | "Board Membership" | "Political Affiliation";
+export type ConflictSeverity = "High" | "Medium" | "Low";
+export type ConflictStatus = "Active" | "Under Investigation" | "Resolved" | "Dismissed";
+
+export interface ConflictOfInterest {
+  id: string;
+  repId: string;
+  type: ConflictType;
+  entity: string;
+  description: string;
+  severity: ConflictSeverity;
+  status: ConflictStatus;
+  dateFlagged: string;
+}
+
+export const conflictsOfInterest: ConflictOfInterest[] = [
+  { id: "coi1", repId: "fin-min", type: "Stock Holding", entity: "Meridian Banking Corp", description: "Holds 12% stake in Meridian Banking Corp, a major beneficiary of treasury reforms", severity: "High", status: "Under Investigation", dateFlagged: "2025-11-15" },
+  { id: "coi2", repId: "infra-min", type: "Business Tie", entity: "Apex Construction Ltd", description: "Brother serves as CEO of Apex Construction Ltd, which holds $2.3B in government road contracts", severity: "High", status: "Active", dateFlagged: "2025-08-20" },
+  { id: "coi3", repId: "health-min", type: "Board Membership", entity: "PharmaGlobal Inc", description: "Former board member of PharmaGlobal Inc until appointment; retains advisory position", severity: "Medium", status: "Under Investigation", dateFlagged: "2025-06-10" },
+  { id: "coi4", repId: "president", type: "Family Connection", entity: "Chen Family Foundation", description: "Family foundation receives government grants for social programs; potential self-dealing concern", severity: "Low", status: "Dismissed", dateFlagged: "2024-12-05" },
+  { id: "coi5", repId: "fin-dep", type: "Political Affiliation", entity: "United Commerce Party", description: "Secret membership in United Commerce Party while serving as neutral fiscal officer", severity: "Medium", status: "Active", dateFlagged: "2025-09-22" },
+  { id: "coi6", repId: "infra-dep", type: "Stock Holding", entity: "GreenBuild Materials", description: "Owns 8% of GreenBuild Materials, sole supplier for smart city pilot project", severity: "High", status: "Active", dateFlagged: "2026-01-08" },
+  { id: "coi7", repId: "justice-min", type: "Family Connection", entity: "Kovacs & Partners Law Firm", description: "Spouse is senior partner at Kovacs & Partners, which handles government legal contracts", severity: "Medium", status: "Resolved", dateFlagged: "2025-03-14" },
+  { id: "coi8", repId: "def-min", type: "Board Membership", entity: "Sentinel Defense Systems", description: "Served on board of Sentinel Defense Systems until 2024; company now bidding on modernization contract", severity: "High", status: "Under Investigation", dateFlagged: "2025-10-30" },
+];
+
+// Feature 2: Budget Disbursement Audit Trail
+export type DisbursementStatus = "Within Limits" | "Minor Variance" | "Significant Variance" | "Critical Overspend";
+
+export interface BudgetDisbursement {
+  id: string;
+  repId: string;
+  department: string;
+  allocatedAmount: number;
+  disbursedAmount: number;
+  variance: number;
+  category: string;
+  quarter: string;
+  status: DisbursementStatus;
+  notes: string;
+}
+
+export const budgetDisbursements: BudgetDisbursement[] = [
+  { id: "bd1", repId: "fin-min", department: "Ministry of Finance", allocatedAmount: 2450, disbursedAmount: 2380, variance: -2.8, category: "Salaries", quarter: "Q1 2026", status: "Within Limits", notes: "Standard execution within tolerance" },
+  { id: "bd2", repId: "fin-min", department: "Ministry of Finance", allocatedAmount: 890, disbursedAmount: 1120, variance: 25.8, category: "Operations", quarter: "Q1 2026", status: "Critical Overspend", notes: "Emergency IT infrastructure upgrade required after cyber incident" },
+  { id: "bd3", repId: "health-min", department: "Ministry of Health", allocatedAmount: 1200, disbursedAmount: 980, variance: -18.3, category: "Programs", quarter: "Q1 2026", status: "Minor Variance", notes: "Slow rollout of rural health centers" },
+  { id: "bd4", repId: "health-min", department: "Ministry of Health", allocatedAmount: 450, disbursedAmount: 520, variance: 15.5, category: "Infrastructure", quarter: "Q2 2026", status: "Significant Variance", notes: "Unplanned hospital renovation costs" },
+  { id: "bd5", repId: "infra-min", department: "Ministry of Infrastructure", allocatedAmount: 3200, disbursedAmount: 3800, variance: 18.7, category: "Infrastructure", quarter: "Q1 2026", status: "Significant Variance", notes: "Cost overruns on highway expansion project" },
+  { id: "bd6", repId: "infra-min", department: "Ministry of Infrastructure", allocatedAmount: 1800, disbursedAmount: 2600, variance: 44.4, category: "Infrastructure", quarter: "Q2 2026", status: "Critical Overspend", notes: "Major cost escalation in bridge construction; material prices surged" },
+  { id: "bd7", repId: "edu-min", department: "Ministry of Education", allocatedAmount: 680, disbursedAmount: 650, variance: -4.4, category: "Programs", quarter: "Q1 2026", status: "Within Limits", notes: "On-track execution of digital learning platform" },
+  { id: "bd8", repId: "def-min", department: "Ministry of Defense", allocatedAmount: 3800, disbursedAmount: 4100, variance: 7.9, category: "Operations", quarter: "Q1 2026", status: "Minor Variance", notes: "Additional training exercises required" },
+  { id: "bd9", repId: "def-min", department: "Ministry of Defense", allocatedAmount: 2200, disbursedAmount: 2800, variance: 27.3, category: "Infrastructure", quarter: "Q2 2026", status: "Critical Overspend", notes: "Unplanned equipment procurement for border security upgrade" },
+  { id: "bd10", repId: "justice-min", department: "Ministry of Justice", allocatedAmount: 350, disbursedAmount: 340, variance: -2.9, category: "Salaries", quarter: "Q1 2026", status: "Within Limits", notes: "Budget execution normal" },
+  { id: "bd11", repId: "justice-min", department: "Ministry of Justice", allocatedAmount: 280, disbursedAmount: 350, variance: 25, category: "Infrastructure", quarter: "Q2 2026", status: "Significant Variance", notes: "Court digitization program required additional server infrastructure" },
+  { id: "bd12", repId: "fin-min", department: "Ministry of Finance", allocatedAmount: 600, disbursedAmount: 580, variance: -3.3, category: "Programs", quarter: "Q2 2026", status: "Within Limits", notes: "Investment promotion within budget" },
+  { id: "bd13", repId: "edu-min", department: "Ministry of Education", allocatedAmount: 420, disbursedAmount: 500, variance: 19, category: "Infrastructure", quarter: "Q2 2026", status: "Significant Variance", notes: "Unexpected costs for school laboratory upgrades" },
+  { id: "bd14", repId: "health-min", department: "Ministry of Health", allocatedAmount: 750, disbursedAmount: 720, variance: -4, category: "Salaries", quarter: "Q2 2026", status: "Within Limits", notes: "Normal salary disbursement" },
+  { id: "bd15", repId: "infra-min", department: "Ministry of Infrastructure", allocatedAmount: 900, disbursedAmount: 850, variance: -5.6, category: "Programs", quarter: "Q3 2025", status: "Within Limits", notes: "Water supply program on track" },
+];
+
+// Feature 3: Whistleblower & Public Complaint Portal
+export type ComplaintCategory = "Corruption" | "Mismanagement" | "Service Failure" | "Procurement Fraud" | "Harassment" | "Environmental Violation" | "Other";
+export type ComplaintStatus = "Submitted" | "Under Investigation" | "Resolved" | "Dismissed" | "Escalated";
+
+export interface Complaint {
+  id: string;
+  category: ComplaintCategory;
+  description: string;
+  repId: string | null;
+  region: string;
+  status: ComplaintStatus;
+  dateSubmitted: string;
+  resolutionDate: string | null;
+  daysToResolve: number | null;
+}
+
+export const complaints: Complaint[] = [
+  { id: "comp1", category: "Corruption", description: "Bribery allegations in road construction contract awards in Eastern Region", repId: "infra-min", region: "Eastern Region", status: "Under Investigation", dateSubmitted: "2025-09-15", resolutionDate: null, daysToResolve: null },
+  { id: "comp2", category: "Procurement Fraud", description: "Single-source contract for medical supplies without competitive bidding", repId: "health-min", region: "Capital District", status: "Escalated", dateSubmitted: "2025-08-10", resolutionDate: null, daysToResolve: null },
+  { id: "comp3", category: "Service Failure", description: "Rural health center operating without qualified doctor for 6 months", repId: "health-min", region: "Northern Province", status: "Resolved", dateSubmitted: "2025-04-20", resolutionDate: "2025-09-15", daysToResolve: 147 },
+  { id: "comp4", category: "Mismanagement", description: "Budget allocation misreported in quarterly finance report", repId: "fin-min", region: "Capital District", status: "Resolved", dateSubmitted: "2025-06-01", resolutionDate: "2025-08-20", daysToResolve: 80 },
+  { id: "comp5", category: "Environmental Violation", description: "Highway construction destroying protected wetlands without environmental assessment", repId: "infra-min", region: "Southern Coast", status: "Under Investigation", dateSubmitted: "2026-01-05", resolutionDate: null, daysToResolve: null },
+  { id: "comp6", category: "Corruption", description: "Official demanding kickbacks for business license approvals", repId: "fin-dep", region: "Western Province", status: "Submitted", dateSubmitted: "2026-02-01", resolutionDate: null, daysToResolve: null },
+  { id: "comp7", category: "Harassment", description: "Workplace harassment in Ministry of Education regional office", repId: "edu-min", region: "Central Region", status: "Resolved", dateSubmitted: "2025-07-15", resolutionDate: "2025-12-10", daysToResolve: 147 },
+  { id: "comp8", category: "Service Failure", description: "Court backlog causing 18-month wait for trial dates", repId: "justice-min", region: "Capital District", status: "Under Investigation", dateSubmitted: "2025-10-01", resolutionDate: null, daysToResolve: null },
+  { id: "comp9", category: "Procurement Fraud", description: "Defense equipment procurement at 2x market rate through intermediaries", repId: "def-min", region: "Capital District", status: "Escalated", dateSubmitted: "2025-11-20", resolutionDate: null, daysToResolve: null },
+  { id: "comp10", category: "Mismanagement", description: "School feeding program funds diverted to unrelated administrative costs", repId: "edu-min", region: "Eastern Region", status: "Under Investigation", dateSubmitted: "2025-12-15", resolutionDate: null, daysToResolve: null },
+  { id: "comp11", category: "Other", description: "Lack of public consultation on smart city project affecting residential areas", repId: "infra-dep", region: "Capital District", status: "Submitted", dateSubmitted: "2026-02-10", resolutionDate: null, daysToResolve: null },
+  { id: "comp12", category: "Environmental Violation", description: "Military training exercises causing noise pollution and water contamination near civilian areas", repId: "def-min", region: "Northern Province", status: "Dismissed", dateSubmitted: "2025-05-20", resolutionDate: "2025-07-01", daysToResolve: 42 },
+  { id: "comp13", category: "Corruption", description: "Awarding of digital platform contract to company linked to official's family", repId: "president", region: "Capital District", status: "Dismissed", dateSubmitted: "2025-03-10", resolutionDate: "2025-04-15", daysToResolve: 35 },
+  { id: "comp14", category: "Service Failure", description: "Digital tax system crashes during filing season causing widespread delays", repId: "fin-dir-rev", region: "National", status: "Resolved", dateSubmitted: "2025-04-01", resolutionDate: "2025-05-20", daysToResolve: 49 },
+  { id: "comp15", category: "Procurement Fraud", description: "Bridge construction materials sourced from unregistered supplier at inflated prices", repId: "infra-dep", region: "Western Province", status: "Under Investigation", dateSubmitted: "2026-01-20", resolutionDate: null, daysToResolve: null },
+];
+
+// Feature 4: Attendance & Engagement Metrics
+export interface AttendanceMetrics {
+  repId: string;
+  sessionAttendanceRate: number;
+  publicHearingParticipation: number;
+  communityEngagementHours: number;
+  townHallsAttended: number;
+  siteVisits: number;
+  stakeholderMeetings: number;
+  quarterlyTrend: { quarter: string; attendance: number }[];
+}
+
+export const attendanceMetrics: AttendanceMetrics[] = [
+  { repId: "president", sessionAttendanceRate: 92, publicHearingParticipation: 8, communityEngagementHours: 45, townHallsAttended: 12, siteVisits: 18, stakeholderMeetings: 24, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 88 }, { quarter: "Q2 2025", attendance: 90 }, { quarter: "Q3 2025", attendance: 93 }, { quarter: "Q4 2025", attendance: 92 }] },
+  { repId: "vp", sessionAttendanceRate: 85, publicHearingParticipation: 12, communityEngagementHours: 60, townHallsAttended: 15, siteVisits: 22, stakeholderMeetings: 30, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 82 }, { quarter: "Q2 2025", attendance: 84 }, { quarter: "Q3 2025", attendance: 87 }, { quarter: "Q4 2025", attendance: 85 }] },
+  { repId: "fin-min", sessionAttendanceRate: 78, publicHearingParticipation: 6, communityEngagementHours: 30, townHallsAttended: 8, siteVisits: 12, stakeholderMeetings: 18, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 75 }, { quarter: "Q2 2025", attendance: 78 }, { quarter: "Q3 2025", attendance: 80 }, { quarter: "Q4 2025", attendance: 78 }] },
+  { repId: "health-min", sessionAttendanceRate: 72, publicHearingParticipation: 9, communityEngagementHours: 55, townHallsAttended: 14, siteVisits: 28, stakeholderMeetings: 22, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 68 }, { quarter: "Q2 2025", attendance: 70 }, { quarter: "Q3 2025", attendance: 74 }, { quarter: "Q4 2025", attendance: 72 }] },
+  { repId: "edu-min", sessionAttendanceRate: 80, publicHearingParticipation: 7, communityEngagementHours: 40, townHallsAttended: 10, siteVisits: 15, stakeholderMeetings: 20, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 78 }, { quarter: "Q2 2025", attendance: 80 }, { quarter: "Q3 2025", attendance: 82 }, { quarter: "Q4 2025", attendance: 80 }] },
+  { repId: "def-min", sessionAttendanceRate: 65, publicHearingParticipation: 3, communityEngagementHours: 20, townHallsAttended: 4, siteVisits: 8, stakeholderMeetings: 12, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 60 }, { quarter: "Q2 2025", attendance: 62 }, { quarter: "Q3 2025", attendance: 68 }, { quarter: "Q4 2025", attendance: 65 }] },
+  { repId: "infra-min", sessionAttendanceRate: 58, publicHearingParticipation: 4, communityEngagementHours: 25, townHallsAttended: 6, siteVisits: 10, stakeholderMeetings: 15, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 55 }, { quarter: "Q2 2025", attendance: 58 }, { quarter: "Q3 2025", attendance: 60 }, { quarter: "Q4 2025", attendance: 58 }] },
+  { repId: "justice-min", sessionAttendanceRate: 88, publicHearingParticipation: 10, communityEngagementHours: 35, townHallsAttended: 9, siteVisits: 14, stakeholderMeetings: 25, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 85 }, { quarter: "Q2 2025", attendance: 87 }, { quarter: "Q3 2025", attendance: 90 }, { quarter: "Q4 2025", attendance: 88 }] },
+  { repId: "fin-dep", sessionAttendanceRate: 82, publicHearingParticipation: 5, communityEngagementHours: 28, townHallsAttended: 7, siteVisits: 11, stakeholderMeetings: 16, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 80 }, { quarter: "Q2 2025", attendance: 82 }, { quarter: "Q3 2025", attendance: 84 }, { quarter: "Q4 2025", attendance: 82 }] },
+  { repId: "infra-dep", sessionAttendanceRate: 55, publicHearingParticipation: 2, communityEngagementHours: 15, townHallsAttended: 3, siteVisits: 5, stakeholderMeetings: 8, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 50 }, { quarter: "Q2 2025", attendance: 52 }, { quarter: "Q3 2025", attendance: 58 }, { quarter: "Q4 2025", attendance: 55 }] },
+  { repId: "health-dep", sessionAttendanceRate: 70, publicHearingParticipation: 6, communityEngagementHours: 32, townHallsAttended: 8, siteVisits: 16, stakeholderMeetings: 14, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 67 }, { quarter: "Q2 2025", attendance: 70 }, { quarter: "Q3 2025", attendance: 72 }, { quarter: "Q4 2025", attendance: 70 }] },
+  { repId: "justice-dep", sessionAttendanceRate: 86, publicHearingParticipation: 8, communityEngagementHours: 30, townHallsAttended: 7, siteVisits: 12, stakeholderMeetings: 20, quarterlyTrend: [{ quarter: "Q1 2025", attendance: 83 }, { quarter: "Q2 2025", attendance: 85 }, { quarter: "Q3 2025", attendance: 88 }, { quarter: "Q4 2025", attendance: 86 }] },
+];
+
+// Ministry average for comparison
+export const ministryAverageAttendance = 74;
+
+// Feature 5: Procurement Transparency Module
+export type ContractStatus = "Active" | "Completed" | "Under Review" | "Cancelled" | "Suspended";
+
+export interface ProcurementContract {
+  id: string;
+  repId: string;
+  department: string;
+  projectName: string;
+  bidder: string;
+  contractAmount: number;
+  marketRateEstimate: number;
+  overpriceRatio: number;
+  isSingleSource: boolean;
+  evaluationCriteria: string;
+  awardDate: string;
+  completionDate: string | null;
+  status: ContractStatus;
+  flagged: boolean;
+}
+
+export const procurementContracts: ProcurementContract[] = [
+  { id: "proc1", repId: "infra-min", department: "Ministry of Infrastructure", projectName: "National Highway Expansion Phase 1", bidder: "Apex Construction Ltd", contractAmount: 2400, marketRateEstimate: 1800, overpriceRatio: 1.33, isSingleSource: true, evaluationCriteria: "Experience & capacity", awardDate: "2025-03-15", completionDate: null, status: "Active", flagged: true },
+  { id: "proc2", repId: "health-min", department: "Ministry of Health", projectName: "Medical Equipment Supply Contract", bidder: "PharmaGlobal Inc", contractAmount: 350, marketRateEstimate: 200, overpriceRatio: 1.75, isSingleSource: true, evaluationCriteria: "Technical specifications", awardDate: "2025-06-20", completionDate: null, status: "Under Review", flagged: true },
+  { id: "proc3", repId: "def-min", department: "Ministry of Defense", projectName: "Cybersecurity Infrastructure", bidder: "Sentinel Defense Systems", contractAmount: 800, marketRateEstimate: 550, overpriceRatio: 1.45, isSingleSource: false, evaluationCriteria: "Security compliance & capability", awardDate: "2025-08-10", completionDate: null, status: "Active", flagged: true },
+  { id: "proc4", repId: "fin-min", department: "Ministry of Finance", projectName: "Tax System Modernization", bidder: "TechGov Solutions", contractAmount: 120, marketRateEstimate: 110, overpriceRatio: 1.09, isSingleSource: false, evaluationCriteria: "Technical capability & cost", awardDate: "2024-09-01", completionDate: "2025-12-31", status: "Completed", flagged: false },
+  { id: "proc5", repId: "edu-min", department: "Ministry of Education", projectName: "Digital Learning Platform", bidder: "EduTech Dynamics", contractAmount: 180, marketRateEstimate: 165, overpriceRatio: 1.09, isSingleSource: false, evaluationCriteria: "Pedagogy alignment & scalability", awardDate: "2024-11-01", completionDate: null, status: "Active", flagged: false },
+  { id: "proc6", repId: "infra-dep", department: "Ministry of Infrastructure", projectName: "Smart City Pilot - Capital District", bidder: "UrbanTech Consortium", contractAmount: 450, marketRateEstimate: 280, overpriceRatio: 1.61, isSingleSource: true, evaluationCriteria: "Innovation & integration capacity", awardDate: "2025-10-01", completionDate: null, status: "Active", flagged: true },
+  { id: "proc7", repId: "justice-min", department: "Ministry of Justice", projectName: "Court Digitization Program", bidder: "LegalTech Partners", contractAmount: 95, marketRateEstimate: 85, overpriceRatio: 1.12, isSingleSource: false, evaluationCriteria: "Security & compliance standards", awardDate: "2024-08-15", completionDate: null, status: "Active", flagged: false },
+  { id: "proc8", repId: "health-dep", department: "Ministry of Health", projectName: "Pharmaceutical Supply Chain Optimization", bidder: "LogiMed Services", contractAmount: 150, marketRateEstimate: 130, overpriceRatio: 1.15, isSingleSource: false, evaluationCriteria: "Distribution network & reliability", awardDate: "2025-05-01", completionDate: null, status: "Active", flagged: false },
+  { id: "proc9", repId: "def-min", department: "Ministry of Defense", projectName: "Border Surveillance System Upgrade", bidder: "SkyWatch Technologies", contractAmount: 600, marketRateEstimate: 420, overpriceRatio: 1.43, isSingleSource: true, evaluationCriteria: "Proprietary technology requirement", awardDate: "2025-07-01", completionDate: "2025-12-31", status: "Completed", flagged: true },
+  { id: "proc10", repId: "infra-min", department: "Ministry of Infrastructure", projectName: "Rural Broadband Infrastructure", bidder: "ConnectAll Networks", contractAmount: 320, marketRateEstimate: 300, overpriceRatio: 1.07, isSingleSource: false, evaluationCriteria: "Coverage capacity & speed", awardDate: "2025-01-15", completionDate: null, status: "Active", flagged: false },
+];
+
+// Feature 6: Inter-Agency Performance Benchmarking
+export interface BenchmarkData {
+  department: string;
+  budgetExecutionRate: number;
+  projectCompletionRate: number;
+  publicSatisfactionScore: number;
+  transparencyScore: number;
+  overallRank: number;
+}
+
+export const benchmarkData: BenchmarkData[] = [
+  { department: "Ministry of Finance", budgetExecutionRate: 88, projectCompletionRate: 72, publicSatisfactionScore: 64, transparencyScore: 70, overallRank: 2 },
+  { department: "Ministry of Health", budgetExecutionRate: 75, projectCompletionRate: 55, publicSatisfactionScore: 55, transparencyScore: 62, overallRank: 5 },
+  { department: "Ministry of Education", budgetExecutionRate: 82, projectCompletionRate: 68, publicSatisfactionScore: 62, transparencyScore: 75, overallRank: 3 },
+  { department: "Ministry of Defense", budgetExecutionRate: 70, projectCompletionRate: 60, publicSatisfactionScore: 74, transparencyScore: 55, overallRank: 4 },
+  { department: "Ministry of Infrastructure", budgetExecutionRate: 62, projectCompletionRate: 42, publicSatisfactionScore: 48, transparencyScore: 40, overallRank: 6 },
+  { department: "Ministry of Justice", budgetExecutionRate: 85, projectCompletionRate: 75, publicSatisfactionScore: 66, transparencyScore: 78, overallRank: 1 },
+];
+
+// Feature 7: Policy Promise Timeline (Gantt-style)
+export interface PromiseTimelineEntry {
+  promiseId: string;
+  description: string;
+  startDate: string;
+  targetDate: string;
+  completionPercent: number;
+  status: PromiseStatus;
+  milestoneDates: { date: string; label: string; achieved: boolean }[];
+}
+
+export const promiseTimelineEntries: PromiseTimelineEntry[] = [
+  { promiseId: "p1", description: "Reduce national debt by 15%", startDate: "2024-01-15", targetDate: "2027-12-31", completionPercent: 45, status: "In Progress", milestoneDates: [{ date: "2024-06-30", label: "Debt audit complete", achieved: true }, { date: "2025-06-30", label: "5% reduction target", achieved: true }, { date: "2026-06-30", label: "10% reduction target", achieved: false }, { date: "2027-06-30", label: "15% reduction achieved", achieved: false }] },
+  { promiseId: "p2", description: "Create 2 million new jobs", startDate: "2024-01-15", targetDate: "2027-06-30", completionPercent: 62, status: "In Progress", milestoneDates: [{ date: "2024-12-31", label: "500K jobs created", achieved: true }, { date: "2025-12-31", label: "1M jobs milestone", achieved: true }, { date: "2026-12-31", label: "1.5M jobs milestone", achieved: false }] },
+  { promiseId: "p4", description: "Strengthen national security infrastructure", startDate: "2024-01-15", targetDate: "2025-12-31", completionPercent: 100, status: "Fulfilled", milestoneDates: [{ date: "2024-06-30", label: "Security assessment", achieved: true }, { date: "2025-06-30", label: "Infrastructure deployed", achieved: true }, { date: "2025-12-31", label: "Full operational capability", achieved: true }] },
+  { promiseId: "fm1", description: "Reduce budget deficit to 3% of GDP", startDate: "2024-03-01", targetDate: "2027-06-30", completionPercent: 58, status: "In Progress", milestoneDates: [{ date: "2025-03-01", label: "Deficit at 5%", achieved: true }, { date: "2026-03-01", label: "Deficit at 4%", achieved: false }, { date: "2027-03-01", label: "Deficit at 3%", achieved: false }] },
+  { promiseId: "hm1", description: "Build 200 new health centers", startDate: "2024-03-01", targetDate: "2028-06-30", completionPercent: 42, status: "In Progress", milestoneDates: [{ date: "2025-06-30", label: "50 centers operational", achieved: true }, { date: "2026-06-30", label: "100 centers operational", achieved: false }, { date: "2027-06-30", label: "150 centers operational", achieved: false }] },
+  { promiseId: "im1", description: "Build 5000km of new roads", startDate: "2025-01-15", targetDate: "2029-12-31", completionPercent: 35, status: "In Progress", milestoneDates: [{ date: "2026-06-30", label: "1000km completed", achieved: false }, { date: "2027-06-30", label: "2500km completed", achieved: false }] },
+  { promiseId: "jm3", description: "Establish anti-corruption courts", startDate: "2024-03-01", targetDate: "2025-06-30", completionPercent: 100, status: "Fulfilled", milestoneDates: [{ date: "2024-12-31", label: "Courts established", achieved: true }, { date: "2025-06-30", label: "First cases processed", achieved: true }] },
+  { promiseId: "dm1", description: "Modernize armed forces equipment", startDate: "2024-03-01", targetDate: "2028-12-31", completionPercent: 60, status: "In Progress", milestoneDates: [{ date: "2025-06-30", label: "Phase 1 equipment delivery", achieved: true }, { date: "2026-06-30", label: "Phase 2 deployment", achieved: false }, { date: "2027-06-30", label: "Phase 3 integration", achieved: false }] },
+];
+
+// Feature 8: Media & Public Sentiment Feed
+export type SentimentType = "Positive" | "Neutral" | "Negative" | "Mixed";
+
+export interface MediaSentiment {
+  id: string;
+  repId: string;
+  source: string;
+  headline: string;
+  sentiment: SentimentType;
+  date: string;
+  mentionsCount: number;
+  sentimentScore: number;
+}
+
+export const mediaSentiments: MediaSentiment[] = [
+  { id: "ms1", repId: "president", source: "National Daily", headline: "President Chen's economic reforms showing promising results", sentiment: "Positive", date: "2026-01-20", mentionsCount: 450, sentimentScore: 72 },
+  { id: "ms2", repId: "president", source: "TV Broadcast Network", headline: "Mixed reviews on healthcare reform pace under Chen administration", sentiment: "Mixed", date: "2026-01-15", mentionsCount: 320, sentimentScore: 45 },
+  { id: "ms3", repId: "fin-min", source: "Financial Times", headline: "Finance Minister Okafor faces scrutiny over stock holdings", sentiment: "Negative", date: "2025-11-18", mentionsCount: 580, sentimentScore: -35 },
+  { id: "ms4", repId: "fin-min", source: "National Daily", headline: "Treasury digitization praised as landmark achievement", sentiment: "Positive", date: "2025-12-10", mentionsCount: 220, sentimentScore: 85 },
+  { id: "ms5", repId: "infra-min", source: "Social Media Aggregate", headline: "Public outrage over road construction delays and cost overruns", sentiment: "Negative", date: "2026-01-18", mentionsCount: 1200, sentimentScore: -65 },
+  { id: "ms6", repId: "infra-min", source: "Capital Gazette", headline: "Infrastructure Minister denies conflict of interest with Apex Construction", sentiment: "Negative", date: "2025-08-22", mentionsCount: 380, sentimentScore: -50 },
+  { id: "ms7", repId: "health-min", source: "Health Watch", headline: "New health insurance scheme gains public support", sentiment: "Positive", date: "2025-11-05", mentionsCount: 280, sentimentScore: 68 },
+  { id: "ms8", repId: "health-min", source: "TV Broadcast Network", headline: "PharmaGlobal ties raise ethical concerns for Health Ministry", sentiment: "Negative", date: "2025-06-12", mentionsCount: 420, sentimentScore: -40 },
+  { id: "ms9", repId: "justice-min", source: "Legal Review", headline: "Anti-corruption courts deliver first convictions", sentiment: "Positive", date: "2025-09-20", mentionsCount: 180, sentimentScore: 80 },
+  { id: "ms10", repId: "def-min", source: "Defense Quarterly", headline: "Border security success story: surveillance system fully operational", sentiment: "Positive", date: "2025-12-15", mentionsCount: 150, sentimentScore: 75 },
+  { id: "ms11", repId: "edu-min", source: "Social Media Aggregate", headline: "Parents welcome digital learning but worry about teacher shortages", sentiment: "Mixed", date: "2026-01-12", mentionsCount: 650, sentimentScore: 30 },
+  { id: "ms12", repId: "vp", source: "National Daily", headline: "VP Williams pushes for accelerated electoral reform timeline", sentiment: "Neutral", date: "2025-12-20", mentionsCount: 200, sentimentScore: 15 },
+];
+
+// Feature 9: Asset Growth Monitor
+export interface AssetDeclaration {
+  repId: string;
+  year: string;
+  declaredAssets: number;
+  declaredIncome: number;
+  assetChangePercent: number;
+  flagged: boolean;
+  flagReason: string | null;
+  categoryBreakdown: { category: string; amount: number }[];
+}
+
+export const assetDeclarations: AssetDeclaration[] = [
+  { repId: "president", year: "2024", declaredAssets: 2800, declaredIncome: 180, assetChangePercent: 8, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 1200 }, { category: "Investments", amount: 800 }, { category: "Cash & Savings", amount: 500 }, { category: "Other", amount: 300 }] },
+  { repId: "president", year: "2025", declaredAssets: 3100, declaredIncome: 180, assetChangePercent: 10.7, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 1300 }, { category: "Investments", amount: 900 }, { category: "Cash & Savings", amount: 600 }, { category: "Other", amount: 300 }] },
+  { repId: "fin-min", year: "2024", declaredAssets: 450, declaredIncome: 120, assetChangePercent: 12, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 200 }, { category: "Investments", amount: 150 }, { category: "Cash & Savings", amount: 80 }, { category: "Other", amount: 20 }] },
+  { repId: "fin-min", year: "2025", declaredAssets: 920, declaredIncome: 120, assetChangePercent: 104.4, flagged: true, flagReason: "Asset growth exceeds 200% threshold when including stock holdings in Meridian Banking Corp", categoryBreakdown: [{ category: "Real Estate", amount: 250 }, { category: "Investments", amount: 450 }, { category: "Cash & Savings", amount: 150 }, { category: "Other", amount: 70 }] },
+  { repId: "infra-min", year: "2024", declaredAssets: 380, declaredIncome: 95, assetChangePercent: 5, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 180 }, { category: "Investments", amount: 100 }, { category: "Cash & Savings", amount: 70 }, { category: "Other", amount: 30 }] },
+  { repId: "infra-min", year: "2025", declaredAssets: 780, declaredIncome: 95, assetChangePercent: 105.3, flagged: true, flagReason: "Unexplained asset doubling; possible undeclared income from construction sector ties", categoryBreakdown: [{ category: "Real Estate", amount: 350 }, { category: "Investments", amount: 250 }, { category: "Cash & Savings", amount: 130 }, { category: "Other", amount: 50 }] },
+  { repId: "health-min", year: "2024", declaredAssets: 320, declaredIncome: 110, assetChangePercent: 6, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 150 }, { category: "Investments", amount: 100 }, { category: "Cash & Savings", amount: 50 }, { category: "Other", amount: 20 }] },
+  { repId: "health-min", year: "2025", declaredAssets: 580, declaredIncome: 110, assetChangePercent: 81.3, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 200 }, { category: "Investments", amount: 200 }, { category: "Cash & Savings", amount: 130 }, { category: "Other", amount: 50 }] },
+  { repId: "def-min", year: "2024", declaredAssets: 520, declaredIncome: 130, assetChangePercent: 3, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 250 }, { category: "Investments", amount: 150 }, { category: "Cash & Savings", amount: 100 }, { category: "Other", amount: 20 }] },
+  { repId: "def-min", year: "2025", declaredAssets: 1600, declaredIncome: 130, assetChangePercent: 207.7, flagged: true, flagReason: "Asset growth over 200%; possible link to defense procurement contracts", categoryBreakdown: [{ category: "Real Estate", amount: 600 }, { category: "Investments", amount: 650 }, { category: "Cash & Savings", amount: 250 }, { category: "Other", amount: 100 }] },
+  { repId: "justice-min", year: "2024", declaredAssets: 280, declaredIncome: 100, assetChangePercent: 7, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 130 }, { category: "Investments", amount: 80 }, { category: "Cash & Savings", amount: 50 }, { category: "Other", amount: 20 }] },
+  { repId: "justice-min", year: "2025", declaredAssets: 310, declaredIncome: 100, assetChangePercent: 10.7, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 140 }, { category: "Investments", amount: 90 }, { category: "Cash & Savings", amount: 55 }, { category: "Other", amount: 25 }] },
+  { repId: "edu-min", year: "2024", declaredAssets: 250, declaredIncome: 95, assetChangePercent: 4, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 120 }, { category: "Investments", amount: 70 }, { category: "Cash & Savings", amount: 40 }, { category: "Other", amount: 20 }] },
+  { repId: "edu-min", year: "2025", declaredAssets: 290, declaredIncome: 95, assetChangePercent: 16, flagged: false, flagReason: null, categoryBreakdown: [{ category: "Real Estate", amount: 130 }, { category: "Investments", amount: 85 }, { category: "Cash & Savings", amount: 50 }, { category: "Other", amount: 25 }] },
+];
+
+// Average citizen income growth rate for comparison
+export const citizenIncomeGrowthRate = 4.2; // percent year-over-year
+
+// Feature 10: Sanctions & Disciplinary Actions Registry
+export type ActionSeverity = "Minor Warning" | "Formal Reprimand" | "Suspension" | "Impeachment" | "Criminal Referral";
+export type ActionStatus = "Proposed" | "Active" | "Completed" | "Appealed" | "Overturned";
+
+export interface DisciplinaryAction {
+  id: string;
+  repId: string;
+  type: string;
+  description: string;
+  severity: ActionSeverity;
+  status: ActionStatus;
+  dateIssued: string;
+  resolvedDate: string | null;
+  issuingBody: string;
+  linkedComplaintId: string | null;
+}
+
+export const disciplinaryActions: DisciplinaryAction[] = [
+  { id: "da1", repId: "infra-min", type: "Ethics Violation", description: "Failure to disclose family business ties with government contractor", severity: "Formal Reprimand", status: "Active", dateIssued: "2025-09-01", resolvedDate: null, issuingBody: "National Ethics Commission", linkedComplaintId: "comp1" },
+  { id: "da2", repId: "fin-min", type: "Conflict of Interest", description: "Stock holdings in banking sector while overseeing treasury reforms", severity: "Formal Reprimand", status: "Appealed", dateIssued: "2025-11-20", resolvedDate: null, issuingBody: "Financial Oversight Board", linkedComplaintId: null },
+  { id: "da3", repId: "health-min", type: "Procurement Ethics", description: "Retained advisory position with pharmaceutical company after appointment", severity: "Minor Warning", status: "Completed", dateIssued: "2025-06-15", resolvedDate: "2025-09-30", issuingBody: "Ethics Review Panel", linkedComplaintId: "comp2" },
+  { id: "da4", repId: "infra-dep", type: "Mismanagement", description: "Approved construction material purchases from unregistered supplier", severity: "Suspension", status: "Proposed", dateIssued: "2026-01-25", resolvedDate: null, issuingBody: "Ministry Internal Review", linkedComplaintId: "comp15" },
+  { id: "da5", repId: "def-min", type: "Procurement Violation", description: "Defense equipment procurement at inflated rates through intermediaries", severity: "Criminal Referral", status: "Active", dateIssued: "2025-12-01", resolvedDate: null, issuingBody: "Anti-Corruption Commission", linkedComplaintId: "comp9" },
+  { id: "da6", repId: "fin-dep", type: "Conflict of Interest", description: "Secret political party membership while serving as neutral fiscal officer", severity: "Minor Warning", status: "Completed", dateIssued: "2025-10-05", resolvedDate: "2025-11-30", issuingBody: "Civil Service Commission", linkedComplaintId: null },
+  { id: "da7", repId: "infra-min", type: "Environmental Negligence", description: "Authorized highway construction through protected wetlands without assessment", severity: "Formal Reprimand", status: "Proposed", dateIssued: "2026-02-01", resolvedDate: null, issuingBody: "Environmental Protection Authority", linkedComplaintId: "comp5" },
+  { id: "da8", repId: "edu-min", type: "Financial Mismanagement", description: "School feeding program funds diverted to unrelated administrative expenses", severity: "Minor Warning", status: "Active", dateIssued: "2026-01-15", resolvedDate: null, issuingBody: "Ministry Internal Audit", linkedComplaintId: "comp10" },
+];
+
+// Helper function: Get conflicts for a specific rep
+export function getConflictsForRep(repId: string): ConflictOfInterest[] {
+  return conflictsOfInterest.filter((c) => c.repId === repId);
+}
+
+// Helper function: Get budget disbursements for a specific rep
+export function getDisbursementsForRep(repId: string): BudgetDisbursement[] {
+  return budgetDisbursements.filter((b) => b.repId === repId);
+}
+
+// Helper function: Get complaints for a specific rep
+export function getComplaintsForRep(repId: string | null): Complaint[] {
+  if (repId === null) return complaints;
+  return complaints.filter((c) => c.repId === repId);
+}
+
+// Helper function: Get attendance for a specific rep
+export function getAttendanceForRep(repId: string): AttendanceMetrics | undefined {
+  return attendanceMetrics.find((a) => a.repId === repId);
+}
+
+// Helper function: Get procurement contracts for a specific rep
+export function getProcurementForRep(repId: string): ProcurementContract[] {
+  return procurementContracts.filter((p) => p.repId === repId);
+}
+
+// Helper function: Get benchmark data for a department
+export function getBenchmarkForDepartment(department: string): BenchmarkData | undefined {
+  return benchmarkData.find((b) => b.department === department);
+}
+
+// Helper function: Get media sentiment for a specific rep
+export function getMediaSentimentForRep(repId: string): MediaSentiment[] {
+  return mediaSentiments.filter((m) => m.repId === repId);
+}
+
+// Helper function: Get asset declarations for a specific rep
+export function getAssetDeclarationsForRep(repId: string): AssetDeclaration[] {
+  return assetDeclarations.filter((a) => a.repId === repId);
+}
+
+// Helper function: Get disciplinary actions for a specific rep
+export function getDisciplinaryForRep(repId: string): DisciplinaryAction[] {
+  return disciplinaryActions.filter((d) => d.repId === repId);
+}
