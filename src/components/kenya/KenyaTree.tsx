@@ -27,9 +27,10 @@ interface KenyaTreeProps {
   onSelectRepresentative: (rep: Representative) => void;
   onSelectCounty: (county: CountyData) => void;
   selectedId: string | null;
+  selectedCountyName: string | null;
 }
 
-export function KenyaTree({ filters, onSelectRepresentative, onSelectCounty, selectedId }: KenyaTreeProps) {
+export function KenyaTree({ filters, onSelectRepresentative, onSelectCounty, selectedId, selectedCountyName }: KenyaTreeProps) {
   const [expandedCounties, setExpandedCounties] = useState<Set<string>>(new Set(['Kajiado']));
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['Kajiado-governor', 'Kajiado-assembly', 'Kajiado-cecms']));
   const [nationalExpanded, setNationalExpanded] = useState(false);
@@ -56,6 +57,7 @@ export function KenyaTree({ filters, onSelectRepresentative, onSelectCounty, sel
   };
 
   const isSelected = (id: string) => selectedId === id;
+  const isCountySelected = (countyName: string) => selectedCountyName === countyName;
 
   return (
     <ScrollArea className="h-full">
@@ -112,10 +114,9 @@ export function KenyaTree({ filters, onSelectRepresentative, onSelectCounty, sel
               <div key={county.code}>
                 {/* County Header */}
                 <div
-                  className={`flex items-center gap-1 p-2 rounded-md cursor-pointer hover:bg-accent transition-colors ${isSelected(gov.id) ? 'bg-accent ring-2 ring-primary' : ''}`}
+                  className={`flex items-center gap-1 p-2 rounded-md cursor-pointer hover:bg-accent transition-colors ${isCountySelected(county.name) ? 'bg-accent ring-2 ring-primary' : ''}`}
                   onClick={() => {
                     toggleCounty(county.name);
-                    onSelectRepresentative(gov);
                     onSelectCounty(county);
                   }}
                 >

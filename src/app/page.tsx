@@ -23,6 +23,7 @@ import { KenyaFilters } from '@/components/kenya/KenyaFilters';
 import { KenyaNationalSummary } from '@/components/kenya/KenyaNationalSummary';
 import { KenyaTree } from '@/components/kenya/KenyaTree';
 import { KenyaDetailsPanel } from '@/components/kenya/KenyaDetailsPanel';
+import { KenyaCountyOverview } from '@/components/kenya/KenyaCountyOverview';
 import { KenyaScoreCard } from '@/components/kenya/KenyaScoreCard';
 import { KenyaAccountabilityPanel } from '@/components/kenya/KenyaAccountabilityPanel';
 import { KenyaComparison } from '@/components/kenya/KenyaComparison';
@@ -134,6 +135,7 @@ function Dashboard() {
   const [filters, setFilters] = useState<FilterState>(DEFAULT_FILTERS);
   const [selectedRep, setSelectedRep] = useState<Representative | null>(null);
   const [selectedCounty, setSelectedCounty] = useState<CountyData | null>(null);
+  const [viewMode, setViewMode] = useState<'county-overview' | 'rep-details' | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab>('summary');
   const [compareMode, setCompareMode] = useState(false);
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
@@ -161,12 +163,15 @@ function Dashboard() {
   // Track visits when selecting a representative
   const handleSelectRepresentative = useCallback((rep: Representative) => {
     setSelectedRep(rep);
+    setViewMode('rep-details');
     setMobileTab('details');
     trackVisit(rep.id);
   }, [trackVisit]);
 
   const handleSelectCounty = useCallback((county: CountyData) => {
     setSelectedCounty(county);
+    setViewMode('county-overview');
+    setMobileTab('details');
     addPreferredCounty(county.name);
   }, [addPreferredCounty]);
 
@@ -334,6 +339,7 @@ function Dashboard() {
                 onSelectRepresentative={handleSelectRepresentative}
                 onSelectCounty={handleSelectCounty}
                 selectedId={selectedRep?.id ?? null}
+                selectedCountyName={selectedCounty?.name ?? null}
               />
             )}
           </div>
@@ -350,6 +356,7 @@ function Dashboard() {
                 onSelectRepresentative={handleSelectRepresentative}
                 onSelectCounty={handleSelectCounty}
                 selectedId={selectedRep?.id ?? null}
+                selectedCountyName={selectedCounty?.name ?? null}
               />
             )}
           </div>
@@ -387,14 +394,34 @@ function Dashboard() {
               />
             )}
 
-            {/* Details Panel with Pin Button */}
+            {/* County Overview OR Individual Representative Details */}
             <div className={`${effectiveMobileTab === 'details' ? 'block' : 'hidden lg:block'}`}>
-              {dataLoading && !selectedRep ? (
+              {dataLoading && !selectedCounty && !selectedRep ? (
                 <KenyaDetailsSkeleton />
+              ) : viewMode === 'county-overview' && selectedCounty ? (
+                <KenyaCountyOverview
+                  county={selectedCounty}
+                  onSelectRepresentative={handleSelectRepresentative}
+                  onPin={pinRepresentative}
+                  onUnpin={unpinRepresentative}
+                  isPinned={isPinned}
+                />
               ) : (
                 <div>
-                  {selectedRep && (
+                  {selectedRep && viewMode === 'rep-details' && (
                     <div className="flex items-center gap-2 mb-2">
+                      {/* Back to county button */}
+                      {selectedCounty && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="gap-1 text-xs"
+                          onClick={() => setViewMode('county-overview')}
+                        >
+                          <MapPin className="h-3 w-3" />
+                          Back to {selectedCounty.name}
+                        </Button>
+                      )}
                       <PinButton
                         repId={selectedRep.id}
                         isPinned={isPinned(selectedRep.id)}
@@ -413,7 +440,7 @@ function Dashboard() {
               {dataLoading && !selectedRep ? (
                 <KenyaScoreCardSkeleton />
               ) : (
-                <KenyaScoreCard representative={selectedRep} visibleMetrics={visibleMetrics} />
+                <KenyaScoreCard representative={selectedRep ?? (selectedCounty ? selectedCounty.governor : null)} visibleMetrics={visibleMetrics} />
               )}
             </div>
 
@@ -436,10 +463,10 @@ function Dashboard() {
             </div>
             <ScrollArea className="flex-1">
               <div className="p-4">
-                {dataLoading && !selectedRep ? (
+                {dataLoading && !selectedRep && !selectedCounty ? (
                   <KenyaAccountabilitySkeleton />
                 ) : (
-                  <KenyaAccountabilityPanel representative={selectedRep} />
+                  <KenyaAccountabilityPanel representative={selectedRep ?? (selectedCounty ? selectedCounty.governor : null)} />
                 )}
               </div>
             </ScrollArea>
@@ -449,10 +476,10 @@ function Dashboard() {
         {/* Mobile: Accountability view */}
         <div className={`flex-1 overflow-y-auto lg:hidden ${effectiveMobileTab === 'accountability' ? 'block' : 'hidden'}`}>
           <div className="p-4">
-            {dataLoading && !selectedRep ? (
+            {dataLoading && !selectedRep && !selectedCounty ? (
               <KenyaAccountabilitySkeleton />
             ) : (
-              <KenyaAccountabilityPanel representative={selectedRep} />
+              <KenyaAccountabilityPanel representative={selectedRep ?? (selectedCounty ? selectedCounty.governor : null)} />
             )}
           </div>
         </div>

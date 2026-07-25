@@ -320,3 +320,48 @@ Stage Summary:
 - Critical infinite loop bug fixed (snapshot caching)
 - All 4 enhancement features verified working end-to-end
 - Zero lint errors, page renders cleanly (200 OK)
+
+---
+Task ID: 8
+Agent: Main Agent
+Task: Add County Overview feature — show all officials when clicking a county in tree
+
+Work Log:
+- Step 1: Created KenyaCountyOverview.tsx — new component showing consolidated view of all county officials
+  - County header card with name, code, region, governor score, audit opinion, coalition
+  - County Leadership section: Governor, Deputy Governor, Senator, Woman Rep cards
+  - Constituency MPs section with badge count
+  - County Assembly section (Speaker, Deputy Speaker, MCAs)
+  - CECMs section
+  - Other County Officials section (Secretary, Attorney)
+  - OfficialCard component: name, role, party badge, score badge, pin button, chevron arrow
+  - DataGapCard component: placeholder for sections missing data
+- Step 2: Updated page.tsx — added viewMode state ('county-overview' | 'rep-details')
+  - handleSelectCounty now sets viewMode='county-overview' and mobileTab='details'
+  - handleSelectRepresentative now sets viewMode='rep-details'
+  - Center column renders CountyOverview when viewMode='county-overview'
+  - Center column renders DetailsPanel when viewMode='rep-details'
+  - "Back to county" button appears when viewing individual rep from county overview
+  - ScoreCard and AccountabilityPanel show governor data when county is selected
+- Step 3: Updated KenyaTree.tsx — county click shows overview instead of selecting governor only
+  - Added selectedCountyName prop to highlight active county in tree
+  - County header click: toggleCounty + onSelectCounty (no longer onSelectRepresentative(gov))
+  - Individual reps in tree still call onSelectRepresentative for detailed view
+- Step 4: Added data-gap placeholder cards (DataGapCard) for sections missing official data
+  - MPs, Assembly, CECMs sections show "Detailed county official data not yet available" placeholders
+  - Explains data comes from IEBC, OAG, county publications
+- Step 5: Added basic official data for 4 key counties in kenya-data.ts
+  - Nairobi City: Deputy Governor (Polycarp Igathe), Senator (Edwin Sifuna), Woman Rep (Esther Passaris)
+  - Kisumu: Deputy Governor (Dr. Oluoch Madgada), Senator (Prof. Tom Ojienda), Woman Rep (Rosa Buyu)
+  - Mombasa: Deputy Governor (Francis Thoya), Senator (William Makallah), Woman Rep (Zamzam Mohammed)
+  - Nakuru: Deputy Governor (Erick Kurgat), Senator (Tabitha Karanja), Woman Rep (Liza Chelule)
+- Step 6: Ran lint check — zero errors
+- Step 7: Browser verified — county overview works for Kajiado (full data), Nairobi (partial data), Turkana (minimal data)
+
+Stage Summary:
+- County Overview feature fully implemented and working
+- Clicking a county in tree shows all officials (Governor, Senator, Woman Rep, MPs, MCAs)
+- Clicking an individual official shows their details with "Back to county" navigation
+- 4 key counties (Nairobi, Kisumu, Mombasa, Nakuru) now have deputy governor, senator, woman rep data
+- Data-gap placeholder cards shown for sections missing official data
+- Zero lint errors, page renders 200 OK
