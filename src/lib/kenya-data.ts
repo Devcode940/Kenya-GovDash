@@ -865,6 +865,15 @@ export function flattenCountyRepresentatives(county: CountyData): Representative
   return reps;
 }
 
+// Flatten all counties into a single representative list
+export function flattenAllCountiesRepresentatives(counties: CountyData[]): Representative[] {
+  const allReps: Representative[] = [];
+  for (const county of counties) {
+    allReps.push(...flattenCountyRepresentatives(county));
+  }
+  return allReps;
+}
+
 export function getRepresentativeById(id: string): Representative | null {
   // National level
   if (NATIONAL_SUMMARY.president.id === id) return NATIONAL_SUMMARY.president;

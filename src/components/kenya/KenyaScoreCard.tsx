@@ -20,6 +20,7 @@ import { getScoreColor, getScoreBadgeClass, type Representative, type ScoreMetri
 
 interface KenyaScoreCardProps {
   representative: Representative | null;
+  visibleMetrics?: string[]; // metric keys to show (from personalization)
 }
 
 const METRIC_CONFIG = [
@@ -32,11 +33,19 @@ const METRIC_CONFIG = [
   { key: 'publicSentiment', label: 'Public Sentiment/Citizen Awareness', icon: Heart, color: 'text-pink-600' },
 ] as const;
 
-export function KenyaScoreCard({ representative }: KenyaScoreCardProps) {
+export function KenyaScoreCard({ representative, visibleMetrics }: KenyaScoreCardProps) {
   if (!representative) return null;
 
   const rep = representative;
   const scorecard = rep.scorecard;
+
+  // Filter metrics based on personalization preferences
+  const allVisibleMetrics = visibleMetrics || METRIC_CONFIG.map(c => c.key);
+  const showOverall = allVisibleMetrics.includes('overallAccountability');
+  const filteredMetrics = METRIC_CONFIG.filter(c => c.key !== 'overallAccountability' && allVisibleMetrics.includes(c.key));
+
+  // Don't render if no metrics visible
+  if (filteredMetrics.length === 0 && !showOverall) return null;
 
   return (
     <Card>
@@ -44,30 +53,37 @@ export function KenyaScoreCard({ representative }: KenyaScoreCardProps) {
         <CardTitle className="text-base font-semibold flex items-center gap-2">
           <BarChart3 className="h-4 w-4 text-primary" />
           Accountability Scorecard
+          {visibleMetrics && visibleMetrics.length < 7 && (
+            <Badge className="text-[10px] bg-muted text-muted-foreground border">
+              {filteredMetrics.length + (showOverall ? 1 : 0)}/7 metrics
+            </Badge>
+          )}
         </CardTitle>
       </CardHeader>
 
       <CardContent>
         <div className="space-y-3">
           {/* Overall Score */}
-          <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
-            <div className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <span className="text-sm font-semibold">Overall Accountability Score</span>
+          {showOverall && (
+            <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+              <div className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <span className="text-sm font-semibold">Overall Accountability Score</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Badge className={`${getScoreBadgeClass(scorecard.overallAccountability.score)} px-3 py-1 text-sm font-bold border-2`}>
+                  {scorecard.overallAccountability.score ?? 'N/A'}
+                </Badge>
+                <SourceCitationButton metric={scorecard.overallAccountability} />
+              </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className={`${getScoreBadgeClass(scorecard.overallAccountability.score)} px-3 py-1 text-sm font-bold border-2`}>
-                {scorecard.overallAccountability.score ?? 'N/A'}
-              </Badge>
-              <SourceCitationButton metric={scorecard.overallAccountability} />
-            </div>
-          </div>
+          )}
 
-          <Separator />
+          {showOverall && filteredMetrics.length > 0 && <Separator />}
 
           {/* Individual Metrics */}
           <div className="space-y-2">
-            {METRIC_CONFIG.slice(1).map(config => {
+            {filteredMetrics.map(config => {
               const metric = scorecard[config.key as keyof typeof scorecard] as ScoreMetric;
               const Icon = config.icon;
 

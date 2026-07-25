@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useSyncExternalStore } from 'react';
-import { Sun, Moon, Shield, Landmark, Search, Menu, X, MapPin, FileText, Activity } from 'lucide-react';
+import { Sun, Moon, Shield, Landmark, Search, Menu, X, MapPin, FileText, Activity, Settings, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -12,24 +12,11 @@ import {
   Tooltip, TooltipContent, TooltipProvider, TooltipTrigger
 } from '@/components/ui/tooltip';
 import {
-  buildAllCountyData,
   filterCounties,
   DEFAULT_FILTERS,
-  getRepresentativeById,
   type Representative,
   type CountyData,
   type FilterState,
-  type CoalitionType,
-  type AuditOpinionType,
-  type RegionType,
-  type LevelType,
-  REGIONS,
-  getCoalitionColor,
-  getAuditColor,
-  getScoreBadgeClass,
-  NATIONAL_SUMMARY,
-  KAJIADO_DATA,
-  flattenCountyRepresentatives,
 } from '@/lib/kenya-data';
 
 import { KenyaFilters } from '@/components/kenya/KenyaFilters';
@@ -42,6 +29,29 @@ import { KenyaComparison } from '@/components/kenya/KenyaComparison';
 import { KenyaJsonExport } from '@/components/kenya/KenyaJsonExport';
 import { KenyaLiveFeedsPanel } from '@/components/kenya/KenyaLiveFeedsPanel';
 import { KenyaFeedStatusBar } from '@/components/kenya/KenyaFeedStatus';
+
+// Feature 1: Performance Optimization
+import { useLazyCountyData } from '@/hooks/use-lazy-county-data';
+import {
+  KenyaTreeSkeleton,
+  KenyaDetailsSkeleton,
+  KenyaScoreCardSkeleton,
+  KenyaAccountabilitySkeleton,
+} from '@/components/kenya/KenyaDashboardSkeleton';
+
+// Feature 2: Dashboard Personalization
+import { usePersonalization } from '@/hooks/use-personalization';
+import {
+  KenyaSettingsDialog,
+  KenyaPinnedPanel,
+  PinButton,
+} from '@/components/kenya/KenyaPersonalization';
+
+// Feature 3: Public Feedback Submission
+import { KenyaFeedbackPortal } from '@/components/kenya/KenyaFeedbackPortal';
+
+// Feature 4: Advanced Search with Autocomplete
+import { KenyaSearchAutocomplete } from '@/components/kenya/KenyaSearchAutocomplete';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -88,7 +98,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'feeds' | 'compare';
+type MobileTab = 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'feeds' | 'compare' | 'feedback';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -98,6 +108,7 @@ function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabC
     { id: 'details', label: 'Details', icon: <FileText className="h-4 w-4" /> },
     { id: 'score', label: 'Score', icon: <Shield className="h-4 w-4" /> },
     { id: 'accountability', label: 'Audit', icon: <Shield className="h-4 w-4" /> },
+    { id: 'feedback', label: 'Feedback', icon: <MessageSquare className="h-4 w-4" /> },
   ];
 
   return (
@@ -126,22 +137,50 @@ function Dashboard() {
   const [mobileTab, setMobileTab] = useState<MobileTab>('summary');
   const [compareMode, setCompareMode] = useState(false);
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
 
-  const allCounties = useMemo(() => buildAllCountyData(), []);
-  const filteredCounties = useMemo(() => filterCounties(allCounties, filters), [allCounties, filters]);
+  // Feature 1: Lazy-loaded county data with skeleton states
+  const { allCounties, filteredCounties, isLoading: dataLoading } = useLazyCountyData(filters);
 
+  // Feature 2: Personalization
+  const {
+    preferences,
+    isLoaded: prefsLoaded,
+    pinRepresentative,
+    unpinRepresentative,
+    isPinned,
+    addPreferredCounty,
+    removePreferredCounty,
+    toggleMetricVisibility,
+    trackVisit,
+    updatePreference,
+    resetPreferences,
+    visibleMetrics,
+  } = usePersonalization();
+
+  // Track visits when selecting a representative
   const handleSelectRepresentative = useCallback((rep: Representative) => {
     setSelectedRep(rep);
     setMobileTab('details');
-  }, []);
+    trackVisit(rep.id);
+  }, [trackVisit]);
 
   const handleSelectCounty = useCallback((county: CountyData) => {
     setSelectedCounty(county);
-  }, []);
+    addPreferredCounty(county.name);
+  }, [addPreferredCounty]);
 
   const handleFiltersChange = useCallback((newFilters: FilterState) => {
     setFilters(newFilters);
   }, []);
+
+  // Use personalization default tab
+  const effectiveMobileTab = useMemo(() => {
+    if (prefsLoaded && preferences.defaultMobileTab && mobileTab === 'summary') {
+      return preferences.defaultMobileTab as MobileTab;
+    }
+    return mobileTab;
+  }, [prefsLoaded, preferences.defaultMobileTab, mobileTab]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
@@ -173,17 +212,46 @@ function Dashboard() {
 
           <div className="flex-1" />
 
+          {/* Feature 4: Search Autocomplete (desktop) */}
+          <div className="hidden lg:block w-[280px]">
+            <KenyaSearchAutocomplete
+              searchQuery={filters.searchQuery}
+              onSearchChange={(q) => handleFiltersChange({ ...filters, searchQuery: q })}
+              onSelectRepresentative={handleSelectRepresentative}
+              onSelectCounty={handleSelectCounty}
+              pinnedIds={preferences.pinnedRepresentatives}
+              onPin={pinRepresentative}
+              onUnpin={unpinRepresentative}
+            />
+          </div>
+
           {/* Mobile filter sheet */}
           <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
             <SheetTrigger asChild>
               <Button variant="ghost" size="sm" className="lg:hidden gap-1">
                 <Search className="h-4 w-4" />
-                <span className="text-xs">Filters</span>
+                <span className="text-xs">Search</span>
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[320px]">
-              <div className="p-4">
-                <h3 className="text-sm font-semibold mb-3">Filters & Search</h3>
+              <div className="p-4 space-y-4">
+                <h3 className="text-sm font-semibold mb-3">Search & Filters</h3>
+                {/* Feature 4: Mobile autocomplete */}
+                <KenyaSearchAutocomplete
+                  searchQuery={filters.searchQuery}
+                  onSearchChange={(q) => handleFiltersChange({ ...filters, searchQuery: q })}
+                  onSelectRepresentative={(entry) => {
+                    handleSelectRepresentative(entry.rep);
+                    setFiltersSheetOpen(false);
+                  }}
+                  onSelectCounty={(county) => {
+                    handleSelectCounty(county);
+                    setFiltersSheetOpen(false);
+                  }}
+                  pinnedIds={preferences.pinnedRepresentatives}
+                  onPin={pinRepresentative}
+                  onUnpin={unpinRepresentative}
+                />
                 <KenyaFilters
                   filters={filters}
                   onFiltersChange={handleFiltersChange}
@@ -193,6 +261,17 @@ function Dashboard() {
               </div>
             </SheetContent>
           </Sheet>
+
+          {/* Feature 3: Feedback button */}
+          <Button
+            variant="outline"
+            size="sm"
+            className="hidden lg:flex gap-1 text-xs"
+            onClick={() => setFeedbackOpen(!feedbackOpen)}
+          >
+            <MessageSquare className="h-3 w-3" />
+            Feedback
+          </Button>
 
           {/* Compare toggle */}
           <Button
@@ -208,14 +287,25 @@ function Dashboard() {
           {/* JSON Export */}
           <KenyaJsonExport />
 
+          {/* Feature 2: Settings */}
+          <KenyaSettingsDialog
+            preferences={preferences}
+            onToggleMetric={toggleMetricVisibility}
+            onUpdatePreference={updatePreference}
+            onReset={resetPreferences}
+            isPinned={isPinned}
+            onPin={pinRepresentative}
+            onUnpin={unpinRepresentative}
+          />
+
           <ThemeToggle />
         </div>
 
-        {/* Desktop filters bar */}
+        {/* Desktop filters bar (without search — search is in header now) */}
         <div className="hidden lg:block border-t px-4 py-2 bg-muted/30">
           <KenyaFilters
-            filters={filters}
-            onFiltersChange={handleFiltersChange}
+            filters={{ ...filters, searchQuery: '' }} // search handled by autocomplete
+            onFiltersChange={(f) => handleFiltersChange({ ...f, searchQuery: filters.searchQuery })}
             resultCount={filteredCounties.length}
             totalCount={allCounties.length}
           />
@@ -223,7 +313,7 @@ function Dashboard() {
       </header>
 
       {/* Mobile Tab Nav */}
-      <MobileTabNav activeTab={mobileTab} onTabChange={setMobileTab} />
+      <MobileTabNav activeTab={effectiveMobileTab} onTabChange={setMobileTab} />
 
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden">
@@ -235,37 +325,57 @@ function Dashboard() {
                 Representative Tree — 47 Counties
               </h2>
             </div>
-            <KenyaTree
-              filters={filters}
-              onSelectRepresentative={handleSelectRepresentative}
-              onSelectCounty={handleSelectCounty}
-              selectedId={selectedRep?.id ?? null}
-            />
+            {/* Feature 1: Skeleton loading for tree */}
+            {dataLoading ? (
+              <KenyaTreeSkeleton />
+            ) : (
+              <KenyaTree
+                filters={filters}
+                onSelectRepresentative={handleSelectRepresentative}
+                onSelectCounty={handleSelectCounty}
+                selectedId={selectedRep?.id ?? null}
+              />
+            )}
           </div>
         </div>
 
         {/* Mobile: Tree view */}
-        <div className={`flex-1 overflow-y-auto lg:hidden ${mobileTab === 'tree' ? 'block' : 'hidden'}`}>
+        <div className={`flex-1 overflow-y-auto lg:hidden ${effectiveMobileTab === 'tree' ? 'block' : 'hidden'}`}>
           <div className="p-4">
-            <KenyaTree
-              filters={filters}
-              onSelectRepresentative={handleSelectRepresentative}
-              onSelectCounty={handleSelectCounty}
-              selectedId={selectedRep?.id ?? null}
-            />
+            {dataLoading ? (
+              <KenyaTreeSkeleton />
+            ) : (
+              <KenyaTree
+                filters={filters}
+                onSelectRepresentative={handleSelectRepresentative}
+                onSelectCounty={handleSelectCounty}
+                selectedId={selectedRep?.id ?? null}
+              />
+            )}
           </div>
         </div>
 
-        {/* CENTER: Details + Score + Summary */}
+        {/* CENTER: Details + Score + Summary + Pinned */}
         <div className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-3xl p-4 lg:p-6 space-y-4">
+            {/* Feature 2: Pinned Representatives Quick Access */}
+            {preferences.pinnedRepresentatives.length > 0 && (
+              <div className="block">
+                <KenyaPinnedPanel
+                  pinnedIds={preferences.pinnedRepresentatives}
+                  onSelectRepresentative={handleSelectRepresentative}
+                  onUnpin={unpinRepresentative}
+                />
+              </div>
+            )}
+
             {/* National Summary */}
-            <div className={`block ${mobileTab !== 'summary' && mobileTab !== 'feeds' ? 'hidden lg:block' : ''} lg:block ${mobileTab === 'summary' ? 'block' : 'hidden lg:block'}`}>
+            <div className={`block ${effectiveMobileTab !== 'summary' && effectiveMobileTab !== 'feeds' ? 'hidden lg:block' : ''} lg:block ${effectiveMobileTab === 'summary' ? 'block' : 'hidden lg:block'}`}>
               <KenyaNationalSummary />
             </div>
 
             {/* Live Feeds Panel */}
-            <div className={`${mobileTab === 'feeds' ? 'block' : 'hidden lg:block'}`}>
+            <div className={`${effectiveMobileTab === 'feeds' ? 'block' : 'hidden lg:block'}`}>
               <KenyaLiveFeedsPanel />
             </div>
 
@@ -277,15 +387,42 @@ function Dashboard() {
               />
             )}
 
-            {/* Details Panel */}
-            <div className={`${mobileTab === 'details' ? 'block' : 'hidden lg:block'}`}>
-              <KenyaDetailsPanel representative={selectedRep} />
+            {/* Details Panel with Pin Button */}
+            <div className={`${effectiveMobileTab === 'details' ? 'block' : 'hidden lg:block'}`}>
+              {dataLoading && !selectedRep ? (
+                <KenyaDetailsSkeleton />
+              ) : (
+                <div>
+                  {selectedRep && (
+                    <div className="flex items-center gap-2 mb-2">
+                      <PinButton
+                        repId={selectedRep.id}
+                        isPinned={isPinned(selectedRep.id)}
+                        onPin={pinRepresentative}
+                        onUnpin={unpinRepresentative}
+                      />
+                    </div>
+                  )}
+                  <KenyaDetailsPanel representative={selectedRep} />
+                </div>
+              )}
             </div>
 
-            {/* Score Card */}
-            <div className={`${mobileTab === 'score' ? 'block' : 'hidden lg:block'}`}>
-              <KenyaScoreCard representative={selectedRep} />
+            {/* Score Card with visible metrics from personalization */}
+            <div className={`${effectiveMobileTab === 'score' ? 'block' : 'hidden lg:block'}`}>
+              {dataLoading && !selectedRep ? (
+                <KenyaScoreCardSkeleton />
+              ) : (
+                <KenyaScoreCard representative={selectedRep} visibleMetrics={visibleMetrics} />
+              )}
             </div>
+
+            {/* Feature 3: Feedback Portal */}
+            {(feedbackOpen || effectiveMobileTab === 'feedback') && (
+              <div className={`${effectiveMobileTab === 'feedback' ? 'block' : 'hidden lg:block'}`}>
+                <KenyaFeedbackPortal representative={selectedRep} />
+              </div>
+            )}
           </div>
         </div>
 
@@ -299,16 +436,24 @@ function Dashboard() {
             </div>
             <ScrollArea className="flex-1">
               <div className="p-4">
-                <KenyaAccountabilityPanel representative={selectedRep} />
+                {dataLoading && !selectedRep ? (
+                  <KenyaAccountabilitySkeleton />
+                ) : (
+                  <KenyaAccountabilityPanel representative={selectedRep} />
+                )}
               </div>
             </ScrollArea>
           </div>
         </div>
 
         {/* Mobile: Accountability view */}
-        <div className={`flex-1 overflow-y-auto lg:hidden ${mobileTab === 'accountability' ? 'block' : 'hidden'}`}>
+        <div className={`flex-1 overflow-y-auto lg:hidden ${effectiveMobileTab === 'accountability' ? 'block' : 'hidden'}`}>
           <div className="p-4">
-            <KenyaAccountabilityPanel representative={selectedRep} />
+            {dataLoading && !selectedRep ? (
+              <KenyaAccountabilitySkeleton />
+            ) : (
+              <KenyaAccountabilityPanel representative={selectedRep} />
+            )}
           </div>
         </div>
       </main>

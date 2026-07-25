@@ -1,9 +1,6 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -29,4 +26,22 @@ model Post {
   authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model Feedback {
+  id              String   @id @default(cuid())
+  representativeId String?  // rep ID from kenya-data (optional)
+  countyName       String?  // county name (optional)
+  category         String   // Complaint | Suggestion | Observation | Question | Appreciation
+  title            String   // short title of feedback
+  description      String   // detailed description
+  submitterName    String?  // optional name
+  submitterEmail   String?  // optional email for follow-up
+  submitterCounty  String?  // submitter's county of residence
+  isAnonymous      Boolean  @default(true) // whether to display anonymously
+  status           String   @default("Submitted") // Submitted | Under Review | Acknowledged | Resolved
+  priority         String   @default("Normal") // Normal | High | Urgent
+  sourceUrl        String?  // optional source/evidence URL
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
