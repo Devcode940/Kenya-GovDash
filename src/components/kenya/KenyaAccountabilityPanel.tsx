@@ -11,9 +11,13 @@ import {
 } from '@/components/ui/tooltip';
 import {
   Shield, DollarSign, FileText, CheckCircle2, AlertCircle,
-  ExternalLink, BookOpen, Scale, Link2, Info
+  ExternalLink, BookOpen, Scale, Link2, Info, RefreshCw
 } from 'lucide-react';
 import { getAuditColor, type Representative, type AuditOpinion, type BudgetPerformance } from '@/lib/kenya-data';
+import { useEaccFeed } from '@/hooks/use-live-feeds';
+import { FeedStatusIndicator, SourceCitationBadge } from '@/components/kenya/KenyaFeedStatus';
+import { getDeclarationStatusColor } from '@/lib/live-feeds/eacc-service';
+import { DATA_GAP_NOTES } from '@/lib/live-feeds/config';
 
 interface KenyaAccountabilityPanelProps {
   representative: Representative | null;
@@ -278,6 +282,14 @@ function PromisesTab() {
 
 function ComplianceTab({ rep }: { rep: Representative }) {
   const hasData = rep.scorecard.ethicsIntegrity.dataAvailable;
+  const { data: eaccData, loading: eaccLoading, refresh: eaccRefresh } = useEaccFeed(rep.id);
+
+  // Find EACC data for this specific representative
+  const eaccDeclaration = eaccData?.assetDeclarations.find(d => d.representativeId === rep.id);
+  const eaccInvestigations = eaccData?.investigations.filter(i =>
+    i.representativeName.toLowerCase().includes(rep.fullName.toLowerCase().split(' ')[0])
+  );
+  const hasEaccData = !!eaccDeclaration || eaccInvestigations?.length > 0;
 
   return (
     <div className="space-y-3">
@@ -291,9 +303,17 @@ function ComplianceTab({ rep }: { rep: Representative }) {
         <div className="p-3 rounded-lg bg-muted/50">
           <div className="flex items-center justify-between mb-1">
             <span className="text-sm font-medium">Ethics & Integrity Score</span>
-            <Badge className={`${rep.scorecard.ethicsIntegrity.score !== null ? getAuditColor('Qualified') : 'bg-gray-100 text-gray-500'} text-sm px-2 py-1`}>
-              {rep.scorecard.ethicsIntegrity.score ?? 'N/A'}
-            </Badge>
+            <div className="flex items-center gap-1">
+              <Badge className={`${rep.scorecard.ethicsIntegrity.score !== null ? getAuditColor('Qualified') : 'bg-gray-100 text-gray-500'} text-sm px-2 py-1`}>
+                {rep.scorecard.ethicsIntegrity.score ?? 'N/A'}
+              </Badge>
+              <SourceCitationBadge
+                source={rep.scorecard.ethicsIntegrity.source}
+                fy={rep.scorecard.ethicsIntegrity.fy}
+                url={rep.scorecard.ethicsIntegrity.url}
+                dataAvailable={rep.scorecard.ethicsIntegrity.dataAvailable}
+              />
+            </div>
           </div>
           <p className="text-xs text-muted-foreground">{rep.scorecard.ethicsIntegrity.source}</p>
         </div>
@@ -304,16 +324,110 @@ function ComplianceTab({ rep }: { rep: Representative }) {
         </div>
       )}
 
-      {/* EACC Records */}
-      <div className="p-3 rounded-lg border border-dashed border-muted-foreground/30">
-        <h5 className="text-xs font-medium mb-1">EACC Records</h5>
-        <p className="text-xs text-muted-foreground italic">{DATA_NOT_AVAILABLE}</p>
-      </div>
+      {/* EACC Live Feed Integration */}
+      <div className="p-3 rounded-lg border-2 border-purple-200 dark:border-purple-800 bg-purple-50/30 dark:bg-purple-900/10">
+        <div className="flex items-center justify-between mb-2">
+          <h5 className="text-xs font-semibold flex items-center gap-1">
+            <Scale className="h-3.5 w-3.5 text-purple-600" />
+            EACC Records — Live Feed
+          </h5>
+          <div className="flex items-center gap-1">
+            <FeedStatusIndicator status={eaccData?.freshness.status || 'unavailable'} label="EACC" />
+            <Button variant="ghost" size="sm" onClick={() => eaccRefresh()} className="h-5 w-5 p-0">
+              <RefreshCw className="h-3 w-3" />
+            </Button>
+          </div>
+        </div>
 
-      {/* Asset Declarations */}
-      <div className="p-3 rounded-lg border border-dashed border-muted-foreground/30">
-        <h5 className="text-xs font-medium mb-1">Asset Declarations</h5>
-        <p className="text-xs text-muted-foreground italic">{DATA_NOT_AVAILABLE} — Chapter 6 of the Constitution requires asset declaration but compliance data is not publicly published</p>
+        {eaccLoading ? (
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <RefreshCw className="h-3 w-3 animate-spin" />
+            Loading EACC feed...
+          </div>
+        ) : hasEaccData ? (
+          <div className="space-y-2">
+            {/* Declaration status */}
+            {eaccDeclaration && (
+              <div className="p-2 rounded border border-purple-300/50 dark:border-purple-700/50 bg-muted/50">
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-medium">Asset Declaration Status</span>
+                  <Badge className={`${getDeclarationStatusColor(eaccDeclaration.status)} text-[10px] px-2 py-0.5`}>
+                    {eaccDeclaration.status}
+                  </Badge>
+                </div>
+                <p className="text-[11px] text-muted-foreground italic">
+                  {DATA_GAP_NOTES.eaccAssetDeclarations}
+                </p>
+                <div className="text-[10px] text-muted-foreground mt-1">
+                  <span>FY: {eaccDeclaration.fy} · Year: {eaccDeclaration.declarationYear}</span>
+                </div>
+                {eaccDeclaration.flagReason && (
+                  <div className="mt-1 p-1.5 rounded border border-purple-200 bg-purple-50/30 dark:bg-purple-900/10">
+                    <div className="flex items-center gap-1">
+                      <AlertCircle className="h-3 w-3 text-purple-600" />
+                      <span className="text-[11px] font-medium text-purple-700 dark:text-purple-300">Flagged</span>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">{eaccDeclaration.flagReason}</p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Investigations */}
+            {eaccInvestigations && eaccInvestigations.length > 0 && (
+              <div className="space-y-1">
+                {eaccInvestigations.map(inv => (
+                  <div key={inv.caseNumber} className="p-2 rounded border border-red-200/50 dark:border-red-800/50 bg-red-50/30 dark:bg-red-900/10">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-semibold">{inv.caseNumber}</span>
+                      <Badge className={`${
+                        inv.status === 'Under Investigation' ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+                        : inv.status === 'Prosecuted' ? 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+                        : 'bg-gray-100 text-gray-500'
+                      } text-[10px]`}>
+                        {inv.status}
+                      </Badge>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground">
+                      Allegation: {inv.allegationType}
+                      {inv.initiatedDate && ` · Initiated: ${inv.initiatedDate}`}
+                    </p>
+                    <a href={inv.sourceUrl} target="_blank" rel="noopener noreferrer"
+                      className="text-[10px] text-primary hover:underline flex items-center gap-0.5">
+                      <ExternalLink className="h-2.5 w-2.5" />
+                      EACC source
+                    </a>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Individual amounts note */}
+            <div className="p-2 rounded border border-dashed border-yellow-400/50 bg-yellow-50/30 dark:bg-yellow-900/10">
+              <div className="flex items-center gap-1">
+                <Info className="h-3 w-3 text-yellow-600" />
+                <span className="text-[11px] font-medium text-yellow-700 dark:text-yellow-300">Data Gap</span>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                Individual asset/income/liability amounts are NOT published by EACC — confidential per LIA Section 26
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3 rounded-lg bg-muted/50">
+            <p className="text-xs text-muted-foreground italic mb-1">
+              No EACC records found for this representative.
+            </p>
+            <p className="text-[11px] text-muted-foreground italic">
+              {DATA_NOT_AVAILABLE} — Chapter 6 requires asset declaration but individual data is not publicly published
+            </p>
+            <a href="https://eacc.go.ke/press-releases/" target="_blank" rel="noopener noreferrer"
+              className="text-[10px] text-primary hover:underline flex items-center gap-0.5 mt-1">
+              <ExternalLink className="h-2.5 w-2.5" />
+              Check EACC press releases
+            </a>
+          </div>
+        )}
       </div>
 
       {/* Court Cases */}

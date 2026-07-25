@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useMemo, useCallback, useSyncExternalStore } from 'react';
-import { Sun, Moon, Shield, Landmark, Search, Menu, X, MapPin, FileText } from 'lucide-react';
+import { Sun, Moon, Shield, Landmark, Search, Menu, X, MapPin, FileText, Activity } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -40,6 +40,8 @@ import { KenyaScoreCard } from '@/components/kenya/KenyaScoreCard';
 import { KenyaAccountabilityPanel } from '@/components/kenya/KenyaAccountabilityPanel';
 import { KenyaComparison } from '@/components/kenya/KenyaComparison';
 import { KenyaJsonExport } from '@/components/kenya/KenyaJsonExport';
+import { KenyaLiveFeedsPanel } from '@/components/kenya/KenyaLiveFeedsPanel';
+import { KenyaFeedStatusBar } from '@/components/kenya/KenyaFeedStatus';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -86,12 +88,13 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare';
+type MobileTab = 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'feeds' | 'compare';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
     { id: 'summary', label: 'Summary', icon: <Landmark className="h-4 w-4" /> },
     { id: 'tree', label: 'Tree', icon: <MapPin className="h-4 w-4" /> },
+    { id: 'feeds', label: 'Feeds', icon: <Activity className="h-4 w-4" /> },
     { id: 'details', label: 'Details', icon: <FileText className="h-4 w-4" /> },
     { id: 'score', label: 'Score', icon: <Shield className="h-4 w-4" /> },
     { id: 'accountability', label: 'Audit', icon: <Shield className="h-4 w-4" /> },
@@ -164,6 +167,9 @@ function Dashboard() {
           <Badge className="hidden md:flex text-[10px] bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border border-green-300 px-2 py-1">
             Factual · Source-Cited · Data-Gap Transparent
           </Badge>
+
+          {/* Live Feed Status Bar */}
+          <KenyaFeedStatusBar />
 
           <div className="flex-1" />
 
@@ -254,8 +260,13 @@ function Dashboard() {
         <div className="flex-1 overflow-y-auto">
           <div className="mx-auto max-w-3xl p-4 lg:p-6 space-y-4">
             {/* National Summary */}
-            <div className={`block ${mobileTab !== 'summary' && mobileTab !== 'details' && mobileTab !== 'score' && mobileTab !== 'accountability' ? 'hidden lg:block' : ''} lg:block ${mobileTab === 'summary' ? 'block' : 'hidden lg:block'}`}>
+            <div className={`block ${mobileTab !== 'summary' && mobileTab !== 'feeds' ? 'hidden lg:block' : ''} lg:block ${mobileTab === 'summary' ? 'block' : 'hidden lg:block'}`}>
               <KenyaNationalSummary />
+            </div>
+
+            {/* Live Feeds Panel */}
+            <div className={`${mobileTab === 'feeds' ? 'block' : 'hidden lg:block'}`}>
+              <KenyaLiveFeedsPanel />
             </div>
 
             {/* Compare Mode */}
@@ -313,7 +324,7 @@ function Dashboard() {
               Non-Partisan · Factual
             </Badge>
             <span className="text-xs text-muted-foreground">
-              Sources: OAG · CoB · TI-Kenya · Bajeti Hub
+              Live Sources: OAG · CoB · TI-Kenya · EACC · Bajeti Hub
             </span>
           </div>
         </div>
