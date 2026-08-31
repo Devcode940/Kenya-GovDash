@@ -17,6 +17,7 @@ import {
   getScoreBadgeClass,
   getAuditColor,
 } from '@/lib/kenya-data';
+import { KenyaOfficialsGrid } from './KenyaOfficialsGrid';
 
 // ==================== TYPES ====================
 
@@ -266,62 +267,30 @@ export function KenyaCountyOverview({
         </CardContent>
       </Card>
 
-      {/* Constituency MPs */}
-      {county.constituencyMPs && county.constituencyMPs.length > 0 ? (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Users className="h-4 w-4 text-orange-600" />
-              Constituency Members of Parliament
-              <Badge className="text-[10px] bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200 border px-1.5 py-0.5">
-                {county.constituencyMPs.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1.5">
-              {county.constituencyMPs.map(mp => (
-                <OfficialCard
-                  key={mp.id}
-                  rep={mp}
-                  roleLabel={`MP, ${mp.jurisdiction}`}
-                  icon={<Users className="h-4 w-4 text-orange-600" />}
-                  onSelect={onSelectRepresentative}
-                  onPin={onPin}
-                  onUnpin={onUnpin}
-                  isPinned={isPinned?.(mp.id)}
-                  compact
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <DataGapCard
-          title="Constituency Members of Parliament"
-          icon={<Users className="h-4 w-4 text-orange-600" />}
-          countyName={county.name}
-        />
-      )}
+      {/* Officials Grid (MPs / MCAs / CECMs) — replaces separate list sections */}
+      <KenyaOfficialsGrid
+        countyName={county.name}
+        constituencyMPs={county.constituencyMPs}
+        electedMCAs={county.electedMCAs}
+        nominatedMCAs={county.nominatedMCAs}
+        cecms={county.cecms}
+        onSelectRepresentative={onSelectRepresentative}
+        onPin={onPin}
+        onUnpin={onUnpin}
+        isPinned={isPinned}
+      />
 
-      {/* County Assembly (Speaker + MCAs) */}
-      {(county.assemblySpeaker || (county.electedMCAs && county.electedMCAs.length > 0)) ? (
+      {/* County Assembly Speaker (if available, shown separately from grid) */}
+      {(county.assemblySpeaker || county.deputySpeaker) && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <Building2 className="h-4 w-4 text-purple-600" />
-              County Assembly
-              {county.electedMCAs && (
-                <Badge className="text-[10px] bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border px-1.5 py-0.5">
-                  {county.electedMCAs.length} elected MCAs
-                  {county.nominatedMCAs ? ` + ${county.nominatedMCAs.length} nominated` : ''}
-                </Badge>
-              )}
+              County Assembly Leadership
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-1.5">
-              {/* Speaker */}
               {county.assemblySpeaker && (
                 <OfficialCard
                   rep={county.assemblySpeaker}
@@ -334,7 +303,6 @@ export function KenyaCountyOverview({
                   compact
                 />
               )}
-              {/* Deputy Speaker */}
               {county.deputySpeaker && (
                 <OfficialCard
                   rep={county.deputySpeaker}
@@ -347,72 +315,9 @@ export function KenyaCountyOverview({
                   compact
                 />
               )}
-              {/* Elected MCAs (show first 10) */}
-              {county.electedMCAs && county.electedMCAs.slice(0, 10).map(mca => (
-                <OfficialCard
-                  key={mca.id}
-                  rep={mca}
-                  roleLabel={`MCA, ${mca.jurisdiction}`}
-                  icon={<MapPin className="h-4 w-4 text-purple-400" />}
-                  onSelect={onSelectRepresentative}
-                  onPin={onPin}
-                  onUnpin={onUnpin}
-                  isPinned={isPinned?.(mca.id)}
-                  compact
-                />
-              ))}
-              {county.electedMCAs && county.electedMCAs.length > 10 && (
-                <p className="text-xs text-muted-foreground italic pl-4">
-                  +{county.electedMCAs.length - 10} more MCAs — click to view all
-                </p>
-              )}
             </div>
           </CardContent>
         </Card>
-      ) : (
-        <DataGapCard
-          title="County Assembly"
-          icon={<Building2 className="h-4 w-4 text-purple-600" />}
-          countyName={county.name}
-        />
-      )}
-
-      {/* CECMs */}
-      {county.cecms && county.cecms.length > 0 ? (
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-semibold flex items-center gap-2">
-              <Shield className="h-4 w-4 text-green-600" />
-              County Executive Committee Members
-              <Badge className="text-[10px] bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border px-1.5 py-0.5">
-                {county.cecms.length}
-              </Badge>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-1.5">
-              {county.cecms.map(cecm => (
-                <OfficialCard
-                  key={cecm.id}
-                  rep={cecm}
-                  roleLabel={cecm.officialTitle}
-                  icon={<Shield className="h-4 w-4 text-green-600" />}
-                  onSelect={onSelectRepresentative}
-                  onPin={onPin}
-                  onUnpin={onUnpin}
-                  isPinned={isPinned?.(cecm.id)}
-                  compact
-                />
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <DataGapCard
-          title="County Executive Committee Members"
-          icon={<Shield className="h-4 w-4 text-green-600" />}
-          countyName={county.name}
-        />
       )}
 
       {/* Other County Officials */}

@@ -2,6 +2,12 @@
 // ALL data is factual with source citations. Never invent numbers.
 // Where data is unavailable: "Data not publicly available in latest OAG/CoB/TI-Kenya reports"
 
+import {
+  NAIROBI_MPS, NAIROBI_ELECTED_MCAS,
+  MOMBASA_MPS, KISUMU_MPS, NAKURU_MPS, KIAMBU_MPS,
+  KIAMBU_EXTRA_OFFICIALS,
+} from './kenya-detailed-counties';
+
 // ==================== TYPES ====================
 
 export type AuditOpinionType = 'Unmodified' | 'Qualified' | 'Adverse' | 'Disclaimer';
@@ -864,6 +870,63 @@ export function buildAllCountyData(): CountyData[] {
         auditOpinion: null,
         budgetPerformance: makeDefaultBudgetPerformance(),
       };
+    }
+
+    // Kiambu County — verified officials (IEBC 2022)
+    if (gov.countyName === 'Kiambu') {
+      countyData.deputyGovernor = {
+        ...governorRep,
+        id: 'dep-22-kiambu',
+        fullName: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.fullName,
+        officialTitle: 'Deputy Governor, Kiambu County',
+        party: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.party,
+        coalition: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.coalition,
+        biography: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.biography,
+        biographySource: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.biographySource,
+        scorecard: makeDefaultScorecard(),
+        auditOpinion: null,
+        budgetPerformance: makeDefaultBudgetPerformance(),
+      };
+      countyData.senator = {
+        ...governorRep,
+        id: 'sen-22-kiambu',
+        fullName: KIAMBU_EXTRA_OFFICIALS.senator.fullName,
+        officialTitle: 'Senator, Kiambu County',
+        party: KIAMBU_EXTRA_OFFICIALS.senator.party,
+        coalition: KIAMBU_EXTRA_OFFICIALS.senator.coalition,
+        biography: KIAMBU_EXTRA_OFFICIALS.senator.biography,
+        biographySource: KIAMBU_EXTRA_OFFICIALS.senator.biographySource,
+        scorecard: makeDefaultScorecard(),
+        auditOpinion: null,
+        budgetPerformance: makeDefaultBudgetPerformance(),
+      };
+      countyData.womanRep = {
+        ...governorRep,
+        id: 'wrep-22-kiambu',
+        fullName: KIAMBU_EXTRA_OFFICIALS.womanRep.fullName,
+        officialTitle: 'Woman Representative, Kiambu County',
+        party: KIAMBU_EXTRA_OFFICIALS.womanRep.party,
+        coalition: KIAMBU_EXTRA_OFFICIALS.womanRep.coalition,
+        biography: KIAMBU_EXTRA_OFFICIALS.womanRep.biography,
+        biographySource: KIAMBU_EXTRA_OFFICIALS.womanRep.biographySource,
+        scorecard: makeDefaultScorecard(),
+        auditOpinion: null,
+        budgetPerformance: makeDefaultBudgetPerformance(),
+      };
+    }
+
+    // Attach detailed constituency MP lists (from kenya-detailed-counties.ts)
+    if (gov.countyName === 'Nairobi City') {
+      countyData.constituencyMPs = NAIROBI_MPS;
+      countyData.electedMCAs = NAIROBI_ELECTED_MCAS;
+    } else if (gov.countyName === 'Mombasa') {
+      countyData.constituencyMPs = MOMBASA_MPS;
+    } else if (gov.countyName === 'Kisumu') {
+      countyData.constituencyMPs = KISUMU_MPS;
+    } else if (gov.countyName === 'Nakuru') {
+      countyData.constituencyMPs = NAKURU_MPS;
+    } else if (gov.countyName === 'Kiambu') {
+      countyData.constituencyMPs = KIAMBU_MPS;
     }
 
     return countyData;
