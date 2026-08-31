@@ -49,7 +49,7 @@ import {
 } from '@/components/kenya/KenyaPersonalization';
 
 // Feature 3: Public Feedback Submission
-import { KenyaFeedbackPortal } from '@/components/kenya/KenyaFeedbackPortal';
+import { KenyaFeedbackPortal, type FeedbackInitialValues } from '@/components/kenya/KenyaFeedbackPortal';
 
 // Feature 4: Advanced Search with Autocomplete
 import { KenyaSearchAutocomplete } from '@/components/kenya/KenyaSearchAutocomplete';
@@ -140,6 +140,23 @@ function Dashboard() {
   const [compareMode, setCompareMode] = useState(false);
   const [filtersSheetOpen, setFiltersSheetOpen] = useState(false);
   const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [pendingExpansionRequest, setPendingExpansionRequest] = useState<FeedbackInitialValues | null>(null);
+
+  // Handle "Request County Expansion" — opens feedback, prefills form for the county
+  const handleRequestExpansion = useCallback((countyName: string, sectionLabel: string) => {
+    const request: FeedbackInitialValues = {
+      category: 'Suggestion',
+      title: `Request data expansion: ${countyName} County — ${sectionLabel}`,
+      description: `I would like to request priority data expansion for ${countyName} County, specifically for: ${sectionLabel}.\n\nCurrent data coverage for ${countyName} County is incomplete, and additional sub-county / ward-level detail would significantly improve accountability visibility.\n\nSuggested priority sources to consult:\n- IEBC 2022 gazette notices (official election results)\n- ${countyName} County Assembly registry\n- ${countyName} County Government official publications\n- Parliament of Kenya records\n\nThank you for considering this expansion request.`,
+      countyName,
+    };
+    setPendingExpansionRequest(request);
+    setFeedbackOpen(true);
+    // On mobile, switch to feedback tab
+    if (typeof window !== 'undefined' && window.innerWidth < 1024) {
+      setMobileTab('feedback');
+    }
+  }, []);
 
   // Feature 1: Lazy-loaded county data with skeleton states
   const { allCounties, filteredCounties, isLoading: dataLoading } = useLazyCountyData(filters);
@@ -405,6 +422,7 @@ function Dashboard() {
                   onPin={pinRepresentative}
                   onUnpin={unpinRepresentative}
                   isPinned={isPinned}
+                  onRequestExpansion={handleRequestExpansion}
                 />
               ) : (
                 <div>
@@ -447,7 +465,11 @@ function Dashboard() {
             {/* Feature 3: Feedback Portal */}
             {(feedbackOpen || effectiveMobileTab === 'feedback') && (
               <div className={`${effectiveMobileTab === 'feedback' ? 'block' : 'hidden lg:block'}`}>
-                <KenyaFeedbackPortal representative={selectedRep} />
+                <KenyaFeedbackPortal
+                  representative={selectedRep}
+                  pendingExpansionRequest={pendingExpansionRequest}
+                  onPendingRequestConsumed={() => setPendingExpansionRequest(null)}
+                />
               </div>
             )}
           </div>

@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import {
   Users, MapPin, Search, ChevronRight, Star, ArrowUpDown,
-  Grid3x3, List, AlertCircle,
+  Grid3x3, List, AlertCircle, Sparkles,
 } from 'lucide-react';
 import {
   type Representative,
@@ -31,6 +31,7 @@ interface KenyaOfficialsGridProps {
   onPin?: (repId: string) => void;
   onUnpin?: (repId: string) => void;
   isPinned?: (repId: string) => boolean;
+  onRequestExpansion?: (countyName: string, sectionLabel: string) => void;
 }
 
 // ==================== COALITION STATS ====================
@@ -153,21 +154,41 @@ function GridCard({
 
 // ==================== EMPTY STATE ====================
 
-function GridEmptyState({ countyName, sectionLabel }: { countyName: string; sectionLabel: string }) {
+function GridEmptyState({
+  countyName,
+  sectionLabel,
+  onRequestExpansion,
+}: {
+  countyName: string;
+  sectionLabel: string;
+  onRequestExpansion?: (countyName: string, sectionLabel: string) => void;
+}) {
   return (
-    <div className="flex items-start gap-3 p-4 rounded-md bg-muted/30 border border-dashed border-muted-foreground/30">
-      <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
-      <div>
-        <p className="text-sm font-medium text-muted-foreground">
-          {sectionLabel} data for {countyName} County is not yet available
-        </p>
-        <p className="text-xs text-muted-foreground mt-1">
-          This information is sourced from IEBC gazette notices, county assembly records,
-          and official county publications. As official data becomes available, it will
-          be added here. To request priority expansion for this county,
-          use the Feedback tab.
-        </p>
+    <div className="flex flex-col gap-3 p-4 rounded-md bg-muted/30 border border-dashed border-muted-foreground/30">
+      <div className="flex items-start gap-3">
+        <AlertCircle className="h-5 w-5 text-muted-foreground shrink-0 mt-0.5" />
+        <div className="flex-1">
+          <p className="text-sm font-medium text-muted-foreground">
+            {sectionLabel} data for {countyName} County is not yet available
+          </p>
+          <p className="text-xs text-muted-foreground mt-1">
+            This information is sourced from IEBC gazette notices, county assembly records,
+            and official county publications. As official data becomes available, it will
+            be added here.
+          </p>
+        </div>
       </div>
+      {onRequestExpansion && (
+        <Button
+          variant="default"
+          size="sm"
+          className="self-start gap-1.5 text-xs"
+          onClick={() => onRequestExpansion(countyName, sectionLabel)}
+        >
+          <Sparkles className="h-3.5 w-3.5" />
+          Request County Expansion
+        </Button>
+      )}
     </div>
   );
 }
@@ -184,6 +205,7 @@ export function KenyaOfficialsGrid({
   onPin,
   onUnpin,
   isPinned,
+  onRequestExpansion,
 }: KenyaOfficialsGridProps) {
   const [activeTab, setActiveTab] = useState<GridTab>(() => {
     if (constituencyMPs.length > 0) return 'mps';
@@ -260,7 +282,11 @@ export function KenyaOfficialsGrid({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <GridEmptyState countyName={countyName} sectionLabel="Sub-county official" />
+          <GridEmptyState
+            countyName={countyName}
+            sectionLabel="Sub-county official"
+            onRequestExpansion={onRequestExpansion}
+          />
         </CardContent>
       </Card>
     );
@@ -390,6 +416,7 @@ export function KenyaOfficialsGrid({
           <GridEmptyState
             countyName={countyName}
             sectionLabel={tabs.find(t => t.key === activeTab)?.label ?? 'Official'}
+            onRequestExpansion={onRequestExpansion}
           />
         ) : viewMode === 'grid' ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">

@@ -68,11 +68,28 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 
 // ==================== MAIN COMPONENT ====================
 
-interface KenyaFeedbackPortalProps {
-  representative?: Representative | null;
+export interface FeedbackInitialValues {
+  category?: string;
+  title?: string;
+  description?: string;
+  countyName?: string;
+  representativeId?: string;
 }
 
-export function KenyaFeedbackPortal({ representative }: KenyaFeedbackPortalProps) {
+interface KenyaFeedbackPortalProps {
+  representative?: Representative | null;
+  initialValues?: FeedbackInitialValues | null;
+  /** When set, the form will reset to these values and switch to submit tab */
+  pendingExpansionRequest?: FeedbackInitialValues | null;
+  onPendingRequestConsumed?: () => void;
+}
+
+export function KenyaFeedbackPortal({
+  representative,
+  initialValues,
+  pendingExpansionRequest,
+  onPendingRequestConsumed,
+}: KenyaFeedbackPortalProps) {
   // Fetch feedback data — triggered by user action or on mount via callback ref
   // Avoids the "set-state-in-effect" lint rule by using a data fetching approach
   const [feedbacks, setFeedbacks] = useState<FeedbackEntry[]>([]);
@@ -105,6 +122,26 @@ export function KenyaFeedbackPortal({ representative }: KenyaFeedbackPortalProps
 
   // Initial data loading is deferred until user switches to "view" tab
   // or until feedback is successfully submitted — no effect setState needed
+
+  // When a pending expansion request arrives (from "Request County Expansion" button),
+  // latch it into local state so the form stays prefilled even after the parent clears
+  // the pendingExpansionRequest prop. The latch is cleared on successful submit.
+  const [latchedInitialValues, setLatchedInitialValues] = useState<FeedbackInitialValues | null>(null);
+  const [requestCounter, setRequestCounter] = useState(0);
+
+  React.useEffect(() => {
+    if (pendingExpansionRequest) {
+      setLatchedInitialValues(pendingExpansionRequest);
+      setRequestCounter(c => c + 1);
+      setActiveTab('submit');
+      // Tell parent we've consumed the request — but keep our latched copy
+      if (onPendingRequestConsumed) onPendingRequestConsumed();
+    }
+  }, [pendingExpansionRequest, onPendingRequestConsumed]);
+
+  // Form key: stable per request (so prefill isn't wiped), but changes when a new request arrives
+  const formKey = `request-${requestCounter}`;
+  const effectiveInitialValues = latchedInitialValues ?? initialValues;
 
   return (
     <Card className="border-2 border-emerald-200 dark:border-emerald-800">
@@ -144,9 +181,13 @@ export function KenyaFeedbackPortal({ representative }: KenyaFeedbackPortalProps
 
         {activeTab === 'submit' ? (
           <FeedbackForm
+            key={formKey}
             representative={representative}
+            initialValues={effectiveInitialValues}
             onSuccess={() => {
               toast({ title: 'Feedback submitted', description: 'Your feedback has been recorded. Thank you for contributing to accountability.' });
+              // Clear the latched prefill so the form returns to blank for next time
+              setLatchedInitialValues(null);
               fetchFeedback();
               setActiveTab('view');
             }}
@@ -168,21 +209,54 @@ export function KenyaFeedbackPortal({ representative }: KenyaFeedbackPortalProps
 
 function FeedbackForm({
   representative,
+  initialValues,
   onSuccess,
 }: {
   representative?: Representative | null;
+  initialValues?: FeedbackInitialValues | null;
   onSuccess: () => void;
 }) {
-  const [category, setCategory] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
+  const [category, setCategory] = useState(initialValues?.category ?? '');
+  const [title, setTitle] = useState(initialValues?.title ?? '');
+  const [description, setDescription] = useState(initialValues?.description ?? '');
   const [isAnonymous, setIsAnonymous] = useState(true);
   const [submitterName, setSubmitterName] = useState('');
   const [submitterEmail, setSubmitterEmail] = useState('');
-  const [submitterCounty, setSubmitterCounty] = useState('');
+  const [submitterCounty, setSubmitterCounty] = useState(initialValues?.countyName ?? '');
   const [sourceUrl, setSourceUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Effective representative — either the explicitly passed one, or one derived from initialValues
+  const effectiveRepresentative: Representative | null = representative
+    ? representative
+    : (initialValues?.representativeId
+        ? ({
+            id: initialValues.representativeId,
+            fullName: '',
+            officialTitle: '',
+            party: '',
+            coalition: 'Other',
+            level: 'County',
+            jurisdiction: initialValues.countyName ?? '',
+            termStart: '',
+            termEnd: '',
+            contacts: { email: null, phone: null, twitter: null, website: null },
+            biography: null,
+            biographySource: null,
+            scorecard: {
+              overallAccountability: { score: null, source: '', dataAvailable: false },
+              transparencyBudget: { score: null, source: '', dataAvailable: false },
+              projectDeliveryAbsorption: { score: null, source: '', dataAvailable: false },
+              manifestoFulfillment: { score: null, source: '', dataAvailable: false },
+              legislativeOversight: { score: null, source: '', dataAvailable: false },
+              ethicsIntegrity: { score: null, source: '', dataAvailable: false },
+              publicSentiment: { score: null, source: '', dataAvailable: false },
+            },
+            auditOpinion: null,
+            budgetPerformance: null,
+          } as Representative)
+        : null);
 
   const handleSubmit = async () => {
     setError('');
@@ -198,8 +272,8 @@ function FeedbackForm({
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          representativeId: representative?.id || null,
-          countyName: representative?.jurisdiction || null,
+          representativeId: effectiveRepresentative?.id || initialValues?.representativeId || null,
+          countyName: effectiveRepresentative?.jurisdiction || initialValues?.countyName || null,
           category,
           title: title.trim(),
           description: description.trim(),
@@ -232,13 +306,29 @@ function FeedbackForm({
 
   return (
     <div className="space-y-4">
-      {/* Linked representative info */}
-      {representative && (
+      {/* Linked representative info OR prefilled county context */}
+      {effectiveRepresentative ? (
         <div className="p-2 rounded-md bg-muted/50 flex items-center gap-2">
           <User className="h-3 w-3 text-muted-foreground" />
           <span className="text-xs text-muted-foreground">Feedback regarding:</span>
-          <span className="text-xs font-medium">{representative.fullName}</span>
-          <span className="text-xs text-muted-foreground">({representative.officialTitle})</span>
+          <span className="text-xs font-medium">{effectiveRepresentative.fullName}</span>
+          <span className="text-xs text-muted-foreground">({effectiveRepresentative.officialTitle})</span>
+        </div>
+      ) : initialValues?.countyName ? (
+        <div className="p-2 rounded-md bg-emerald-50 dark:bg-emerald-900/20 border border-emerald-200 dark:border-emerald-800 flex items-center gap-2">
+          <User className="h-3 w-3 text-emerald-700 dark:text-emerald-300" />
+          <span className="text-xs text-emerald-800 dark:text-emerald-200">Request regarding:</span>
+          <span className="text-xs font-medium text-emerald-900 dark:text-emerald-100">{initialValues.countyName} County</span>
+        </div>
+      ) : null}
+
+      {/* Prefill notice banner */}
+      {initialValues?.title && initialValues.title.startsWith('Request data expansion') && (
+        <div className="p-2 rounded-md bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex items-start gap-2">
+          <Lightbulb className="h-3.5 w-3.5 text-blue-700 dark:text-blue-300 shrink-0 mt-0.5" />
+          <p className="text-xs text-blue-800 dark:text-blue-200">
+            You clicked <strong>Request County Expansion</strong>. The form below has been pre-filled — review and submit to register your request for prioritized data expansion.
+          </p>
         </div>
       )}
 

@@ -8,7 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
 import {
   User, MapPin, Shield, Building2, Users, Landmark,
-  ChevronRight, Star, AlertCircle, Eye,
+  ChevronRight, Star, AlertCircle, Eye, Sparkles,
 } from 'lucide-react';
 import {
   type CountyData,
@@ -27,6 +27,7 @@ interface KenyaCountyOverviewProps {
   onPin?: (repId: string) => void;
   onUnpin?: (repId: string) => void;
   isPinned?: (repId: string) => boolean;
+  onRequestExpansion?: (countyName: string, sectionLabel: string) => void;
 }
 
 // ==================== OFFICIAL CARD ====================
@@ -160,6 +161,7 @@ export function KenyaCountyOverview({
   onPin,
   onUnpin,
   isPinned,
+  onRequestExpansion,
 }: KenyaCountyOverviewProps) {
   const gov = county.governor;
   const govScore = gov.scorecard.overallAccountability.score;
@@ -278,6 +280,7 @@ export function KenyaCountyOverview({
         onPin={onPin}
         onUnpin={onUnpin}
         isPinned={isPinned}
+        onRequestExpansion={onRequestExpansion}
       />
 
       {/* County Assembly Speaker (if available, shown separately from grid) */}
@@ -360,16 +363,33 @@ export function KenyaCountyOverview({
         </Card>
       )}
 
-      {/* Data Gap Notice */}
-      <div className="p-3 rounded-lg border border-dashed border-muted-foreground/30">
+      {/* Data Gap Notice + Request Expansion CTA */}
+      <div className="p-3 rounded-lg border border-dashed border-muted-foreground/30 space-y-3">
         <div className="flex items-center gap-2">
-          <AlertCircle className="h-4 w-4 text-muted-foreground" />
+          <AlertCircle className="h-4 w-4 text-muted-foreground shrink-0" />
           <p className="text-xs text-muted-foreground">
             Officials without scores show &quot;N/A&quot; — data not publicly available in latest OAG/CoB/TI-Kenya reports.
             Click any official card to view their full profile, scorecard breakdown, and source citations.
             This platform is non-partisan: all data comes from constitutional oversight bodies.
           </p>
         </div>
+        {onRequestExpansion && (
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-dashed border-muted-foreground/20">
+            <div className="flex items-center gap-1.5 text-xs">
+              <Sparkles className="h-3.5 w-3.5 text-primary" />
+              <span className="text-muted-foreground">Want more detailed data for {county.name} County?</span>
+            </div>
+            <Button
+              variant="default"
+              size="sm"
+              className="gap-1.5 text-xs h-7"
+              onClick={() => onRequestExpansion(county.name, 'Comprehensive county expansion')}
+            >
+              <Sparkles className="h-3.5 w-3.5" />
+              Request Expansion
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
