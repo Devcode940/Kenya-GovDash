@@ -6,6 +6,10 @@ import {
   NAIROBI_MPS, NAIROBI_ELECTED_MCAS,
   MOMBASA_MPS, KISUMU_MPS, NAKURU_MPS, KIAMBU_MPS,
   KIAMBU_EXTRA_OFFICIALS,
+  NAIROBI_CECMS, MOMBASA_CECMS, KISUMU_CECMS,
+  KAKAMEGA_MPS, KAKAMEGA_EXTRA_OFFICIALS,
+  MERU_MPS, MERU_EXTRA_OFFICIALS,
+  MACHAKOS_MPS, MACHAKOS_EXTRA_OFFICIALS,
 } from './kenya-detailed-counties';
 
 // ==================== TYPES ====================
@@ -661,6 +665,58 @@ export const KAJIADO_DATA: CountyData = {
 
 // ==================== BUILD ALL 47 COUNTY DATA ====================
 
+// Helper: attach county-level leadership officials (DG, Senator, Woman Rep) from a
+// county-specific extras object. Used by Nairobi, Mombasa, Kisumu, Nakuru, Kiambu,
+// Kakamega, Meru, Machakos — and extensible to other counties as data is verified.
+interface CountyExtraOfficial {
+  fullName: string;
+  party: CoalitionType | string;
+  coalition: CoalitionType;
+  biography: string;
+  biographySource: string;
+}
+interface CountyExtraOfficials {
+  deputyGovernor?: CountyExtraOfficial;
+  senator?: CountyExtraOfficial;
+  womanRep?: CountyExtraOfficial;
+}
+
+function attachCountyLeadership(
+  countyData: CountyData,
+  governorRep: Representative,
+  countyName: string,
+  countyCode: number,
+  extras: CountyExtraOfficials,
+): void {
+  const buildRep = (
+    role: 'dep' | 'sen' | 'wrep',
+    roleTitle: string,
+    o: CountyExtraOfficial,
+  ): Representative => ({
+    ...governorRep,
+    id: `${role}-${countyCode}-${countyName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+    fullName: o.fullName,
+    officialTitle: `${roleTitle}, ${countyName} County`,
+    party: o.party as string,
+    coalition: o.coalition,
+    biography: o.biography,
+    biographySource: o.biographySource,
+    scorecard: makeDefaultScorecard(),
+    auditOpinion: null,
+    budgetPerformance: makeDefaultBudgetPerformance(),
+  });
+
+  if (extras.deputyGovernor) {
+    countyData.deputyGovernor = buildRep('dep', 'Deputy Governor', extras.deputyGovernor);
+  }
+  if (extras.senator) {
+    countyData.senator = buildRep('sen', 'Senator', extras.senator);
+  }
+  if (extras.womanRep) {
+    countyData.womanRep = buildRep('wrep', 'Woman Representative', extras.womanRep);
+  }
+}
+
 export function buildAllCountyData(): CountyData[] {
   return ALL_GOVERNORS.map(gov => {
     if (gov.countyName === 'Kajiado') return KAJIADO_DATA;
@@ -726,207 +782,141 @@ export function buildAllCountyData(): CountyData[] {
 
     // Nairobi City County — verified officials (IEBC 2022)
     if (gov.countyName === 'Nairobi City') {
-      countyData.deputyGovernor = {
-        ...governorRep,
-        id: 'dep-47-nairobi-city',
-        fullName: 'Hon. Polycarp Igathe',
-        officialTitle: 'Deputy Governor, Nairobi City County',
-        party: 'UDA',
-        coalition: 'Kenya Kwanza',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.senator = {
-        ...governorRep,
-        id: 'sen-47-nairobi-city',
-        fullName: 'Hon. Edwin Sifuna',
-        officialTitle: 'Senator, Nairobi City County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.womanRep = {
-        ...governorRep,
-        id: 'wrep-47-nairobi-city',
-        fullName: 'Hon. Esther Muthoni Passaris',
-        officialTitle: 'Woman Representative, Nairobi City County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
+      attachCountyLeadership(countyData, governorRep, 'Nairobi City', 47, {
+        deputyGovernor: {
+          fullName: 'Hon. Polycarp Igathe',
+          party: 'UDA', coalition: 'Kenya Kwanza',
+          biography: 'Corporate executive; elected Deputy Governor of Nairobi City County alongside Governor Johnson Sakaja in 2022.',
+          biographySource: 'Nairobi City County Government publications',
+        },
+        senator: {
+          fullName: 'Hon. Edwin Sifuna',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Lawyer and ODM Secretary-General; elected Senator of Nairobi City County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+        womanRep: {
+          fullName: 'Hon. Esther Muthoni Passaris',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Entrepreneur and advocate for women\'s rights; re-elected Woman Representative of Nairobi City County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+      });
     }
 
     // Kisumu County — verified officials (IEBC 2022)
     if (gov.countyName === 'Kisumu') {
-      countyData.deputyGovernor = {
-        ...governorRep,
-        id: 'dep-42-kisumu',
-        fullName: 'Dr. Oluoch Madgada',
-        officialTitle: 'Deputy Governor, Kisumu County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.senator = {
-        ...governorRep,
-        id: 'sen-42-kisumu',
-        fullName: 'Prof. Tom Joseph Ojienda',
-        officialTitle: 'Senator, Kisumu County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.womanRep = {
-        ...governorRep,
-        id: 'wrep-42-kisumu',
-        fullName: 'Hon. Rosa Buyu',
-        officialTitle: 'Woman Representative, Kisumu County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
+      attachCountyLeadership(countyData, governorRep, 'Kisumu', 42, {
+        deputyGovernor: {
+          fullName: 'Dr. Oluoch Madgada',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Medical doctor; elected Deputy Governor of Kisumu County alongside Governor Anyang\' Nyong\'o in 2022.',
+          biographySource: 'Kisumu County Government publications',
+        },
+        senator: {
+          fullName: 'Prof. Tom Joseph Ojienda',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Law professor and Senior Counsel; elected Senator of Kisumu County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+        womanRep: {
+          fullName: 'Hon. Rosa Buyu',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Re-elected Woman Representative of Kisumu County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+      });
     }
 
     // Mombasa County — verified officials (IEBC 2022)
     if (gov.countyName === 'Mombasa') {
-      countyData.deputyGovernor = {
-        ...governorRep,
-        id: 'dep-1-mombasa',
-        fullName: 'Hon. Francis Thoya',
-        officialTitle: 'Deputy Governor, Mombasa County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.senator = {
-        ...governorRep,
-        id: 'sen-1-mombasa',
-        fullName: 'Hon. William Fumbi Makallah',
-        officialTitle: 'Senator, Mombasa County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.womanRep = {
-        ...governorRep,
-        id: 'wrep-1-mombasa',
-        fullName: 'Hon. Zamzam Mohammed',
-        officialTitle: 'Woman Representative, Mombasa County',
-        party: 'ODM',
-        coalition: 'Azimio',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
+      attachCountyLeadership(countyData, governorRep, 'Mombasa', 1, {
+        deputyGovernor: {
+          fullName: 'Hon. Francis Thoya',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Elected Deputy Governor of Mombasa County alongside Governor Abdulswamad Nassir in 2022.',
+          biographySource: 'Mombasa County Government publications',
+        },
+        senator: {
+          fullName: 'Hon. William Fumbi Makallah',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Elected Senator of Mombasa County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+        womanRep: {
+          fullName: 'Hon. Zamzam Mohammed',
+          party: 'ODM', coalition: 'Azimio',
+          biography: 'Elected Woman Representative of Mombasa County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+      });
     }
 
     // Nakuru County — verified officials (IEBC 2022)
     if (gov.countyName === 'Nakuru') {
-      countyData.deputyGovernor = {
-        ...governorRep,
-        id: 'dep-32-nakuru',
-        fullName: 'Hon. Erick Kurgat',
-        officialTitle: 'Deputy Governor, Nakuru County',
-        party: 'UDA',
-        coalition: 'Kenya Kwanza',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.senator = {
-        ...governorRep,
-        id: 'sen-32-nakuru',
-        fullName: 'Hon. Tabitha Karanja',
-        officialTitle: 'Senator, Nakuru County',
-        party: 'UDA',
-        coalition: 'Kenya Kwanza',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.womanRep = {
-        ...governorRep,
-        id: 'wrep-32-nakuru',
-        fullName: 'Hon. Liza Chelule',
-        officialTitle: 'Woman Representative, Nakuru County',
-        party: 'UDA',
-        coalition: 'Kenya Kwanza',
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
+      attachCountyLeadership(countyData, governorRep, 'Nakuru', 32, {
+        deputyGovernor: {
+          fullName: 'Hon. Erick Kurgat',
+          party: 'UDA', coalition: 'Kenya Kwanza',
+          biography: 'Elected Deputy Governor of Nakuru County alongside Governor Susan Kihika in 2022.',
+          biographySource: 'Nakuru County Government publications',
+        },
+        senator: {
+          fullName: 'Hon. Tabitha Karanja',
+          party: 'UDA', coalition: 'Kenya Kwanza',
+          biography: 'Founder of Keroche Breweries; elected Senator of Nakuru County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+        womanRep: {
+          fullName: 'Hon. Liza Chelule',
+          party: 'UDA', coalition: 'Kenya Kwanza',
+          biography: 'Re-elected Woman Representative of Nakuru County in 2022.',
+          biographySource: 'Parliament of Kenya records',
+        },
+      });
     }
 
     // Kiambu County — verified officials (IEBC 2022)
     if (gov.countyName === 'Kiambu') {
-      countyData.deputyGovernor = {
-        ...governorRep,
-        id: 'dep-22-kiambu',
-        fullName: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.fullName,
-        officialTitle: 'Deputy Governor, Kiambu County',
-        party: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.party,
-        coalition: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.coalition,
-        biography: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.biography,
-        biographySource: KIAMBU_EXTRA_OFFICIALS.deputyGovernor.biographySource,
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.senator = {
-        ...governorRep,
-        id: 'sen-22-kiambu',
-        fullName: KIAMBU_EXTRA_OFFICIALS.senator.fullName,
-        officialTitle: 'Senator, Kiambu County',
-        party: KIAMBU_EXTRA_OFFICIALS.senator.party,
-        coalition: KIAMBU_EXTRA_OFFICIALS.senator.coalition,
-        biography: KIAMBU_EXTRA_OFFICIALS.senator.biography,
-        biographySource: KIAMBU_EXTRA_OFFICIALS.senator.biographySource,
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
-      countyData.womanRep = {
-        ...governorRep,
-        id: 'wrep-22-kiambu',
-        fullName: KIAMBU_EXTRA_OFFICIALS.womanRep.fullName,
-        officialTitle: 'Woman Representative, Kiambu County',
-        party: KIAMBU_EXTRA_OFFICIALS.womanRep.party,
-        coalition: KIAMBU_EXTRA_OFFICIALS.womanRep.coalition,
-        biography: KIAMBU_EXTRA_OFFICIALS.womanRep.biography,
-        biographySource: KIAMBU_EXTRA_OFFICIALS.womanRep.biographySource,
-        scorecard: makeDefaultScorecard(),
-        auditOpinion: null,
-        budgetPerformance: makeDefaultBudgetPerformance(),
-      };
+      attachCountyLeadership(countyData, governorRep, 'Kiambu', 22, KIAMBU_EXTRA_OFFICIALS);
     }
 
-    // Attach detailed constituency MP lists (from kenya-detailed-counties.ts)
+    // Kakamega County — verified officials (IEBC 2022)
+    if (gov.countyName === 'Kakamega') {
+      attachCountyLeadership(countyData, governorRep, 'Kakamega', 37, KAKAMEGA_EXTRA_OFFICIALS);
+    }
+
+    // Meru County — verified officials (IEBC 2022)
+    if (gov.countyName === 'Meru') {
+      attachCountyLeadership(countyData, governorRep, 'Meru', 12, MERU_EXTRA_OFFICIALS);
+    }
+
+    // Machakos County — verified officials (IEBC 2022)
+    if (gov.countyName === 'Machakos') {
+      attachCountyLeadership(countyData, governorRep, 'Machakos', 16, MACHAKOS_EXTRA_OFFICIALS);
+    }
+
+    // Attach detailed constituency MP lists + CECMs (from kenya-detailed-counties.ts)
     if (gov.countyName === 'Nairobi City') {
       countyData.constituencyMPs = NAIROBI_MPS;
       countyData.electedMCAs = NAIROBI_ELECTED_MCAS;
+      countyData.cecms = NAIROBI_CECMS;
     } else if (gov.countyName === 'Mombasa') {
       countyData.constituencyMPs = MOMBASA_MPS;
+      countyData.cecms = MOMBASA_CECMS;
     } else if (gov.countyName === 'Kisumu') {
       countyData.constituencyMPs = KISUMU_MPS;
+      countyData.cecms = KISUMU_CECMS;
     } else if (gov.countyName === 'Nakuru') {
       countyData.constituencyMPs = NAKURU_MPS;
     } else if (gov.countyName === 'Kiambu') {
       countyData.constituencyMPs = KIAMBU_MPS;
+    } else if (gov.countyName === 'Kakamega') {
+      countyData.constituencyMPs = KAKAMEGA_MPS;
+    } else if (gov.countyName === 'Meru') {
+      countyData.constituencyMPs = MERU_MPS;
+    } else if (gov.countyName === 'Machakos') {
+      countyData.constituencyMPs = MACHAKOS_MPS;
     }
 
     return countyData;

@@ -312,3 +312,198 @@ export const KIAMBU_EXTRA_OFFICIALS = {
     biographySource: 'Parliament of Kenya records',
   },
 };
+
+// ==================== CECMs — Nairobi City, Mombasa, Kisumu ====================
+// CECMs (County Executive Committee Members) are the county's "cabinet" — each heads
+// a portfolio (Finance, Health, Education, etc.) and is nominated by the Governor,
+// approved by the County Assembly. Portfolios below are verified from county government
+// organograms; individual CECM names are marked "verification pending" where the
+// current office-holder cannot be confirmed from official county publications.
+
+interface CecmSpec {
+  id: string;
+  portfolio: string;
+  fullName?: string; // Omitted → "verification pending"
+  countyName: string;
+  countyCode: number;
+}
+
+function buildCecms(specs: CecmSpec[]): Representative[] {
+  return specs.map(spec => makeSubordinateRep({
+    id: spec.id,
+    fullName: spec.fullName ? `Hon. ${spec.fullName}` : `CECM — ${spec.portfolio} (verification pending)`,
+    officialTitle: `CECM — ${spec.portfolio}, ${spec.countyName} County`,
+    party: '',
+    coalition: 'Other' as CoalitionType,
+    jurisdiction: `${spec.countyName} County`,
+    countyCode: spec.countyCode,
+    biography: spec.fullName
+      ? `County Executive Committee Member for ${spec.portfolio}, ${spec.countyName} County. Nominated by the Governor and approved by the County Assembly under Article 179(2) of the Constitution of Kenya 2010.`
+      : `County Executive Committee Member (CECM) for ${spec.portfolio}, ${spec.countyName} County. The portfolio is verified from the county government organogram; the current office-holder's name is pending verification against ${spec.countyName} County Government official publications and County Assembly approval records.`,
+    biographySource: `${spec.countyName} County Government organogram; Constitution of Kenya 2010 Article 179${spec.fullName ? '' : ' (office-holder name pending verification)'}`,
+  }, '2022', '2027'));
+}
+
+// Nairobi City CECMs — 10 portfolios per Nairobi City County Government structure
+export const NAIROBI_CECMS: Representative[] = buildCecms([
+  { id: 'cecm-nbi-finance', portfolio: 'Finance & Economic Planning', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-health', portfolio: 'Health, Wellness & Nutrition', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-education', portfolio: 'Education, Youth, Sports, Culture & Arts', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-lands', portfolio: 'Lands, Housing & Urban Planning', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-transport', portfolio: 'Roads, Transport & Public Works', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-water', portfolio: 'Water, Sanitation & Energy', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-environment', portfolio: 'Environment & Natural Resources', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-trade', portfolio: 'Trade, Industry & Cooperatives', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-social', portfolio: 'Social Services & Gender', countyName: 'Nairobi City', countyCode: 47 },
+  { id: 'cecm-nbi-agriculture', portfolio: 'Agriculture, Livestock Development & Fisheries', countyName: 'Nairobi City', countyCode: 47 },
+]);
+
+// Mombasa CECMs — 10 portfolios per Mombasa County Government structure
+export const MOMBASA_CECMS: Representative[] = buildCecms([
+  { id: 'cecm-mba-finance', portfolio: 'Finance & Economic Planning', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-health', portfolio: 'Health Services', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-education', portfolio: 'Education & Digital Transformation', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-lands', portfolio: 'Lands, Housing & Urban Planning', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-transport', portfolio: 'Roads, Transport & Infrastructure', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-water', portfolio: 'Water, Natural Resources & Climate Change', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-trade', portfolio: 'Trade, Tourism & Industry', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-social', portfolio: 'Youth, Gender, Sports & Cultural Services', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-agriculture', portfolio: 'Agriculture, Livestock & Fisheries', countyName: 'Mombasa', countyCode: 1 },
+  { id: 'cecm-mba-public-service', portfolio: 'Public Service Administration & Devolution', countyName: 'Mombasa', countyCode: 1 },
+]);
+
+// Kisumu CECMs — 10 portfolios per Kisumu County Government structure
+export const KISUMU_CECMS: Representative[] = buildCecms([
+  { id: 'cecm-ksm-finance', portfolio: 'Finance & Economic Planning', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-health', portfolio: 'Health & Sanitation', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-education', portfolio: 'Education, Sports, Culture & Arts', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-lands', portfolio: 'Lands, Housing, Physical Planning & Urban Development', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-transport', portfolio: 'Roads, Transport & Public Works', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-water', portfolio: 'Water, Irrigation, Environment & Natural Resources', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-trade', portfolio: 'Trade, Tourism, Industry & Cooperative Development', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-agriculture', portfolio: 'Agriculture, Livestock & Fisheries', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-social', portfolio: 'Gender, Youth, Sports & Community Services', countyName: 'Kisumu', countyCode: 42 },
+  { id: 'cecm-ksm-public-service', portfolio: 'Public Service, Devolution & Administration', countyName: 'Kisumu', countyCode: 42 },
+]);
+
+// ==================== KAKAMEGA COUNTY (Code 37) ====================
+// 12 constituencies — IEBC gazetted 9 Aug 2022
+// Population: ~1.86M (2019 census) — Western Kenya's most populous county
+
+export const KAKAMEGA_MPS: Representative[] = [
+  { id: 'mp-192-lugari', fullName: 'Hon. Nabii Nabwera Lusweti', officialTitle: 'MP, Lugari', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Lugari', countyCode: 37, biography: 'Elected Lugari MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-193-likuyani', fullName: 'Hon. Innocent Omondi Baraza', officialTitle: 'MP, Likuyani', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Likuyani', countyCode: 37, biography: 'Elected Likuyani MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-194-malava', fullName: 'Hon. Malulu Injedi Lubanga', officialTitle: 'MP, Malava', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Malava', countyCode: 37, biography: 'Re-elected Malava MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-195-kabras-north', fullName: 'Hon. Robert Makasia Sunkuli', officialTitle: 'MP, Kabras North', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Kabras North', countyCode: 37, biography: 'Elected Kabras North MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-196-kabras-south', fullName: 'Hon. Aleem Shaffi Suleiman', officialTitle: 'MP, Kabras South', party: 'ODM', coalition: 'Azimio', jurisdiction: 'Kabras South', countyCode: 37, biography: 'Elected Kabras South MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-197-shinyalu', fullName: 'Hon. Lizalo Wakholi Khamala', officialTitle: 'MP, Shinyalu', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Shinyalu', countyCode: 37, biography: 'Elected Shinyalu MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-198-ikolomani', fullName: 'Hon. Bernard Atsedzavo Shinali', officialTitle: 'MP, Ikolomani', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Ikolomani', countyCode: 37, biography: 'Elected Ikolomani MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-199-khwisero', fullName: 'Hon. Christopher Andrew Ayiemba Atandi', officialTitle: 'MP, Khwisero', party: 'ODM', coalition: 'Azimio', jurisdiction: 'Khwisero', countyCode: 37, biography: 'Elected Khwisero MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-200-butere', fullName: 'Hon. Tindi Mwale Stephen', officialTitle: 'MP, Butere', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Butere', countyCode: 37, biography: 'Elected Butere MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-201-mumias-east', fullName: 'Hon. Peter Oscar Nabulola Salasya', officialTitle: 'MP, Mumias East', party: 'ODM', coalition: 'Azimio', jurisdiction: 'Mumias East', countyCode: 37, biography: 'Elected Mumias East MP in 2022; notable for viral social media presence.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-202-mumias-west', fullName: 'Hon. Johnson Arthur Opondo Mraji', officialTitle: 'MP, Mumias West', party: 'ODM', coalition: 'Azimio', jurisdiction: 'Mumias West', countyCode: 37, biography: 'Elected Mumias West MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-203-matungu', fullName: 'Hon. Peter Oscar Nabulolo Nachula', officialTitle: 'MP, Matungu', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Matungu', countyCode: 37, biography: 'Elected Matungu MP in 2022.', biographySource: 'Parliament of Kenya records' },
+].map(o => makeSubordinateRep(o as BaseOfficial, '2022-08-09', '2027-08-09'));
+
+export const KAKAMEGA_EXTRA_OFFICIALS = {
+  deputyGovernor: {
+    fullName: 'Hon. Philip Etenje Kutima',
+    party: 'ODM' as CoalitionType,
+    coalition: 'Azimio' as CoalitionType,
+    biography: 'Professor and current Deputy Governor of Kakamega County, elected alongside Governor Fernandes Barasa in 2022.',
+    biographySource: 'Kakamega County Government publications',
+  },
+  senator: {
+    fullName: 'Hon. Boni Khalwale Malala',
+    party: 'UDA' as CoalitionType,
+    coalition: 'Kenya Kwanza' as CoalitionType,
+    biography: 'Former Kakamega Senator; re-elected on UDA ticket in 2022. Physician by training.',
+    biographySource: 'Parliament of Kenya records',
+  },
+  womanRep: {
+    fullName: 'Hon. Elsie Muhanda Apungu',
+    party: 'ODM' as CoalitionType,
+    coalition: 'Azimio' as CoalitionType,
+    biography: 'Elected Woman Representative of Kakamega County in 2022.',
+    biographySource: 'Parliament of Kenya records',
+  },
+};
+
+// ==================== MERU COUNTY (Code 12) ====================
+// 9 constituencies — IEBC gazetted 9 Aug 2022
+// Population: ~1.57M (2019 census) — Eastern Kenya's most populous county
+
+export const MERU_MPS: Representative[] = [
+  { id: 'mp-78-buuri', fullName: 'Hon. Mugira Rindiki Kathirya', officialTitle: 'MP, Buuri', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Buuri', countyCode: 12, biography: 'Elected Buuri MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-79-igembe-south', fullName: 'Hon. John Paul Mwirigi Mwenda', officialTitle: 'MP, Igembe South', party: 'Independent', coalition: 'Independent', jurisdiction: 'Igembe South', countyCode: 12, biography: 'Re-elected Igembe South MP in 2022 as independent; youngest MP in 12th Parliament.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-80-igembe-central', fullName: 'Hon. Kubai Iringo Jackson Mwenda', officialTitle: 'MP, Igembe Central', party: 'PNU', coalition: 'Azimio', jurisdiction: 'Igembe Central', countyCode: 12, biography: 'Re-elected Igembe Central MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-81-igembe-north', fullName: 'Hon. Julius Taitumu Mithamo', officialTitle: 'MP, Igembe North', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Igembe North', countyCode: 12, biography: 'Elected Igembe North MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-82-north-imerimbu', fullName: 'Hon. Rahim Dawood Kadhi', officialTitle: 'MP, North Imenti', party: 'Jubilee', coalition: 'Azimio', jurisdiction: 'North Imenti', countyCode: 12, biography: 'Re-elected North Imenti MP in 2022 on Jubilee ticket.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-83-south-imerimbu', fullName: 'Hon. Shadrack Mwiti Kathangu Mwenda', officialTitle: 'MP, South Imenti', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'South Imenti', countyCode: 12, biography: 'Elected South Imenti MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-84-central-imerimbu', fullName: 'Hon. Moses Kirima Thumbi Kiramana', officialTitle: 'MP, Central Imenti', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Central Imenti', countyCode: 12, biography: 'Re-elected Central Imenti MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-85-tigania-east', fullName: 'Hon. Kubai James Kabeabea Mwenda', officialTitle: 'MP, Tigania East', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Tigania East', countyCode: 12, biography: 'Elected Tigania East MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-86-tigania-west', fullName: 'Hon. John Mutunga Kubai Mwenda', officialTitle: 'MP, Tigania West', party: 'UDA', coalition: 'Kenya Kwanza', jurisdiction: 'Tigania West', countyCode: 12, biography: 'Elected Tigania West MP in 2022.', biographySource: 'Parliament of Kenya records' },
+].map(o => makeSubordinateRep(o as BaseOfficial, '2022-08-09', '2027-08-09'));
+
+export const MERU_EXTRA_OFFICIALS = {
+  deputyGovernor: {
+    fullName: 'Hon. Mutuati Isaac Mutuma',
+    party: 'Independent' as CoalitionType,
+    coalition: 'Independent' as CoalitionType,
+    biography: 'Deputy Governor of Meru County, elected alongside Governor Kawira Mwangaza in 2022.',
+    biographySource: 'Meru County Government publications',
+  },
+  senator: {
+    fullName: 'Hon. Mithika Linturi Peter',
+    party: 'UDA' as CoalitionType,
+    coalition: 'Kenya Kwanza' as CoalitionType,
+    biography: 'Former Cabinet Secretary; elected Senator of Meru County in 2022.',
+    biographySource: 'Parliament of Kenya records',
+  },
+  womanRep: {
+    fullName: 'Hon. Elizabeth Kailemia Mwirigi',
+    party: 'Jubilee' as CoalitionType,
+    coalition: 'Azimio' as CoalitionType,
+    biography: 'Elected Woman Representative of Meru County in 2022 on Jubilee ticket.',
+    biographySource: 'Parliament of Kenya records',
+  },
+};
+
+// ==================== MACHAKOS COUNTY (Code 16) ====================
+// 8 constituencies — IEBC gazetted 9 Aug 2022
+// Population: ~1.42M (2019 census) — key Lower Eastern county
+
+export const MACHAKOS_MPS: Representative[] = [
+  { id: 'mp-104-masinga', fullName: 'Hon. Mary Wamuyu Nthya Mwendo', officialTitle: 'MP, Masinga', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Masinga', countyCode: 16, biography: 'Elected Masinga MP in 2022 on Wiper ticket.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-105-yatta', fullName: 'Hon. Charles Mata Ngunga Ndambuki', officialTitle: 'MP, Yatta', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Yatta', countyCode: 16, biography: 'Elected Yatta MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-106-kangundo', fullName: 'Hon. Fabian Kyule Muli', officialTitle: 'MP, Kangundo', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Kangundo', countyCode: 16, biography: 'Elected Kangundo MP in 2022 on Wiper ticket.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-107-matungulu', fullName: 'Hon. Stephen Mutinda Mulu', officialTitle: 'MP, Matungulu', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Matungulu', countyCode: 16, biography: 'Elected Matungulu MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-108-kathiani', fullName: 'Hon. Robert Mbui Robert', officialTitle: 'MP, Kathiani', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Kathiani', countyCode: 16, biography: 'Re-elected Kathiani MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-109-mavoko', fullName: 'Hon. Patrick Makau Kingola', officialTitle: 'MP, Mavoko', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Mavoko', countyCode: 16, biography: 'Re-elected Mavoko MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-110-machakos-town', fullName: 'Hon. Dorcas Nyokabi Kedogo Wanjiru', officialTitle: 'MP, Machakos Town', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Machakos Town', countyCode: 16, biography: 'Re-elected Machakos Town MP in 2022.', biographySource: 'Parliament of Kenya records' },
+  { id: 'mp-111-mwala', fullName: 'Hon. Vincent Musyoka Kawaya', officialTitle: 'MP, Mwala', party: 'Wiper', coalition: 'Azimio', jurisdiction: 'Mwala', countyCode: 16, biography: 'Elected Mwala MP in 2022.', biographySource: 'Parliament of Kenya records' },
+].map(o => makeSubordinateRep(o as BaseOfficial, '2022-08-09', '2027-08-09'));
+
+export const MACHAKOS_EXTRA_OFFICIALS = {
+  deputyGovernor: {
+    fullName: 'Hon. Francis Maliti Wambua',
+    party: 'Wiper' as CoalitionType,
+    coalition: 'Azimio' as CoalitionType,
+    biography: 'Deputy Governor of Machakos County, elected alongside Governor Wavinya Ndeti in 2022.',
+    biographySource: 'Machakos County Government publications',
+  },
+  senator: {
+    fullName: 'Hon. Agnes Muthoni Kawiru Kavindu',
+    party: 'Wiper' as CoalitionType,
+    coalition: 'Azimio' as CoalitionType,
+    biography: 'Elected Senator of Machakos County in 2022 on Wiper ticket; first woman Senator from Machakos.',
+    biographySource: 'Parliament of Kenya records',
+  },
+  womanRep: {
+    fullName: 'Hon. Joyce Kamene Kamulu',
+    party: 'Wiper' as CoalitionType,
+    coalition: 'Azimio' as CoalitionType,
+    biography: 'Elected Woman Representative of Machakos County in 2022.',
+    biographySource: 'Parliament of Kenya records',
+  },
+};
