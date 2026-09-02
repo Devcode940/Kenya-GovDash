@@ -75,6 +75,10 @@ import { KenyaHotlineAggregator } from '@/components/kenya/KenyaHotlineAggregato
 import { KenyaContractPerformance } from '@/components/kenya/KenyaContractPerformance';
 import { KenyaBudgetVariance } from '@/components/kenya/KenyaBudgetVariance';
 import { KenyaDebtMonitor } from '@/components/kenya/KenyaDebtMonitor';
+import { KenyaPeerRanking } from '@/components/kenya/KenyaPeerRanking';
+import { KenyaExpenditureAlerts } from '@/components/kenya/KenyaExpenditureAlerts';
+import { KenyaPublicParticipation } from '@/components/kenya/KenyaPublicParticipation';
+import { KenyaPerformanceIndex } from '@/components/kenya/KenyaPerformanceIndex';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -121,7 +125,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel' | 'ownership' | 'revenue' | 'court_cases' | 'hotline' | 'contracts' | 'variance' | 'debt';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel' | 'ownership' | 'revenue' | 'court_cases' | 'hotline' | 'contracts' | 'variance' | 'debt' | 'alerts' | 'peer_ranking' | 'performance_index' | 'participation';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -203,14 +207,14 @@ function Dashboard() {
   const handleSelectRepresentative = useCallback((rep: Representative) => {
     setSelectedRep(rep);
     setViewMode('rep-details');
-    setMobileTab('details');
+    setMobileTab('profile');
     trackVisit(rep.id);
   }, [trackVisit]);
 
   const handleSelectCounty = useCallback((county: CountyData) => {
     setSelectedCounty(county);
     setViewMode('county-overview');
-    setMobileTab('details');
+    setMobileTab('profile');
     addPreferredCounty(county.name);
   }, [addPreferredCounty]);
 
@@ -218,12 +222,16 @@ function Dashboard() {
     setFilters(newFilters);
   }, []);
 
-  // Use personalization default tab
+  // Map bottom nav: 'home' → 'summary', 'counties' → 'tree', 'profile' → 'details'
   const effectiveMobileTab = useMemo(() => {
-    if (prefsLoaded && preferences.defaultMobileTab && mobileTab === 'summary') {
+    const current = mobileTab === 'home' ? 'summary'
+      : mobileTab === 'counties' ? 'tree'
+      : mobileTab === 'profile' ? 'details'
+      : mobileTab;
+    if (prefsLoaded && preferences.defaultMobileTab && current === 'summary') {
       return preferences.defaultMobileTab as MobileTab;
     }
-    return mobileTab;
+    return current;
   }, [prefsLoaded, preferences.defaultMobileTab, mobileTab]);
 
   return (
@@ -522,6 +530,26 @@ function Dashboard() {
             {/* County Debt & Borrowing Monitor */}
             <div className={`${mobileTab === 'debt' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaDebtMonitor />
+            </div>
+
+            {/* Expenditure Alerts */}
+            <div className={`${mobileTab === 'alerts' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaExpenditureAlerts />
+            </div>
+
+            {/* Peer Ranking */}
+            <div className={`${mobileTab === 'peer_ranking' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaPeerRanking />
+            </div>
+
+            {/* Performance Index */}
+            <div className={`${mobileTab === 'performance_index' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaPerformanceIndex />
+            </div>
+
+            {/* Public Participation */}
+            <div className={`${mobileTab === 'participation' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaPublicParticipation />
             </div>
 
             {/* Compare Mode */}

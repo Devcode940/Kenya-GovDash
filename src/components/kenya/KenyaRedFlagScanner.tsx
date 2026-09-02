@@ -83,7 +83,6 @@ export function KenyaRedFlagScanner() {
   React.useEffect(() => {
     if (!hasFetchedRef.current) {
       hasFetchedRef.current = true;
-      // eslint-disable-next-line react-hooks/exhaustive-deps
       void scanReports();
     }
   }, []);
