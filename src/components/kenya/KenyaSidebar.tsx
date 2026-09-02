@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch, FileSearch, Building2, MessageCircle, Plane } from 'lucide-react';
+import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch, FileSearch, Building2, MessageCircle, Plane, Network, DollarSign, Gavel, Phone } from 'lucide-react';
 
 interface KenyaSidebarProps {
   activeSection: string;
@@ -16,6 +16,7 @@ const SIDEBAR_SECTIONS = [
   ]},
   { title: 'Constitution & Law', items: [
     { id: 'constitution', label: 'Constitution', icon: <Scale className="h-4 w-4" /> },
+    { id: 'court_cases', label: 'Court Cases Tracker', icon: <Gavel className="h-4 w-4" /> },
   ]},
   { title: 'Accountability', items: [
     { id: 'feeds', label: 'Live Feeds', icon: <Rss className="h-4 w-4" /> },
@@ -32,10 +33,13 @@ const SIDEBAR_SECTIONS = [
     { id: 'payroll_assets', label: 'Ghost Workers & Assets', icon: <Building2 className="h-4 w-4" /> },
     { id: 'sentiment', label: 'Sentiment Monitor', icon: <MessageCircle className="h-4 w-4" /> },
     { id: 'travel', label: 'Travel & Per-Diem Audit', icon: <Plane className="h-4 w-4" /> },
+    { id: 'ownership', label: 'Beneficial Ownership', icon: <Network className="h-4 w-4" /> },
+    { id: 'revenue', label: 'Revenue Leakage', icon: <DollarSign className="h-4 w-4" /> },
   ]},
   { title: 'Citizen Engagement', items: [
     { id: 'development', label: 'Constituency Dev', icon: <Users className="h-4 w-4" /> },
     { id: 'whistleblower', label: 'Whistleblower', icon: <ShieldAlert className="h-4 w-4" /> },
+    { id: 'hotline', label: 'Hotline Reports', icon: <Phone className="h-4 w-4" /> },
     { id: 'feedback', label: 'Feedback', icon: <Sparkles className="h-4 w-4" /> },
   ]},
 ];

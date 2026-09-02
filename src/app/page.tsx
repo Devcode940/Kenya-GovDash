@@ -68,6 +68,10 @@ import { KenyaTenderAnomaly } from '@/components/kenya/KenyaTenderAnomaly';
 import { KenyaPayrollAssetTracker } from '@/components/kenya/KenyaPayrollAssetTracker';
 import { KenyaSentimentMonitor } from '@/components/kenya/KenyaSentimentMonitor';
 import { KenyaTravelAudit } from '@/components/kenya/KenyaTravelAudit';
+import { KenyaBeneficialOwnership } from '@/components/kenya/KenyaBeneficialOwnership';
+import { KenyaRevenueLeakage } from '@/components/kenya/KenyaRevenueLeakage';
+import { KenyaCourtTracker } from '@/components/kenya/KenyaCourtTracker';
+import { KenyaHotlineAggregator } from '@/components/kenya/KenyaHotlineAggregator';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -114,7 +118,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel' | 'ownership' | 'revenue' | 'court_cases' | 'hotline';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -480,6 +484,26 @@ function Dashboard() {
             {/* Travel & Per-Diem Audit */}
             <div className={`${mobileTab === 'travel' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaTravelAudit />
+            </div>
+
+            {/* Beneficial Ownership Cross-Reference */}
+            <div className={`${mobileTab === 'ownership' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaBeneficialOwnership />
+            </div>
+
+            {/* Revenue Leakage Tracker */}
+            <div className={`${mobileTab === 'revenue' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaRevenueLeakage />
+            </div>
+
+            {/* Court Cases Tracker */}
+            <div className={`${mobileTab === 'court_cases' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaCourtTracker />
+            </div>
+
+            {/* Hotline & SMS Report Aggregator */}
+            <div className={`${mobileTab === 'hotline' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaHotlineAggregator />
             </div>
 
             {/* Compare Mode */}
