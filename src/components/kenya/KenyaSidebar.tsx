@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch, FileSearch, Building2, MessageCircle, Plane, Network, DollarSign, Gavel, Phone } from 'lucide-react';
+import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch, FileSearch, Building2, MessageCircle, Plane, Network, DollarSign, Gavel, Phone, FileCheck, PieChart, Landmark } from 'lucide-react';
 
 interface KenyaSidebarProps {
   activeSection: string;
@@ -35,6 +35,9 @@ const SIDEBAR_SECTIONS = [
     { id: 'travel', label: 'Travel & Per-Diem Audit', icon: <Plane className="h-4 w-4" /> },
     { id: 'ownership', label: 'Beneficial Ownership', icon: <Network className="h-4 w-4" /> },
     { id: 'revenue', label: 'Revenue Leakage', icon: <DollarSign className="h-4 w-4" /> },
+    { id: 'contracts', label: 'Contract Performance', icon: <FileCheck className="h-4 w-4" /> },
+    { id: 'variance', label: 'Budget Variance', icon: <PieChart className="h-4 w-4" /> },
+    { id: 'debt', label: 'Debt & Borrowing', icon: <Landmark className="h-4 w-4" /> },
   ]},
   { title: 'Citizen Engagement', items: [
     { id: 'development', label: 'Constituency Dev', icon: <Users className="h-4 w-4" /> },

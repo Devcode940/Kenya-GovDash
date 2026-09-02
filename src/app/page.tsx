@@ -72,6 +72,9 @@ import { KenyaBeneficialOwnership } from '@/components/kenya/KenyaBeneficialOwne
 import { KenyaRevenueLeakage } from '@/components/kenya/KenyaRevenueLeakage';
 import { KenyaCourtTracker } from '@/components/kenya/KenyaCourtTracker';
 import { KenyaHotlineAggregator } from '@/components/kenya/KenyaHotlineAggregator';
+import { KenyaContractPerformance } from '@/components/kenya/KenyaContractPerformance';
+import { KenyaBudgetVariance } from '@/components/kenya/KenyaBudgetVariance';
+import { KenyaDebtMonitor } from '@/components/kenya/KenyaDebtMonitor';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -118,7 +121,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel' | 'ownership' | 'revenue' | 'court_cases' | 'hotline';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel' | 'ownership' | 'revenue' | 'court_cases' | 'hotline' | 'contracts' | 'variance' | 'debt';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -504,6 +507,21 @@ function Dashboard() {
             {/* Hotline & SMS Report Aggregator */}
             <div className={`${mobileTab === 'hotline' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaHotlineAggregator />
+            </div>
+
+            {/* Contract Performance Dashboard */}
+            <div className={`${mobileTab === 'contracts' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaContractPerformance />
+            </div>
+
+            {/* Budget Variance Tracker */}
+            <div className={`${mobileTab === 'variance' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaBudgetVariance />
+            </div>
+
+            {/* County Debt & Borrowing Monitor */}
+            <div className={`${mobileTab === 'debt' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaDebtMonitor />
             </div>
 
             {/* Compare Mode */}
