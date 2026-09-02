@@ -1,10 +1,10 @@
 'use client';
 
 import React from 'react';
-import { Landmark, MapPin, FileText, Scale, Video, Rss, Newspaper, BookOpen, Sparkles, Users } from 'lucide-react';
+import { Landmark, MapPin, FileText, Scale, Video, Rss, Newspaper, BookOpen, Sparkles, Users, ShieldAlert } from 'lucide-react';
 
 export type BottomNavTab = 'home' | 'counties' | 'profile';
-export type TopTab = 'constitution' | 'videos' | 'feeds' | 'news' | 'reports' | 'development' | 'feedback';
+export type TopTab = 'constitution' | 'videos' | 'feeds' | 'news' | 'reports' | 'development' | 'whistleblower' | 'feedback';
 
 const BOTTOM_ITEMS: { id: BottomNavTab; label: string; icon: React.ReactNode }[] = [
   { id: 'home', label: 'Home', icon: <Landmark className="h-5 w-5" /> },
@@ -19,6 +19,7 @@ const TOP_ITEMS: { id: TopTab; label: string; icon: React.ReactNode }[] = [
   { id: 'news', label: 'News', icon: <Newspaper className="h-3.5 w-3.5" /> },
   { id: 'reports', label: 'Reports', icon: <BookOpen className="h-3.5 w-3.5" /> },
   { id: 'development', label: 'Dev Feedback', icon: <Users className="h-3.5 w-3.5" /> },
+  { id: 'whistleblower', label: 'Whistleblower', icon: <ShieldAlert className="h-3.5 w-3.5" /> },
   { id: 'feedback', label: 'Feedback', icon: <Sparkles className="h-3.5 w-3.5" /> },
 ];
 

@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight } from 'lucide-react';
+import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert } from 'lucide-react';
 
 interface KenyaSidebarProps {
   activeSection: string;
@@ -25,6 +25,7 @@ const SIDEBAR_SECTIONS = [
   ]},
   { title: 'Citizen Engagement', items: [
     { id: 'development', label: 'Constituency Dev', icon: <Users className="h-4 w-4" /> },
+    { id: 'whistleblower', label: 'Whistleblower', icon: <ShieldAlert className="h-4 w-4" /> },
     { id: 'feedback', label: 'Feedback', icon: <Sparkles className="h-4 w-4" /> },
   ]},
 ];

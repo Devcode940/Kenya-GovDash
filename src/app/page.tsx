@@ -59,6 +59,7 @@ import { KenyaBottomNav, KenyaTopTabBar, type BottomNavTab, type TopTab } from '
 import { KenyaSidebar } from '@/components/kenya/KenyaSidebar';
 import { KenyaConstitutionFull } from '@/components/kenya/KenyaConstitutionFull';
 import { KenyaConstituencyDevelopment } from '@/components/kenya/KenyaConstituencyDevelopment';
+import { KenyaWhistleblower } from '@/components/kenya/KenyaWhistleblower';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -426,6 +427,11 @@ function Dashboard() {
             {/* Constituency Development — Citizen Feedback */}
             <div className={`${mobileTab === 'development' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaConstituencyDevelopment />
+            </div>
+
+            {/* Whistleblower Portal */}
+            <div className={`${mobileTab === 'whistleblower' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaWhistleblower />
             </div>
 
             {/* Compare Mode */}
