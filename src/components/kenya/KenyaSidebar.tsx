@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert } from 'lucide-react';
+import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch } from 'lucide-react';
 
 interface KenyaSidebarProps {
   activeSection: string;
@@ -22,6 +22,12 @@ const SIDEBAR_SECTIONS = [
     { id: 'news', label: 'Political News', icon: <Newspaper className="h-4 w-4" /> },
     { id: 'videos', label: 'Videos', icon: <Video className="h-4 w-4" /> },
     { id: 'reports', label: 'Reports', icon: <BookOpen className="h-4 w-4" /> },
+  ]},
+  { title: 'Dishonesty Tracking', items: [
+    { id: 'pending_bills', label: 'Pending Bills Heatmap', icon: <Flame className="h-4 w-4" /> },
+    { id: 'projects', label: 'Project Tracker', icon: <ClipboardCheck className="h-4 w-4" /> },
+    { id: 'wealth', label: 'Wealth Declarations', icon: <Shield className="h-4 w-4" /> },
+    { id: 'red_flags', label: 'AI Red Flag Scanner', icon: <ScanSearch className="h-4 w-4" /> },
   ]},
   { title: 'Citizen Engagement', items: [
     { id: 'development', label: 'Constituency Dev', icon: <Users className="h-4 w-4" /> },

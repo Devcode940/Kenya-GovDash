@@ -60,6 +60,10 @@ import { KenyaSidebar } from '@/components/kenya/KenyaSidebar';
 import { KenyaConstitutionFull } from '@/components/kenya/KenyaConstitutionFull';
 import { KenyaConstituencyDevelopment } from '@/components/kenya/KenyaConstituencyDevelopment';
 import { KenyaWhistleblower } from '@/components/kenya/KenyaWhistleblower';
+import { KenyaPendingBillsHeatmap } from '@/components/kenya/KenyaPendingBillsHeatmap';
+import { KenyaProjectTracker } from '@/components/kenya/KenyaProjectTracker';
+import { KenyaWealthDeclaration } from '@/components/kenya/KenyaWealthDeclaration';
+import { KenyaRedFlagScanner } from '@/components/kenya/KenyaRedFlagScanner';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -106,7 +110,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -432,6 +436,26 @@ function Dashboard() {
             {/* Whistleblower Portal */}
             <div className={`${mobileTab === 'whistleblower' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaWhistleblower />
+            </div>
+
+            {/* Pending Bills Heatmap */}
+            <div className={`${mobileTab === 'pending_bills' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaPendingBillsHeatmap />
+            </div>
+
+            {/* Project Tracker */}
+            <div className={`${mobileTab === 'projects' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaProjectTracker />
+            </div>
+
+            {/* Wealth Declaration Tracker */}
+            <div className={`${mobileTab === 'wealth' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaWealthDeclaration />
+            </div>
+
+            {/* AI Red Flag Scanner */}
+            <div className={`${mobileTab === 'red_flags' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaRedFlagScanner />
             </div>
 
             {/* Compare Mode */}
