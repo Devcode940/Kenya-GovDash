@@ -54,6 +54,12 @@ import { KenyaFeedbackPortal, type FeedbackInitialValues } from '@/components/ke
 // Feature 4: Advanced Search with Autocomplete
 import { KenyaSearchAutocomplete } from '@/components/kenya/KenyaSearchAutocomplete';
 
+// New: Bottom Nav + Top Tab Bar + Sidebar + Constitution + Constituency Development
+import { KenyaBottomNav, KenyaTopTabBar, type BottomNavTab, type TopTab } from '@/components/kenya/KenyaBottomNav';
+import { KenyaSidebar } from '@/components/kenya/KenyaSidebar';
+import { KenyaConstitutionFull } from '@/components/kenya/KenyaConstitutionFull';
+import { KenyaConstituencyDevelopment } from '@/components/kenya/KenyaConstituencyDevelopment';
+
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
   const subscribe = useCallback((callback: () => void) => {
@@ -99,7 +105,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'feeds' | 'compare' | 'feedback';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -334,11 +340,20 @@ function Dashboard() {
         </div>
       </header>
 
-      {/* Mobile Tab Nav */}
-      <MobileTabNav activeTab={effectiveMobileTab} onTabChange={setMobileTab} />
+      {/* Mobile Top Tab Bar */}
+      <KenyaTopTabBar
+        activeTab={mobileTab as TopTab}
+        onTabChange={(tab) => setMobileTab(tab)}
+        visible={true}
+      />
 
       {/* Main Content */}
-      <main className="flex-1 flex overflow-hidden">
+      <main className="flex-1 flex overflow-hidden has-bottom-nav lg:has-bottom-nav-none">
+        {/* Desktop Sidebar */}
+        <KenyaSidebar
+          activeSection={mobileTab as string}
+          onNavigate={(section) => setMobileTab(section as MobileTab)}
+        />
         {/* LEFT: Tree Panel (desktop) */}
         <div className="hidden lg:block w-[300px] shrink-0 border-r bg-card/50">
           <div className="flex h-full flex-col">
@@ -401,6 +416,16 @@ function Dashboard() {
             {/* Live Feeds Panel */}
             <div className={`${effectiveMobileTab === 'feeds' ? 'block' : 'hidden lg:block'}`}>
               <KenyaLiveFeedsPanel />
+            </div>
+
+            {/* Constitution Panel — Full text */}
+            <div className={`${mobileTab === 'constitution' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaConstitutionFull />
+            </div>
+
+            {/* Constituency Development — Citizen Feedback */}
+            <div className={`${mobileTab === 'development' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaConstituencyDevelopment />
             </div>
 
             {/* Compare Mode */}
@@ -523,6 +548,13 @@ function Dashboard() {
           </div>
         </div>
       </footer>
+
+      {/* Mobile Bottom Navigation */}
+      <KenyaBottomNav
+        activeTab={mobileTab as BottomNavTab}
+        onTabChange={(tab) => setMobileTab(tab)}
+        visible={true}
+      />
     </div>
   );
 }
