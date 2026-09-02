@@ -66,6 +66,8 @@ import { KenyaWealthDeclaration } from '@/components/kenya/KenyaWealthDeclaratio
 import { KenyaRedFlagScanner } from '@/components/kenya/KenyaRedFlagScanner';
 import { KenyaTenderAnomaly } from '@/components/kenya/KenyaTenderAnomaly';
 import { KenyaPayrollAssetTracker } from '@/components/kenya/KenyaPayrollAssetTracker';
+import { KenyaSentimentMonitor } from '@/components/kenya/KenyaSentimentMonitor';
+import { KenyaTravelAudit } from '@/components/kenya/KenyaTravelAudit';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -112,7 +114,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets' | 'sentiment' | 'travel';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -468,6 +470,16 @@ function Dashboard() {
             {/* Payroll Ghost & Asset Registry */}
             <div className={`${mobileTab === 'payroll_assets' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaPayrollAssetTracker />
+            </div>
+
+            {/* Social Media Sentiment Monitor */}
+            <div className={`${mobileTab === 'sentiment' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaSentimentMonitor />
+            </div>
+
+            {/* Travel & Per-Diem Audit */}
+            <div className={`${mobileTab === 'travel' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaTravelAudit />
             </div>
 
             {/* Compare Mode */}
