@@ -64,6 +64,8 @@ import { KenyaPendingBillsHeatmap } from '@/components/kenya/KenyaPendingBillsHe
 import { KenyaProjectTracker } from '@/components/kenya/KenyaProjectTracker';
 import { KenyaWealthDeclaration } from '@/components/kenya/KenyaWealthDeclaration';
 import { KenyaRedFlagScanner } from '@/components/kenya/KenyaRedFlagScanner';
+import { KenyaTenderAnomaly } from '@/components/kenya/KenyaTenderAnomaly';
+import { KenyaPayrollAssetTracker } from '@/components/kenya/KenyaPayrollAssetTracker';
 
 // ==================== THEME TOGGLE ====================
 function ThemeToggle() {
@@ -110,7 +112,7 @@ function ThemeToggle() {
 }
 
 // ==================== MOBILE TABS ====================
-type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags';
+type MobileTab = BottomNavTab | TopTab | 'tree' | 'details' | 'score' | 'accountability' | 'summary' | 'compare' | 'feedback' | 'pending_bills' | 'projects' | 'wealth' | 'red_flags' | 'tenders' | 'payroll_assets';
 
 function MobileTabNav({ activeTab, onTabChange }: { activeTab: MobileTab; onTabChange: (tab: MobileTab) => void }) {
   const tabs: { id: MobileTab; label: string; icon: React.ReactNode }[] = [
@@ -456,6 +458,16 @@ function Dashboard() {
             {/* AI Red Flag Scanner */}
             <div className={`${mobileTab === 'red_flags' ? 'block' : 'hidden'} lg:hidden`}>
               <KenyaRedFlagScanner />
+            </div>
+
+            {/* Tender Anomaly Detector */}
+            <div className={`${mobileTab === 'tenders' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaTenderAnomaly />
+            </div>
+
+            {/* Payroll Ghost & Asset Registry */}
+            <div className={`${mobileTab === 'payroll_assets' ? 'block' : 'hidden'} lg:hidden`}>
+              <KenyaPayrollAssetTracker />
             </div>
 
             {/* Compare Mode */}
