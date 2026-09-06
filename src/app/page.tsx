@@ -215,7 +215,7 @@ function Dashboard() {
           <KenyaFeedStatusBar />
           <div className="flex-1" />
 
-          <div className="hidden lg:block w-[280px]">
+          <div className="hidden landscape:block w-[280px]">
             <KenyaSearchAutocomplete searchQuery={filters.searchQuery}
               onSearchChange={(q) => handleFiltersChange({ ...filters, searchQuery: q })}
               onSelectRepresentative={handleSelectRepresentative} onSelectCounty={handleSelectCounty}
@@ -229,7 +229,7 @@ function Dashboard() {
           </Button>
 
           <Sheet open={filtersSheetOpen} onOpenChange={setFiltersSheetOpen}>
-            <SheetTrigger asChild><Button variant="ghost" size="sm" className="lg:hidden gap-1"><Search className="h-4 w-4" /><span className="text-xs">Search</span></Button></SheetTrigger>
+            <SheetTrigger asChild><Button variant="ghost" size="sm" className="landscape:hidden gap-1"><Search className="h-4 w-4" /><span className="text-xs">Search</span></Button></SheetTrigger>
             <SheetContent side="left" className="w-[320px]">
               <div className="p-4 space-y-4">
                 <h3 className="text-sm font-semibold mb-3">Search & Filters</h3>
@@ -243,10 +243,10 @@ function Dashboard() {
             </SheetContent>
           </Sheet>
 
-          <Button variant="outline" size="sm" className="hidden lg:flex gap-1 text-xs" onClick={() => setFeedbackOpen(!feedbackOpen)}>
+          <Button variant="outline" size="sm" className="hidden landscape:flex gap-1 text-xs" onClick={() => setFeedbackOpen(!feedbackOpen)}>
             <MessageSquare className="h-3 w-3" /> {tr('action.feedback')}
           </Button>
-          <Button variant={compareMode ? 'default' : 'outline'} size="sm" className="hidden lg:flex gap-1 text-xs" onClick={() => setCompareMode(!compareMode)}>
+          <Button variant={compareMode ? 'default' : 'outline'} size="sm" className="hidden landscape:flex gap-1 text-xs" onClick={() => setCompareMode(!compareMode)}>
             <Shield className="h-3 w-3" />{compareMode ? 'Exit Compare' : 'Compare'}
           </Button>
           <KenyaJsonExport />
@@ -271,7 +271,7 @@ function Dashboard() {
           </Button>
         </div>
 
-        <div className="hidden lg:block border-t px-4 py-2 bg-muted/30">
+        <div className="hidden landscape:block border-t px-4 py-2 bg-muted/30">
           <KenyaFilters filters={{ ...filters, searchQuery: '' }}
             onFiltersChange={(f) => handleFiltersChange({ ...f, searchQuery: filters.searchQuery })}
             resultCount={filteredCounties.length} totalCount={allCounties.length} />
@@ -309,10 +309,59 @@ function Dashboard() {
 
       {/* Main Content */}
       <main className="flex-1 flex overflow-hidden has-bottom-nav">
+        {/* Primary Left Sidebar — visible on landscape (mobile landscape + desktop) */}
         <KenyaSidebar activeSection={mobileTab as string} onNavigate={(section) => setMobileTab(section as MobileTab)} />
 
+        {/* Secondary Left Sidebar — portrait mobile only. A compact rail
+            that's always visible, showing the 3 main nav sections (Dashboard).
+            Tapping a section opens the full More sections drawer for deep nav. */}
+        <div className="landscape:hidden flex flex-col w-14 shrink-0 border-r bg-card/50 h-full overflow-y-auto">
+          <div className="p-2 border-b flex justify-center">
+            <button onClick={() => setMoreSectionsOpen(true)} aria-label="More sections" title="More sections">
+              <Menu className="h-4 w-4 text-primary" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto py-2 space-y-1">
+            {SIDEBAR_SECTIONS_EXPORTED[0].items.map((item) => {
+              const isActive = mobileTab === item.id;
+              return (
+                <button key={item.id} onClick={() => setMobileTab(item.id as MobileTab)}
+                  title={item.label}
+                  className={`w-full flex flex-col items-center justify-center gap-0.5 py-2 text-[9px] transition-colors ${isActive ? 'text-primary bg-primary/10 font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'}`}>
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate max-w-[48px]">{item.label}</span>
+                </button>
+              );
+            })}
+            <div className="border-t border-muted-foreground/20 mx-2 my-2" />
+            {SIDEBAR_SECTIONS_EXPORTED[1].items.map((item) => {
+              const isActive = mobileTab === item.id;
+              return (
+                <button key={item.id} onClick={() => setMobileTab(item.id as MobileTab)}
+                  title={item.label}
+                  className={`w-full flex flex-col items-center justify-center gap-0.5 py-2 text-[9px] transition-colors ${isActive ? 'text-primary bg-primary/10 font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'}`}>
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate max-w-[48px]">{item.label}</span>
+                </button>
+              );
+            })}
+            <div className="border-t border-muted-foreground/20 mx-2 my-2" />
+            {SIDEBAR_SECTIONS_EXPORTED[2].items.map((item) => {
+              const isActive = mobileTab === item.id;
+              return (
+                <button key={item.id} onClick={() => setMobileTab(item.id as MobileTab)}
+                  title={item.label}
+                  className={`w-full flex flex-col items-center justify-center gap-0.5 py-2 text-[9px] transition-colors ${isActive ? 'text-primary bg-primary/10 font-medium' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'}`}>
+                  <span className="shrink-0">{item.icon}</span>
+                  <span className="truncate max-w-[48px]">{item.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* LEFT: Tree Panel */}
-        <div className="hidden lg:block w-[300px] shrink-0 border-r bg-card/50">
+        <div className="hidden landscape:block w-[300px] shrink-0 border-r bg-card/50">
           <div className="flex h-full flex-col">
             <div className="border-b px-3 py-2">
               <h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Representative Tree — 47 Counties</h2>
@@ -325,7 +374,7 @@ function Dashboard() {
         </div>
 
         {/* Mobile: Tree view */}
-        <div className={`flex-1 overflow-y-auto lg:hidden ${effectiveMobileTab === 'tree' ? 'block' : 'hidden'}`}>
+        <div className={`flex-1 overflow-y-auto landscape:hidden ${effectiveMobileTab === 'tree' ? 'block' : 'hidden'}`}>
           <div className="p-4">
             {dataLoading ? <KenyaTreeSkeleton /> : (
               <KenyaTree filters={filters} onSelectRepresentative={handleSelectRepresentative} onSelectCounty={handleSelectCounty}
@@ -342,13 +391,13 @@ function Dashboard() {
             )}
 
             {showDefaultDashboard && (
-              <div className={`${effectiveMobileTab === 'summary' ? 'block' : 'hidden lg:block'}`}>
+              <div className={`${effectiveMobileTab === 'summary' ? 'block' : 'hidden landscape:block'}`}>
                 <KenyaNationalSummary />
               </div>
             )}
 
             {showDefaultDashboard && (
-              <div className={`${effectiveMobileTab === 'feeds' ? 'block' : 'hidden lg:block'}`}>
+              <div className={`${effectiveMobileTab === 'feeds' ? 'block' : 'hidden landscape:block'}`}>
                 <KenyaLiveFeedsPanel />
               </div>
             )}
@@ -385,7 +434,7 @@ function Dashboard() {
 
             {/* Counties Info Panel — uses KenyaCountyInfoPanel when county selected */}
             {showDefaultDashboard && (
-              <div className={`${effectiveMobileTab === 'counties_info' ? 'block' : 'hidden lg:hidden'}`}>
+              <div className={`${effectiveMobileTab === 'counties_info' ? 'block' : 'hidden landscape:hidden'}`}>
                 {selectedCounty ? (
                   <KenyaCountyInfoPanel county={selectedCounty} onSelectRepresentative={handleSelectRepresentative}
                     onRequestExpansion={handleRequestExpansion} onBrowseCounties={() => setMoreSectionsOpen(true)} />
@@ -397,7 +446,7 @@ function Dashboard() {
 
             {/* Desktop persistent county info */}
             {showDefaultDashboard && selectedCounty && (
-              <div className="hidden lg:block">
+              <div className="hidden landscape:block">
                 <KenyaCountyInfoPanel county={selectedCounty} onSelectRepresentative={handleSelectRepresentative}
                   onRequestExpansion={handleRequestExpansion} />
               </div>
@@ -405,7 +454,7 @@ function Dashboard() {
 
             {/* Profile / Representative Details */}
             {showDefaultDashboard && (
-              <div className={`${effectiveMobileTab === 'details' ? 'block' : 'hidden lg:block'}`}>
+              <div className={`${effectiveMobileTab === 'details' ? 'block' : 'hidden landscape:block'}`}>
                 {dataLoading && !selectedCounty && !selectedRep ? <KenyaDetailsSkeleton /> : selectedRep ? (
                   <div>
                     {selectedRep && viewMode === 'rep-details' && (
@@ -424,7 +473,7 @@ function Dashboard() {
 
             {/* Score Card */}
             {showDefaultDashboard && (
-              <div className={`${effectiveMobileTab === 'score' ? 'block' : 'hidden lg:block'}`}>
+              <div className={`${effectiveMobileTab === 'score' ? 'block' : 'hidden landscape:block'}`}>
                 {dataLoading && !selectedRep ? <KenyaScoreCardSkeleton /> : (
                   <KenyaScoreCard representative={selectedRep ?? (selectedCounty ? selectedCounty.governor : null)} visibleMetrics={visibleMetrics} />
                 )}
@@ -433,7 +482,7 @@ function Dashboard() {
 
             {/* Feedback Portal */}
             {(feedbackOpen || effectiveMobileTab === 'feedback') && (
-              <div className={`${effectiveMobileTab === 'feedback' ? 'block' : 'hidden lg:block'}`}>
+              <div className={`${effectiveMobileTab === 'feedback' ? 'block' : 'hidden landscape:block'}`}>
                 <KenyaFeedbackPortal representative={selectedRep} pendingExpansionRequest={pendingExpansionRequest} onPendingRequestConsumed={() => setPendingExpansionRequest(null)} />
               </div>
             )}
@@ -441,7 +490,7 @@ function Dashboard() {
         </div>
 
         {/* RIGHT: Accountability Panel (desktop) */}
-        <div className="hidden lg:block w-[350px] shrink-0 border-l bg-card/50">
+        <div className="hidden landscape:block w-[350px] shrink-0 border-l bg-card/50">
           <div className="flex h-full flex-col">
             <div className="border-b px-3 py-2"><h2 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Accountability Data</h2></div>
             <ScrollArea className="flex-1"><div className="p-4">
@@ -451,7 +500,7 @@ function Dashboard() {
         </div>
 
         {/* Mobile: Accountability view */}
-        <div className={`flex-1 overflow-y-auto lg:hidden ${effectiveMobileTab === 'accountability' ? 'block' : 'hidden'}`}>
+        <div className={`flex-1 overflow-y-auto landscape:hidden ${effectiveMobileTab === 'accountability' ? 'block' : 'hidden'}`}>
           <div className="p-4">
             {dataLoading && !selectedRep && !selectedCounty ? <KenyaAccountabilitySkeleton /> : <KenyaAccountabilityPanel representative={selectedRep ?? (selectedCounty ? selectedCounty.governor : null)} />}
           </div>

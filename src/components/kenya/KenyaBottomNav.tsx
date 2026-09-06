@@ -25,12 +25,12 @@ const TOP_ITEMS: { id: TopTab; label: string; icon: React.ReactNode }[] = [
 
 export function KenyaBottomNav({ activeTab, onTabChange, visible }: { activeTab: BottomNavTab; onTabChange: (t: BottomNavTab) => void; visible: boolean; }) {
   return (
-    <nav className={`lg:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'} pb-[env(safe-area-inset-bottom)]`} aria-label="Bottom navigation">
-      <div className="flex items-stretch justify-around px-1 py-1.5 max-w-sm mx-auto">
+    <nav className={`landscape:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur border-t border-border transition-transform duration-300 ${visible ? 'translate-y-0' : 'translate-y-full'} pb-[env(safe-area-inset-bottom)]`} aria-label="Bottom navigation">
+      <div className="flex items-stretch justify-around px-2 py-1.5">
         {BOTTOM_ITEMS.map((item) => {
           const isActive = activeTab === item.id;
           return (
-            <button key={item.id} className={`flex flex-col items-center justify-center gap-0.5 px-3 py-1.5 rounded-lg transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'}`} onClick={() => onTabChange(item.id)} aria-label={item.label} aria-current={isActive ? 'page' : undefined}>
+            <button key={item.id} className={`flex flex-col items-center justify-center gap-0.5 px-4 py-1.5 rounded-lg transition-all ${isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'}`} onClick={() => onTabChange(item.id)} aria-label={item.label} aria-current={isActive ? 'page' : undefined}>
               <div className={`transition-transform ${isActive ? 'scale-110' : 'scale-100'}`}>{item.icon}</div>
               <span className={`text-[10px] font-medium ${isActive ? 'font-semibold' : ''}`}>{item.label}</span>
             </button>
@@ -43,7 +43,7 @@ export function KenyaBottomNav({ activeTab, onTabChange, visible }: { activeTab:
 
 export function KenyaTopTabBar({ activeTab, onTabChange, visible }: { activeTab: TopTab; onTabChange: (t: TopTab) => void; visible: boolean; }) {
   return (
-    <div className={`lg:hidden sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border transition-transform duration-300 ${visible ? 'translate-y-0' : '-translate-y-full opacity-0 pointer-events-none'}`}>
+    <div className={`landscape:hidden sticky top-14 z-40 bg-background/95 backdrop-blur border-b border-border transition-transform duration-300 ${visible ? 'translate-y-0' : '-translate-y-full opacity-0 pointer-events-none'}`}>
       <div className="flex items-center gap-1 px-2 py-1.5 overflow-x-auto scrollbar-hide">
         {TOP_ITEMS.map((item) => {
           const isActive = activeTab === item.id;

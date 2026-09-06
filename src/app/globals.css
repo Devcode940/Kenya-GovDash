@@ -118,5 +118,58 @@
   }
   body {
     @apply bg-background text-foreground;
+    min-height: 100dvh;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+}
+
+@layer utilities {
+  /* ==================== RESPONSIVE LAYOUT UTILITIES ==================== */
+
+  /* `has-bottom-nav` adds bottom padding to make room for the fixed bottom
+     navigation bar. Removed in landscape orientation and on large screens,
+     since the bottom nav is hidden in both cases. */
+  .has-bottom-nav {
+    padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 4rem);
+  }
+  @media (orientation: landscape) {
+    .has-bottom-nav {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+  }
+  @media (min-width: 1024px) {
+    .has-bottom-nav {
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+  }
+
+  /* Hide scrollbar but keep functionality (used by horizontal tab bars) */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ==================== SAFE-AREA HELPERS ==================== */
+  .safe-top { padding-top: env(safe-area-inset-top, 0px); }
+  .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-left { padding-left: env(safe-area-inset-left, 0px); }
+  .safe-right { padding-right: env(safe-area-inset-right, 0px); }
+
+  /* ==================== ORIENTATION-AWARE CONTAINERS ==================== */
+  .fill-viewport { height: 100dvh; }
+  .fill-viewport-min { min-height: 100dvh; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .orientation-smooth {
+      transition: padding 200ms ease, width 200ms ease;
+    }
   }
 }
