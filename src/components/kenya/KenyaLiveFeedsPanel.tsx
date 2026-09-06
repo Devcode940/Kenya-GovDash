@@ -17,6 +17,7 @@ import {
 import { useLiveFeeds, getFeedStatusLabel, getFeedStatusColor, formatTimestamp } from '@/hooks/use-live-feeds';
 import { FEED_SOURCES } from '@/lib/live-feeds/config';
 import { KenyaEaccAssetFeed } from './KenyaEaccAssetFeed';
+import { KenyaAdminResourcesPanel } from './KenyaAdminResourcesPanel';
 
 // ==================== DATA FRESHNESS BADGE ====================
 
@@ -206,6 +207,10 @@ export function KenyaLiveFeedsPanel() {
                 summaryText={`CPI 2025: Score 30/100, Rank #130/182. CBTS 2025: National budget transparency average 65/100 (15 counties surveyed). Kajiado CBTS 2024: 74/100.`}
                 reportUrl="https://tikenya.org/publications/"
               />
+
+              {/* Admin-uploaded OAG + CoB resources (videos, docs, links) */}
+              <KenyaAdminResourcesPanel source="OAG" limit={4} />
+              <KenyaAdminResourcesPanel source="CoB" limit={4} />
 
               <Separator />
 
