@@ -6,6 +6,8 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   reactStrictMode: true,
+  // Allow cross-origin requests from the preview URL
+  allowedDevOrigins: ["*.space-z.ai"],
   images: {
     remotePatterns: [
       {
