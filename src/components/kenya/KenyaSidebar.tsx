@@ -53,6 +53,8 @@ const SIDEBAR_SECTIONS = [
   ]},
 ];
 
+export const SIDEBAR_SECTIONS_EXPORTED = SIDEBAR_SECTIONS;
+
 export function KenyaSidebar({ activeSection, onNavigate }: KenyaSidebarProps) {
   return (
     <div className="hidden lg:flex flex-col w-60 shrink-0 border-r bg-card/50 h-full overflow-y-auto">

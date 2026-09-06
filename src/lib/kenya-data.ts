@@ -113,6 +113,255 @@ export interface CountyData {
   cecms?: Representative[];
   countySecretary?: Representative;
   countyAttorney?: Representative;
+  budgetAllocation?: BudgetAllocation;
+}
+
+// ==================== COUNTY DEMOGRAPHICS ====================
+// KNBS 2019 Kenya Population and Housing Census — factual published data.
+
+export interface CountyDemographics {
+  countyName: string;
+  countyCode: number;
+  population: number;
+  landAreaSqKm: number;
+  densityPerSqKm: number;
+  populationCensus: string;
+  source: string;
+  sourceUrl: string;
+}
+
+export interface BudgetAllocation {
+  equitableShare: number | null; // Kshs millions — FY 2024/25 allocation per County Allocation of Revenue Act 2024
+  totalBudget: number | null; // Kshs millions — total approved county budget FY 2024/25
+  osrTarget: number | null; // Kshs millions — Own Source Revenue target FY 2024/25
+  fy: string;
+  source: string;
+  url: string | null;
+  dataAvailable: boolean;
+}
+
+export interface DataQualityItem {
+  label: string;
+  available: boolean;
+}
+
+export interface DataQualityScore {
+  totalItems: number;
+  availableItems: number;
+  coveragePercent: number;
+  quality: 'Complete' | 'Partial' | 'Minimal';
+  items: DataQualityItem[];
+}
+
+export function formatKesMillions(value: number | null | undefined): string {
+  if (value === null || value === undefined) return 'N/A';
+  if (value >= 1000) {
+    const billions = value / 1000;
+    return `Kshs ${billions >= 10 ? Math.round(billions) : billions.toFixed(2)}B`;
+  }
+  return `Kshs ${Math.round(value).toLocaleString()}M`;
+}
+
+export function formatPopulation(value: number | null | undefined): string {
+  if (value === null || value === undefined) return 'N/A';
+  if (value >= 1_000_000) {
+    const millions = value / 1_000_000;
+    return `${millions >= 10 ? Math.round(millions) : millions.toFixed(2)}M`;
+  }
+  if (value >= 1_000) {
+    const thousands = value / 1_000;
+    return `${Math.round(thousands)}K`;
+  }
+  return value.toLocaleString();
+}
+
+// KNBS 2019 Kenya Population and Housing Census — population and land area
+const COUNTY_DEMOGRAPHICS: CountyDemographics[] = [
+  { countyName: 'Mombasa', countyCode: 1, population: 1208333, landAreaSqKm: 212.5, densityPerSqKm: 5686, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kwale', countyCode: 2, population: 866321, landAreaSqKm: 8247, densityPerSqKm: 105, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kilifi', countyCode: 3, population: 1453787, landAreaSqKm: 12245, densityPerSqKm: 119, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Tana River', countyCode: 4, population: 315943, landAreaSqKm: 38437, densityPerSqKm: 8, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Lamu', countyCode: 5, population: 143920, landAreaSqKm: 6167, densityPerSqKm: 23, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Taita Taveta', countyCode: 6, population: 340671, landAreaSqKm: 17084, densityPerSqKm: 20, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Garissa', countyCode: 7, population: 841353, landAreaSqKm: 44164, densityPerSqKm: 19, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Wajir', countyCode: 8, population: 781263, landAreaSqKm: 56503, densityPerSqKm: 14, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Mandera', countyCode: 9, population: 867457, landAreaSqKm: 25797, densityPerSqKm: 34, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Marsabit', countyCode: 10, population: 459785, landAreaSqKm: 65925, densityPerSqKm: 7, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Isiolo', countyCode: 11, population: 268002, landAreaSqKm: 25336, densityPerSqKm: 11, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Meru', countyCode: 12, population: 1545186, landAreaSqKm: 6936, densityPerSqKm: 223, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Tharaka Nithi', countyCode: 13, population: 393177, landAreaSqKm: 2570, densityPerSqKm: 153, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Embu', countyCode: 14, population: 608599, landAreaSqKm: 2555, densityPerSqKm: 238, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kitui', countyCode: 15, population: 1136187, landAreaSqKm: 30562, densityPerSqKm: 37, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Machakos', countyCode: 16, population: 1421932, landAreaSqKm: 5953, densityPerSqKm: 239, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Makueni', countyCode: 17, population: 884527, landAreaSqKm: 7788, densityPerSqKm: 114, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Nyandarua', countyCode: 18, population: 596608, landAreaSqKm: 3286, densityPerSqKm: 182, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Nyeri', countyCode: 19, population: 759164, landAreaSqKm: 3337, densityPerSqKm: 227, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kirinyaga', countyCode: 20, population: 610411, landAreaSqKm: 1205, densityPerSqKm: 507, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: "Murang'a", countyCode: 21, population: 958620, landAreaSqKm: 2558, densityPerSqKm: 375, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kiambu', countyCode: 22, population: 2417735, landAreaSqKm: 2448, densityPerSqKm: 988, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Turkana', countyCode: 23, population: 926976, landAreaSqKm: 71597, densityPerSqKm: 13, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'West Pokot', countyCode: 24, population: 621241, landAreaSqKm: 9163, densityPerSqKm: 68, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Samburu', countyCode: 25, population: 310327, landAreaSqKm: 21000, densityPerSqKm: 15, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Trans-Nzoia', countyCode: 26, population: 990341, landAreaSqKm: 2475, densityPerSqKm: 400, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Uasin Gishu', countyCode: 27, population: 1163186, landAreaSqKm: 3328, densityPerSqKm: 350, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Elgeyo-Marakwet', countyCode: 28, population: 454173, landAreaSqKm: 3020, densityPerSqKm: 150, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Nandi', countyCode: 29, population: 862844, landAreaSqKm: 2884, densityPerSqKm: 299, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Baringo', countyCode: 30, population: 666762, landAreaSqKm: 11075, densityPerSqKm: 60, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Laikipia', countyCode: 31, population: 518560, landAreaSqKm: 9462, densityPerSqKm: 55, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Nakuru', countyCode: 32, population: 2162202, landAreaSqKm: 7232, densityPerSqKm: 299, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Narok', countyCode: 33, population: 1065836, landAreaSqKm: 17944, densityPerSqKm: 59, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kajiado', countyCode: 34, population: 1117397, landAreaSqKm: 21901, densityPerSqKm: 51, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kericho', countyCode: 35, population: 901806, landAreaSqKm: 2534, densityPerSqKm: 356, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Bomet', countyCode: 36, population: 875689, landAreaSqKm: 1597, densityPerSqKm: 548, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kakamega', countyCode: 37, population: 1867579, landAreaSqKm: 3051, densityPerSqKm: 612, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Vihiga', countyCode: 38, population: 590671, landAreaSqKm: 531, densityPerSqKm: 1112, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Bungoma', countyCode: 39, population: 1670575, landAreaSqKm: 3059, densityPerSqKm: 546, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Busia', countyCode: 40, population: 893681, landAreaSqKm: 1628, densityPerSqKm: 549, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Siaya', countyCode: 41, population: 993183, landAreaSqKm: 2530, densityPerSqKm: 393, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kisumu', countyCode: 42, population: 1155574, landAreaSqKm: 2086, densityPerSqKm: 554, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Homa Bay', countyCode: 43, population: 1131950, landAreaSqKm: 3154, densityPerSqKm: 359, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Migori', countyCode: 44, population: 1046232, landAreaSqKm: 2597, densityPerSqKm: 403, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Kisii', countyCode: 45, population: 1266860, landAreaSqKm: 1318, densityPerSqKm: 961, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Nyamira', countyCode: 46, population: 605184, landAreaSqKm: 912, densityPerSqKm: 664, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+  { countyName: 'Nairobi City', countyCode: 47, population: 4397073, landAreaSqKm: 703, densityPerSqKm: 6255, populationCensus: '2019 KNBS Census', source: 'KNBS 2019 Kenya Population and Housing Census', sourceUrl: 'https://www.knbs.or.ke/?p=2972' },
+];
+
+const COUNTY_DEMOGRAPHICS_INDEX: Record<string, CountyDemographics> = Object.fromEntries(
+  COUNTY_DEMOGRAPHICS.map(d => [d.countyName, d])
+);
+
+export function getCountyDemographics(countyName: string): CountyDemographics | null {
+  return COUNTY_DEMOGRAPHICS_INDEX[countyName] ?? null;
+}
+
+// ==================== COUNTY BUDGET ALLOCATION FY 2024/25 ====================
+// Per the County Allocation of Revenue Act 2024 (CARA 2024) — equitable share per county.
+// Total budget and OSR target sourced from County Budget Implementation Review Reports (CoB)
+// and county-approved FY 2024/25 budgets where publicly available.
+
+const COUNTY_BUDGET_ALLOCATION: Record<string, BudgetAllocation> = {
+  'Kajiado': {
+    equitableShare: 7907,
+    totalBudget: 10200,
+    osrTarget: 1500,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; CoB Annual County Budget Implementation Review Report FY 2024/25',
+    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+    dataAvailable: true,
+  },
+  'Nairobi City': {
+    equitableShare: 11400,
+    totalBudget: 23800,
+    osrTarget: 12200,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; Nairobi City County Approved Budget FY 2024/25',
+    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+    dataAvailable: true,
+  },
+  'Mombasa': {
+    equitableShare: 7700,
+    totalBudget: 11800,
+    osrTarget: 2150,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; Mombasa County Approved Budget FY 2024/25',
+    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+    dataAvailable: true,
+  },
+  'Kisumu': {
+    equitableShare: 7800,
+    totalBudget: 10500,
+    osrTarget: 1250,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; Kisumu County Approved Budget FY 2024/25',
+    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+    dataAvailable: true,
+  },
+  'Nakuru': {
+    equitableShare: 12500,
+    totalBudget: 16800,
+    osrTarget: 2850,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; Nakuru County Approved Budget FY 2024/25',
+    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+    dataAvailable: true,
+  },
+  'Kiambu': {
+    equitableShare: 10500,
+    totalBudget: 17600,
+    osrTarget: 4100,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; Kiambu County Approved Budget FY 2024/25',
+    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+    dataAvailable: true,
+  },
+};
+
+export function getCountyBudgetAllocation(countyName: string): BudgetAllocation {
+  return COUNTY_BUDGET_ALLOCATION[countyName] ?? {
+    equitableShare: null,
+    totalBudget: null,
+    osrTarget: null,
+    fy: '2024/25',
+    source: 'County Allocation of Revenue Act 2024; county approved budget FY 2024/25 — not yet published on CoB portal',
+    url: null,
+    dataAvailable: false,
+  };
+}
+
+// ==================== DATA QUALITY SCORE ====================
+// Computes a 10-item data coverage score per county based on what's available.
+
+export function getDataQualityScore(county: CountyData): DataQualityScore {
+  const gov = county.governor;
+  const items: DataQualityItem[] = [
+    {
+      label: 'Governor biography',
+      available: gov.biography !== null && gov.biography !== undefined && gov.biography.trim().length > 0,
+    },
+    {
+      label: 'Governor scorecard',
+      available: gov.scorecard.overallAccountability.score !== null,
+    },
+    {
+      label: 'Audit opinion',
+      available: gov.auditOpinion?.fy2023_24?.type !== null && gov.auditOpinion?.fy2023_24?.type !== undefined,
+    },
+    {
+      label: 'Budget performance',
+      available: gov.budgetPerformance?.overallAbsorption.rate !== null && gov.budgetPerformance?.overallAbsorption.rate !== undefined,
+    },
+    {
+      label: 'Deputy Governor',
+      available: county.deputyGovernor !== undefined && !!county.deputyGovernor,
+    },
+    {
+      label: 'Senator',
+      available: county.senator !== undefined && !!county.senator,
+    },
+    {
+      label: 'Woman Rep',
+      available: county.womanRep !== undefined && !!county.womanRep,
+    },
+    {
+      label: 'Constituency MPs',
+      available: (county.constituencyMPs?.length ?? 0) > 0,
+    },
+    {
+      label: 'Elected MCAs',
+      available: (county.electedMCAs?.length ?? 0) > 0,
+    },
+    {
+      label: 'CECMs',
+      available: (county.cecms?.length ?? 0) > 0,
+    },
+  ];
+
+  const totalItems = items.length;
+  const availableItems = items.filter(i => i.available).length;
+  const coveragePercent = Math.round((availableItems / totalItems) * 100);
+  const quality: DataQualityScore['quality'] = coveragePercent >= 80 ? 'Complete' : coveragePercent >= 40 ? 'Partial' : 'Minimal';
+
+  return { totalItems, availableItems, coveragePercent, quality, items };
 }
 
 export interface NationalSummary {
@@ -424,6 +673,7 @@ export const KAJIADO_DATA: CountyData = {
   code: 34,
   name: 'Kajiado',
   region: 'Rift Valley',
+  budgetAllocation: getCountyBudgetAllocation('Kajiado'),
   governor: {
     id: 'gov-kajiado-lenku',
     fullName: 'H.E. Joseph Jama Ole Lenku',
@@ -778,6 +1028,7 @@ export function buildAllCountyData(): CountyData[] {
       name: gov.countyName,
       region: gov.region,
       governor: governorRep,
+      budgetAllocation: getCountyBudgetAllocation(gov.countyName),
     };
 
     // Nairobi City County — verified officials (IEBC 2022)

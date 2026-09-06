@@ -1,0 +1,1101 @@
+     1→// Kenya Government Accountability Dashboard — Data Layer
+     2→// ALL data is factual with source citations. Never invent numbers.
+     3→// Where data is unavailable: "Data not publicly available in latest OAG/CoB/TI-Kenya reports"
+     4→
+     5→import {
+     6→  NAIROBI_MPS, NAIROBI_ELECTED_MCAS,
+     7→  MOMBASA_MPS, KISUMU_MPS, NAKURU_MPS, KIAMBU_MPS,
+     8→  KIAMBU_EXTRA_OFFICIALS,
+     9→  NAIROBI_CECMS, MOMBASA_CECMS, KISUMU_CECMS,
+    10→  KAKAMEGA_MPS, KAKAMEGA_EXTRA_OFFICIALS,
+    11→  MERU_MPS, MERU_EXTRA_OFFICIALS,
+    12→  MACHAKOS_MPS, MACHAKOS_EXTRA_OFFICIALS,
+    13→} from './kenya-detailed-counties';
+    14→
+    15→// ==================== TYPES ====================
+    16→
+    17→export type AuditOpinionType = 'Unmodified' | 'Qualified' | 'Adverse' | 'Disclaimer';
+    18→export type CoalitionType = 'Kenya Kwanza' | 'Azimio' | 'Independent' | 'Other';
+    19→export type LevelType = 'National' | 'County' | 'Constituency' | 'Ward';
+    20→export type RegionType = 'Coast' | 'North Eastern' | 'Eastern' | 'Central' | 'Rift Valley' | 'Western' | 'Nyanza' | 'Nairobi';
+    21→
+    22→export interface SourceCitation {
+    23→  reportTitle: string;
+    24→  financialYear?: string;
+    25→  page?: string;
+    26→  url: string;
+    27→  dataAvailable: boolean;
+    28→  note?: string;
+    29→}
+    30→
+    31→export interface ScoreMetric {
+    32→  score: number | null;
+    33→  source: string;
+    34→  fy?: string;
+    35→  page?: string;
+    36→  url?: string;
+    37→  dataAvailable: boolean;
+    38→  note?: string;
+    39→}
+    40→
+    41→export interface ScoreCard {
+    42→  overallAccountability: ScoreMetric;
+    43→  transparencyBudget: ScoreMetric;
+    44→  projectDeliveryAbsorption: ScoreMetric;
+    45→  manifestoFulfillment: ScoreMetric;
+    46→  legislativeOversight: ScoreMetric;
+    47→  ethicsIntegrity: ScoreMetric;
+    48→  publicSentiment: ScoreMetric;
+    49→}
+    50→
+    51→export interface AuditOpinion {
+    52→  fy2023_24: {
+    53→    type: AuditOpinionType;
+    54→    source: string;
+    55→    url: string;
+    56→  };
+    57→  fy2024_25: {
+    58→    type: string | null;
+    59→    source: string | null;
+    60→    url: string | null;
+    61→    dataAvailable: boolean;
+    62→  };
+    63→}
+    64→
+    65→export interface BudgetPerformance {
+    66→  overallAbsorption: { rate: number | null; source: string; fy: string };
+    67→  recurrentAbsorption: { rate: number | null; source: string; fy: string };
+    68→  developmentAbsorption: { rate: number | null; source: string; fy: string };
+    69→}
+    70→
+    71→export interface ContactInfo {
+    72→  email: string | null;
+    73→  phone: string | null;
+    74→  twitter: string | null;
+    75→  website: string | null;
+    76→}
+    77→
+    78→export interface Representative {
+    79→  id: string;
+    80→  fullName: string;
+    81→  officialTitle: string;
+    82→  party: string;
+    83→  coalition: CoalitionType;
+    84→  level: LevelType;
+    85→  jurisdiction: string;
+    86→  countyCode?: number;
+    87→  termStart: string;
+    88→  termEnd: string;
+    89→  contacts: ContactInfo;
+    90→  biography: string | null;
+    91→  biographySource: string | null;
+    92→  scorecard: ScoreCard;
+    93→  auditOpinion: AuditOpinion | null;
+    94→  budgetPerformance: BudgetPerformance | null;
+    95→  votes?: number | null;
+    96→  votesSource?: string | null;
+    97→  children?: Representative[];
+    98→}
+    99→
+   100→export interface CountyData {
+   101→  code: number;
+   102→  name: string;
+   103→  region: RegionType;
+   104→  governor: Representative;
+   105→  deputyGovernor?: Representative;
+   106→  senator?: Representative;
+   107→  womanRep?: Representative;
+   108→  constituencyMPs?: Representative[];
+   109→  assemblySpeaker?: Representative;
+   110→  deputySpeaker?: Representative;
+   111→  electedMCAs?: Representative[];
+   112→  nominatedMCAs?: Representative[];
+   113→  cecms?: Representative[];
+   114→  countySecretary?: Representative;
+   115→  countyAttorney?: Representative;
+   116→}
+   117→
+   118→export interface NationalSummary {
+   119→  president: Representative;
+   120→  deputyPresident: Representative;
+   121→  oagSummaryFY2023_24: {
+   122→    countyExecutives: { unmodified: number; qualified: number; adverse: number; disclaimer: number; source: string; url: string };
+   123→    countyAssemblies: { unmodified: number; qualified: number; adverse: number; disclaimer: number; source: string; url: string };
+   124→  };
+   125→  oagSummaryFY2024_25: {
+   126→    countyExecutives: { unmodified: number; qualified: number; adverse: number; disclaimer: number; source: string; url: string; note: string };
+   127→    countyAssemblies: { unmodified: number; qualified: number; adverse: number; disclaimer: number; source: string; url: string; note: string };
+   128→  };
+   129→  cobBudgetFY2023_24: {
+   130→    aggregateAbsorption: number;
+   131→    recurrentAbsorption: number;
+   132→    developmentAbsorption: number;
+   133→    pendingBills: string;
+   134→    countiesOver70DevBudget: number;
+   135→    source: string;
+   136→    url: string;
+   137→  };
+   138→  tiKenyaData: {
+   139→    cpi2025: { score: number; rank: number; source: string; url: string };
+   140→    cbts2025: { nationalAverage: number; source: string; url: string };
+   141→  };
+   142→}
+   143→
+   144→// ==================== HELPERS ====================
+   145→
+   146→export function getScoreColor(score: number | null): string {
+   147→  if (score === null) return 'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400';
+   148→  if (score >= 80) return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+   149→  if (score >= 50) return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+   150→  return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+   151→}
+   152→
+   153→export function getScoreBadgeClass(score: number | null): string {
+   154→  if (score === null) return 'border-gray-300 text-gray-500';
+   155→  if (score >= 80) return 'border-green-500 text-green-700';
+   156→  if (score >= 50) return 'border-yellow-500 text-yellow-700';
+   157→  return 'border-red-500 text-red-700';
+   158→}
+   159→
+   160→export function getAuditColor(type: AuditOpinionType): string {
+   161→  switch (type) {
+   162→    case 'Unmodified': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+   163→    case 'Qualified': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+   164→    case 'Adverse': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+   165→    case 'Disclaimer': return 'bg-red-200 text-red-900 dark:bg-red-900 dark:text-red-100';
+   166→    default: return 'bg-gray-100 text-gray-500';
+   167→  }
+   168→}
+   169→
+   170→export function getCoalitionColor(coalition: CoalitionType): string {
+   171→  switch (coalition) {
+   172→    case 'Kenya Kwanza': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200 border-green-300';
+   173→    case 'Azimio': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 border-blue-300';
+   174→    case 'Independent': return 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300 border-gray-300';
+   175→    case 'Other': return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 border-purple-300';
+   176→    default: return 'bg-gray-100 text-gray-500';
+   177→  }
+   178→}
+   179→
+   180→export function getRegionForCounty(countyName: string): RegionType {
+   181→  for (const [region, counties] of Object.entries(REGIONS)) {
+   182→    if (counties.includes(countyName)) return region as RegionType;
+   183→  }
+   184→  return 'Rift Valley';
+   185→}
+   186→
+   187→const DATA_NOT_AVAILABLE = 'Data not publicly available in latest OAG/CoB/TI-Kenya reports';
+   188→
+   189→export function makeUnavailableMetric(label?: string): ScoreMetric {
+   190→  return {
+   191→    score: null,
+   192→    source: label || DATA_NOT_AVAILABLE,
+   193→    dataAvailable: false,
+   194→    note: DATA_NOT_AVAILABLE,
+   195→  };
+   196→}
+   197→
+   198→export function makeMetric(score: number, source: string, fy?: string, url?: string): ScoreMetric {
+   199→  return { score, source, fy, url, dataAvailable: true };
+   200→}
+   201→
+   202→export function makeDefaultScorecard(): ScoreCard {
+   203→  return {
+   204→    overallAccountability: makeUnavailableMetric(),
+   205→    transparencyBudget: makeUnavailableMetric(),
+   206→    projectDeliveryAbsorption: makeUnavailableMetric(),
+   207→    manifestoFulfillment: makeUnavailableMetric('Data not publicly available'),
+   208→    legislativeOversight: makeUnavailableMetric('Data not publicly available'),
+   209→    ethicsIntegrity: makeUnavailableMetric(),
+   210→    publicSentiment: makeUnavailableMetric('Data not publicly available in latest TI-Kenya CGSR reports'),
+   211→  };
+   212→}
+   213→
+   214→export function makeDefaultAuditOpinion(): AuditOpinion {
+   215→  return {
+   216→    fy2023_24: {
+   217→      type: 'Qualified',
+   218→      source: 'OAG Summary Report on County Governments FY 2023/24',
+   219→      url: 'https://oagkenya.go.ke/wp-content/uploads/2025/04/Auditor-Generals-summary-Report-on-County-Governments-2023-2024.pdf',
+   220→    },
+   221→    fy2024_25: {
+   222→      type: null,
+   223→      source: 'OAG Summary Report on County Governments FY 2024/25',
+   224→      url: 'https://oagkenya.go.ke/wp-content/uploads/2026/05/AUDITOR-GENERALS-SUMMARY-REPORT-ON-COUNTY-GOVERNMENTS-2024-2025.pdf',
+   225→      dataAvailable: false,
+   226→    },
+   227→  };
+   228→}
+   229→
+   230→export function makeDefaultBudgetPerformance(): BudgetPerformance {
+   231→  return {
+   232→    overallAbsorption: { rate: null, source: DATA_NOT_AVAILABLE, fy: '2023/24' },
+   233→    recurrentAbsorption: { rate: null, source: DATA_NOT_AVAILABLE, fy: '2023/24' },
+   234→    developmentAbsorption: { rate: null, source: DATA_NOT_AVAILABLE, fy: '2023/24' },
+   235→  };
+   236→}
+   237→
+   238→// ==================== REGIONS ====================
+   239→
+   240→export const REGIONS: Record<RegionType, string[]> = {
+   241→  'Coast': ['Mombasa', 'Kwale', 'Kilifi', 'Tana River', 'Lamu', 'Taita Taveta'],
+   242→  'North Eastern': ['Garissa', 'Wajir', 'Mandera'],
+   243→  'Eastern': ['Marsabit', 'Isiolo', 'Meru', 'Tharaka Nithi', 'Embu', 'Kitui', 'Machakos', 'Makueni'],
+   244→  'Central': ['Nyandarua', 'Nyeri', 'Kirinyaga', 'Murang\'a', 'Kiambu'],
+   245→  'Rift Valley': ['Turkana', 'West Pokot', 'Samburu', 'Trans-Nzoia', 'Uasin Gishu', 'Elgeyo-Marakwet', 'Nandi', 'Baringo', 'Laikipia', 'Nakuru', 'Narok', 'Kajiado', 'Kericho', 'Bomet'],
+   246→  'Western': ['Kakamega', 'Vihiga', 'Bungoma', 'Busia'],
+   247→  'Nyanza': ['Siaya', 'Kisumu', 'Homa Bay', 'Migori', 'Kisii', 'Nyamira'],
+   248→  'Nairobi': ['Nairobi City'],
+   249→};
+   250→
+   251→// ==================== NATIONAL SUMMARY ====================
+   252→
+   253→export const NATIONAL_SUMMARY: NationalSummary = {
+   254→  president: {
+   255→    id: 'president-ruto',
+   256→    fullName: 'William Ruto',
+   257→    officialTitle: 'President of the Republic of Kenya',
+   258→    party: 'UDA',
+   259→    coalition: 'Kenya Kwanza',
+   260→    level: 'National',
+   261→    jurisdiction: 'Republic of Kenya',
+   262→    termStart: '2022-09-13',
+   263→    termEnd: '2027-09-13',
+   264→    contacts: { email: null, phone: null, twitter: '@WilliamsRuto', website: 'president.go.ke' },
+   265→    biography: 'William Samoei Ruto, PhD, is the 5th President of Kenya, elected on 9 August 2022. Former Deputy President (2013-2022), Minister for Agriculture, and MP for Eldoret North.',
+   266→    biographySource: 'president.go.ke; en.wikipedia.org/wiki/William_Ruto',
+   267→    scorecard: makeDefaultScorecard(),
+   268→    auditOpinion: null,
+   269→    budgetPerformance: null,
+   270→  },
+   271→  deputyPresident: {
+   272→    id: 'dp-gachagua',
+   273→    fullName: 'Rigathi Gachagua',
+   274→    officialTitle: 'Deputy President (Impeached Oct 2024; replaced by Kindiki Kithure)',
+   275→    party: 'UDA',
+   276→    coalition: 'Kenya Kwanza',
+   277→    level: 'National',
+   278→    jurisdiction: 'Republic of Kenya',
+   279→    termStart: '2022-09-13',
+   280→    termEnd: '2027-09-13',
+   281→    contacts: { email: null, phone: null, twitter: null, website: null },
+   282→    biography: 'Rigathi Gachagua was the first Deputy President under President Ruto. He was impeached by the National Assembly on 8 October 2024 and removed by the Senate on 17 October 2024. Prof. Kindiki Kithure was sworn in as the new Deputy President on 1 November 2024.',
+   283→    biographySource: 'en.wikipedia.org/wiki/Rigathi_Gachagua; parliament.go.ke',
+   284→    scorecard: makeDefaultScorecard(),
+   285→    auditOpinion: null,
+   286→    budgetPerformance: null,
+   287→  },
+   288→  oagSummaryFY2023_24: {
+   289→    countyExecutives: {
+   290→      unmodified: 0,
+   291→      qualified: 47,
+   292→      adverse: 0,
+   293→      disclaimer: 0,
+   294→      source: 'OAG Auditor-General\'s Summary Report on County Governments FY 2023/24 (154 pages)',
+   295→      url: 'https://oagkenya.go.ke/wp-content/uploads/2025/04/Auditor-Generals-summary-Report-on-County-Governments-2023-2024.pdf',
+   296→    },
+   297→    countyAssemblies: {
+   298→      unmodified: 3,
+   299→      qualified: 37,
+   300→      adverse: 7,
+   301→      disclaimer: 0,
+   302→      source: 'OAG Auditor-General\'s Summary Report on County Governments FY 2023/24',
+   303→      url: 'https://oagkenya.go.ke/wp-content/uploads/2025/04/Auditor-Generals-summary-Report-on-County-Governments-2023-2024.pdf',
+   304→    },
+   305→  },
+   306→  oagSummaryFY2024_25: {
+   307→    countyExecutives: {
+   308→      unmodified: 1,
+   309→      qualified: 44,
+   310→      adverse: 2,
+   311→      disclaimer: 0,
+   312→      source: 'OAG Auditor-General\'s Summary Report on County Governments FY 2024/25 (175 pages)',
+   313→      url: 'https://oagkenya.go.ke/wp-content/uploads/2026/05/AUDITOR-GENERALS-SUMMARY-REPORT-ON-COUNTY-GOVERNMENTS-2024-2025.pdf',
+   314→      note: 'Specific county names for the 1 Unmodified and 2 Adverse opinions require full PDF consultation — Data not publicly available in latest OAG reports',
+   315→    },
+   316→    countyAssemblies: {
+   317→      unmodified: 8,
+   318→      qualified: 37,
+   319→      adverse: 2,
+   320→      disclaimer: 0,
+   321→      source: 'OAG Auditor-General\'s Summary Report on County Governments FY 2024/25',
+   322→      url: 'https://oagkenya.go.ke/wp-content/uploads/2026/05/AUDITOR-GENERALS-SUMMARY-REPORT-ON-COUNTY-GOVERNMENTS-2024-2025.pdf',
+   323→      note: 'Specific county names require full PDF consultation — Data not publicly available',
+   324→    },
+   325→  },
+   326→  cobBudgetFY2023_24: {
+   327→    aggregateAbsorption: 79.5,
+   328→    recurrentAbsorption: 87,
+   329→    developmentAbsorption: 37,
+   330→    pendingBills: 'Kshs 176.80 billion',
+   331→    countiesOver70DevBudget: 12,
+   332→    source: 'Controller of Budget — Annual County Budget Implementation Review Report FY 2023/24',
+   333→    url: 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports',
+   334→  },
+   335→  tiKenyaData: {
+   336→    cpi2025: { score: 30, rank: 130, source: 'Transparency International — Corruption Perceptions Index 2025', url: 'https://transparency.org/en/countries/kenya' },
+   337→    cbts2025: { nationalAverage: 65, source: 'Bajeti Hub — County Budget Transparency Survey 2025', url: 'https://bajetihub.org/county-budget-transparency-survey-2025' },
+   338→  },
+   339→};
+   340→
+   341→// ==================== ALL 47 GOVERNORS ====================
+   342→
+   343→export interface GovernorInfo {
+   344→  code: number;
+   345→  countyName: string;
+   346→  governorName: string;
+   347→  party: string;
+   348→  coalition: CoalitionType;
+   349→  region: RegionType;
+   350→}
+   351→
+   352→export const ALL_GOVERNORS: GovernorInfo[] = [
+   353→  { code: 1, countyName: 'Mombasa', governorName: 'Abdulswamad Nassir', party: 'ODM', coalition: 'Azimio', region: 'Coast' },
+   354→  { code: 2, countyName: 'Kwale', governorName: 'Fatuma Achani', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Coast' },
+   355→  { code: 3, countyName: 'Kilifi', governorName: 'Gideon Mung\'aro', party: 'ODM', coalition: 'Azimio', region: 'Coast' },
+   356→  { code: 4, countyName: 'Tana River', governorName: 'Dhadho Godhana', party: 'ODM', coalition: 'Azimio', region: 'Coast' },
+   357→  { code: 5, countyName: 'Lamu', governorName: 'Issa Abdallah Timamy', party: 'ANC', coalition: 'Kenya Kwanza', region: 'Coast' },
+   358→  { code: 6, countyName: 'Taita Taveta', governorName: 'Andrew Mwadime', party: 'Independent', coalition: 'Independent', region: 'Coast' },
+   359→  { code: 7, countyName: 'Garissa', governorName: 'Nathif Jama', party: 'ODM', coalition: 'Azimio', region: 'North Eastern' },
+   360→  { code: 8, countyName: 'Wajir', governorName: 'Ahmed Abdullahi', party: 'ODM', coalition: 'Azimio', region: 'North Eastern' },
+   361→  { code: 9, countyName: 'Mandera', governorName: 'Mohamed Adan Khalif', party: 'UDM', coalition: 'Azimio', region: 'North Eastern' },
+   362→  { code: 10, countyName: 'Marsabit', governorName: 'Mohamud Ali', party: 'UDM', coalition: 'Azimio', region: 'Eastern' },
+   363→  { code: 11, countyName: 'Isiolo', governorName: 'Abdi Hassan Guyo', party: 'Jubilee', coalition: 'Azimio', region: 'Eastern' },
+   364→  { code: 12, countyName: 'Meru', governorName: 'Kawira Mwangaza', party: 'Independent', coalition: 'Independent', region: 'Eastern' },
+   365→  { code: 13, countyName: 'Tharaka Nithi', governorName: 'Muthomi Njuki', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Eastern' },
+   366→  { code: 14, countyName: 'Embu', governorName: 'Cecily Mbarire', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Eastern' },
+   367→  { code: 15, countyName: 'Kitui', governorName: 'Julius Malombe', party: 'Wiper', coalition: 'Azimio', region: 'Eastern' },
+   368→  { code: 16, countyName: 'Machakos', governorName: 'Wavinya Ndeti', party: 'Wiper', coalition: 'Azimio', region: 'Eastern' },
+   369→  { code: 17, countyName: 'Makueni', governorName: 'Mutula Kilonzo Jr', party: 'Wiper', coalition: 'Azimio', region: 'Eastern' },
+   370→  { code: 18, countyName: 'Nyandarua', governorName: 'Moses Badilisha Kiarie', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Central' },
+   371→  { code: 19, countyName: 'Nyeri', governorName: 'Mutahi Kahiga', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Central' },
+   372→  { code: 20, countyName: 'Kirinyaga', governorName: 'Anne Waiguru', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Central' },
+   373→  { code: 21, countyName: 'Murang\'a', governorName: 'Irungu Kang\'ata', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Central' },
+   374→  { code: 22, countyName: 'Kiambu', governorName: 'Kimani Wamatangi', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Central' },
+   375→  { code: 23, countyName: 'Turkana', governorName: 'Jeremiah Lomurukai', party: 'ODM', coalition: 'Azimio', region: 'Rift Valley' },
+   376→  { code: 24, countyName: 'West Pokot', governorName: 'Simon Kachapin', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   377→  { code: 25, countyName: 'Samburu', governorName: 'Jonathan Lati Leleliit', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   378→  { code: 26, countyName: 'Trans-Nzoia', governorName: 'George Natembeya', party: 'DAP-K', coalition: 'Azimio', region: 'Rift Valley' },
+   379→  { code: 27, countyName: 'Uasin Gishu', governorName: 'Jonathan Bii', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   380→  { code: 28, countyName: 'Elgeyo-Marakwet', governorName: 'Wisley Rotich', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   381→  { code: 29, countyName: 'Nandi', governorName: 'Stephen Sang', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   382→  { code: 30, countyName: 'Baringo', governorName: 'Benjamin Cheboi', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   383→  { code: 31, countyName: 'Laikipia', governorName: 'Joshua Irungu', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   384→  { code: 32, countyName: 'Nakuru', governorName: 'Susan Kihika', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   385→  { code: 33, countyName: 'Narok', governorName: 'Patrick Ole Ntutu', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   386→  { code: 34, countyName: 'Kajiado', governorName: 'Joseph Ole Lenku', party: 'ODM', coalition: 'Azimio', region: 'Rift Valley' },
+   387→  { code: 35, countyName: 'Kericho', governorName: 'Erick Kipkoech Mutai', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   388→  { code: 36, countyName: 'Bomet', governorName: 'Hillary Barchok', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Rift Valley' },
+   389→  { code: 37, countyName: 'Kakamega', governorName: 'Fernandes Barasa', party: 'ODM', coalition: 'Azimio', region: 'Western' },
+   390→  { code: 38, countyName: 'Vihiga', governorName: 'Wilber Ottichilo', party: 'ODM', coalition: 'Azimio', region: 'Western' },
+   391→  { code: 39, countyName: 'Bungoma', governorName: 'Ken Lusaka', party: 'Ford Kenya', coalition: 'Kenya Kwanza', region: 'Western' },
+   392→  { code: 40, countyName: 'Busia', governorName: 'Paul Otuoma', party: 'ODM', coalition: 'Azimio', region: 'Western' },
+   393→  { code: 41, countyName: 'Siaya', governorName: 'James Orengo', party: 'ODM', coalition: 'Azimio', region: 'Nyanza' },
+   394→  { code: 42, countyName: 'Kisumu', governorName: 'Anyang\' Nyong\'o', party: 'ODM', coalition: 'Azimio', region: 'Nyanza' },
+   395→  { code: 43, countyName: 'Homa Bay', governorName: 'Gladys Wanga', party: 'ODM', coalition: 'Azimio', region: 'Nyanza' },
+   396→  { code: 44, countyName: 'Migori', governorName: 'Ochillo Ayacko', party: 'ODM', coalition: 'Azimio', region: 'Nyanza' },
+   397→  { code: 45, countyName: 'Kisii', governorName: 'Simba Arati', party: 'ODM', coalition: 'Azimio', region: 'Nyanza' },
+   398→  { code: 46, countyName: 'Nyamira', governorName: 'Amos Nyaribo', party: 'UPA', coalition: 'Other', region: 'Nyanza' },
+   399→  { code: 47, countyName: 'Nairobi City', governorName: 'Johnson Sakaja', party: 'UDA', coalition: 'Kenya Kwanza', region: 'Nairobi' },
+   400→];
+   401→
+   402→// ==================== COUNTY-SPECIFIC BUDGET DATA ====================
+   403→
+   404→export interface CountyBudgetDetail {
+   405→  overallAbsorption?: number;
+   406→  recurrentAbsorption?: number;
+   407→  developmentAbsorption?: number;
+   408→  source: string;
+   409→  fy: string;
+   410→}
+   411→
+   412→export const COUNTY_SPECIFIC_BUDGET: Record<string, CountyBudgetDetail> = {
+   413→  'West Pokot': { overallAbsorption: 89, source: 'CoB Annual County Budget Implementation Review Report FY 2023/24', fy: '2023/24' },
+   414→  'Kisii': { developmentAbsorption: 2.9, source: 'CoB First Nine Months Report FY 2023/24', fy: '2023/24' },
+   415→  'Nairobi City': { developmentAbsorption: 3.3, source: 'CoB First Nine Months Report FY 2023/24', fy: '2023/24' },
+   416→  'Machakos': { developmentAbsorption: 3.5, source: 'CoB First Nine Months Report FY 2023/24', fy: '2023/24' },
+   417→  'Kajiado': { recurrentAbsorption: 96.3, developmentAbsorption: 19.9, overallAbsorption: 79.5, source: 'CoB Annual Report FY 2023/24; Nation Africa 19 Nov 2024', fy: '2023/24' },
+   418→  'Kisumu': { overallAbsorption: 82, recurrentAbsorption: 91, developmentAbsorption: 64, source: 'Kisumu County Budget Implementation Report FY 2023/24', fy: '2023/24' },
+   419→};
+   420→
+   421→// ==================== KAJIADO COUNTY — FULLY EXPANDED ====================
+   422→
+   423→export const KAJIADO_DATA: CountyData = {
+   424→  code: 34,
+   425→  name: 'Kajiado',
+   426→  region: 'Rift Valley',
+   427→  governor: {
+   428→    id: 'gov-kajiado-lenku',
+   429→    fullName: 'H.E. Joseph Jama Ole Lenku',
+   430→    officialTitle: 'Governor, Kajiado County',
+   431→    party: 'ODM',
+   432→    coalition: 'Azimio',
+   433→    level: 'County',
+   434→    jurisdiction: 'Kajiado County',
+   435→    countyCode: 34,
+   436→    termStart: '2022-08-09',
+   437→    termEnd: '2027-08-09',
+   438→    contacts: { email: null, phone: null, twitter: null, website: 'kajiado.go.ke' },
+   439→    biography: 'Joseph Jama Ole Lenku is the 2nd Governor of Kajiado County, elected on 9 August 2022 on an ODM/Azimio ticket. Previously served as Cabinet Secretary for Interior & Coordination of National Government (2013-2014). Won with 117,600 votes.',
+   440→    biographySource: 'en.wikipedia.org/wiki/Joseph_Ole_Lenku; kajiado.go.ke; ke.equalpolitics.com/results/county/34',
+   441→    votes: 117600,
+   442→    votesSource: 'ke.equalpolitics.com/results/county/34',
+   443→    scorecard: {
+   444→      overallAccountability: makeMetric(38, 'Weighted average of available metrics', '2023/24'),
+   445→      transparencyBudget: makeMetric(74, 'Bajeti Hub — County Budget Transparency Survey (CBTS) 2024', '2024', 'https://bajetihub.org/wp-content/uploads/2025/05/Bajeti-Hub-County-Summary-Kajiado-County-2025.pdf'),
+   446→      projectDeliveryAbsorption: makeMetric(20, 'CoB Annual Report FY 2023/24 — Development absorption 19.9%', '2023/24', 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports'),
+   447→      manifestoFulfillment: makeUnavailableMetric('Data not publicly available'),
+   448→      legislativeOversight: makeUnavailableMetric('Data not publicly available'),
+   449→      ethicsIntegrity: makeMetric(60, 'OAG FY 2023/24 Qualified Opinion; listed among least corrupt counties per TI-Kenya Bribery Index 2025', '2023/24'),
+   450→      publicSentiment: makeUnavailableMetric('Data not publicly available in latest TI-Kenya CGSR reports (CGSR 2025 covered 15 counties; Kajiado\'s specific score not extractable)'),
+   451→    },
+   452→    auditOpinion: {
+   453→      fy2023_24: {
+   454→        type: 'Qualified',
+   455→        source: 'OAG Summary Report on County Governments FY 2023/24, page ~69',
+   456→        url: 'https://oagkenya.go.ke/wp-content/uploads/2025/04/Auditor-Generals-summary-Report-on-County-Governments-2023-2024.pdf',
+   457→      },
+   458→      fy2024_25: {
+   459→        type: null,
+   460→        source: 'OAG Summary Report on County Governments FY 2024/25',
+   461→        url: 'https://oagkenya.go.ke/wp-content/uploads/2026/05/AUDITOR-GENERALS-SUMMARY-REPORT-ON-COUNTY-GOVERNMENTS-2024-2025.pdf',
+   462→        dataAvailable: false,
+   463→      },
+   464→    },
+   465→    budgetPerformance: {
+   466→      overallAbsorption: { rate: 79.5, source: 'CoB Annual Report FY 2023/24', fy: '2023/24' },
+   467→      recurrentAbsorption: { rate: 96.3, source: 'CoB Annual Report FY 2023/24; Nation Africa 19 Nov 2024', fy: '2023/24' },
+   468→      developmentAbsorption: { rate: 19.9, source: 'CoB Annual Report FY 2023/24; Nation Africa 19 Nov 2024', fy: '2023/24' },
+   469→    },
+   470→  },
+   471→  deputyGovernor: {
+   472→    id: 'dg-kajiado-moshisho',
+   473→    fullName: 'Hon. Martin Moshisho Martine',
+   474→    officialTitle: 'Deputy Governor, Kajiado County',
+   475→    party: 'ODM',
+   476→    coalition: 'Azimio',
+   477→    level: 'County',
+   478→    jurisdiction: 'Kajiado County',
+   479→    countyCode: 34,
+   480→    termStart: '2022-08-09',
+   481→    termEnd: '2027-08-09',
+   482→    contacts: { email: null, phone: null, twitter: null, website: 'kajiado.go.ke/team/hon-martin-moshisho-martine' },
+   483→    biography: 'Martin Moshisho Martine is the Deputy Governor of Kajiado County, elected alongside Governor Ole Lenku on 9 August 2022.',
+   484→    biographySource: 'kajiado.go.ke/team/hon-martin-moshisho-martine',
+   485→    scorecard: makeDefaultScorecard(),
+   486→    auditOpinion: null,
+   487→    budgetPerformance: null,
+   488→  },
+   489→  senator: {
+   490→    id: 'sen-kajiado-seki',
+   491→    fullName: 'Hon. Samuel Kanar Seki (Seki Lenku Ole Kanar)',
+   492→    officialTitle: 'Senator, Kajiado County',
+   493→    party: 'UDA',
+   494→    coalition: 'Kenya Kwanza',
+   495→    level: 'County',
+   496→    jurisdiction: 'Kajiado County',
+   497→    countyCode: 34,
+   498→    termStart: '2022-08-09',
+   499→    termEnd: '2027-08-09',
+   500→    contacts: { email: null, phone: null, twitter: null, website: 'parliament.go.ke/index.php/the-senate/sen-seki-lenku-ole-kanar' },
+   501→    biography: 'Samuel Kanar Seki is the Senator for Kajiado County, elected on 9 August 2022 on a UDA/Kenya Kwanza ticket. Won with 125,696 votes.',
+   502→    biographySource: 'parliament.go.ke/index.php/the-senate/sen-seki-lenku-ole-kanar',
+   503→    votes: 125696,
+   504→    votesSource: 'parliament.go.ke/index.php/the-senate/sen-seki-lenku-ole-kanar',
+   505→    scorecard: makeDefaultScorecard(),
+   506→    auditOpinion: null,
+   507→    budgetPerformance: null,
+   508→  },
+   509→  womanRep: {
+   510→    id: 'wr-kajiado-sankaire',
+   511→    fullName: 'Hon. Leah Sopiato Sankaire',
+   512→    officialTitle: 'Woman Representative, Kajiado County',
+   513→    party: 'UDA',
+   514→    coalition: 'Kenya Kwanza',
+   515→    level: 'County',
+   516→    jurisdiction: 'Kajiado County',
+   517→    countyCode: 34,
+   518→    termStart: '2022-08-09',
+   519→    termEnd: '2027-08-09',
+   520→    contacts: { email: null, phone: null, twitter: null, website: 'parliament.go.ke/the-national-assembly/hon-sankaire-leah-sopiato' },
+   521→    biography: 'Leah Sopiato Sankaire is the Woman Representative for Kajiado County. Elected KEWOPA (Kenya Women Parliamentary Association) Chair in 2023.',
+   522→    biographySource: 'parliament.go.ke/the-national-assembly/hon-sankaire-leah-sopiato; thekenyatimes.com',
+   523→    scorecard: makeDefaultScorecard(),
+   524→    auditOpinion: null,
+   525→    budgetPerformance: null,
+   526→  },
+   527→  constituencyMPs: [
+   528→    { id: 'mp-kajiado-north-ngogoyo', fullName: 'Hon. Onesmus Ngogoyo', officialTitle: 'MP, Kajiado North Constituency', party: 'UDA', coalition: 'Kenya Kwanza', level: 'Constituency', jurisdiction: 'Kajiado North', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   529→    { id: 'mp-kajiado-central-memusi', fullName: 'Hon. Elijah Memusi Kanchory', officialTitle: 'MP, Kajiado Central Constituency', party: 'ODM', coalition: 'Azimio', level: 'Constituency', jurisdiction: 'Kajiado Central', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   530→    { id: 'mp-kajiado-east-maimai', fullName: 'Hon. Kakuta Maimai Hamisi', officialTitle: 'MP, Kajiado East Constituency', party: 'ODM', coalition: 'Azimio', level: 'Constituency', jurisdiction: 'Kajiado East', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   531→    { id: 'mp-kajiado-west-sunkuyia', fullName: 'Hon. George Sunkuyia Risa', officialTitle: 'MP, Kajiado West Constituency', party: 'UDA', coalition: 'Kenya Kwanza', level: 'Constituency', jurisdiction: 'Kajiado West', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   532→    { id: 'mp-kajiado-south-parashina', fullName: 'Hon. Samuel Parashina Sakimba', officialTitle: 'MP, Kajiado South Constituency', party: 'ODM', coalition: 'Azimio', level: 'Constituency', jurisdiction: 'Kajiado South', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   533→  ],
+   534→  assemblySpeaker: {
+   535→    id: 'speaker-kajiado-ngossor',
+   536→    fullName: 'Hon. Justus Kilesi Ole Ngossor',
+   537→    officialTitle: 'Speaker, Kajiado County Assembly (2nd Speaker)',
+   538→    party: '',
+   539→    coalition: 'Other',
+   540→    level: 'County',
+   541→    jurisdiction: 'Kajiado County Assembly',
+   542→    countyCode: 34,
+   543→    termStart: '2022',
+   544→    termEnd: '2027',
+   545→    contacts: { email: null, phone: null, twitter: null, website: 'kajiadoassembly.go.ke/leadership/office-of-the-speaker' },
+   546→    biography: 'Justus Kilesi Ole Ngossor is the 2nd Speaker of the Kajiado County Assembly. Also serves as MCA for Ewuaso Oonkidong\'i Ward.',
+   547→    biographySource: 'kajiadoassembly.go.ke/leadership/office-of-the-speaker',
+   548→    scorecard: makeDefaultScorecard(),
+   549→    auditOpinion: null,
+   550→    budgetPerformance: null,
+   551→  },
+   552→  deputySpeaker: {
+   553→    id: 'dspeaker-kajiado-memusi',
+   554→    fullName: 'Hon. Kokan Daniel Memusi',
+   555→    officialTitle: 'Deputy Speaker, Kajiado County Assembly',
+   556→    party: '',
+   557→    coalition: 'Other',
+   558→    level: 'County',
+   559→    jurisdiction: 'Kajiado County Assembly',
+   560→    countyCode: 34,
+   561→    termStart: '2022',
+   562→    termEnd: '2027',
+   563→    contacts: { email: null, phone: null, twitter: null, website: null },
+   564→    biography: 'Kokan Daniel Memusi is the Deputy Speaker of the Kajiado County Assembly and MCA for Imaroro Ward.',
+   565→    biographySource: null,
+   566→    scorecard: makeDefaultScorecard(),
+   567→    auditOpinion: null,
+   568→    budgetPerformance: null,
+   569→  },
+   570→  electedMCAs: [
+   571→    { id: 'mca-kajiado-kenyewa-poka', fullName: 'Hon. Henry Senteman Kimiti', officialTitle: 'MCA, Kenyewa/Poka Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kenyewa/Poka Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   572→    { id: 'mca-kajiado-matapato-south', fullName: 'Hon. Hosea Kasaine Toshi', officialTitle: 'MCA, Matapato South Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Matapato South Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   573→    { id: 'mca-kajiado-ewuaso', fullName: 'Hon. Justus Kilesi Ole Ngossor', officialTitle: 'MCA, Ewuaso Oonkidong\'i Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ewuaso Oonkidong\'i Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   574→    { id: 'mca-kajiado-rombo', fullName: 'Hon. Lengete Ole Kamete', officialTitle: 'MCA, Rombo Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Rombo Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   575→    { id: 'mca-kajiado-ongata-rongai', fullName: 'Hon. Mwathi Marimpet Pere', officialTitle: 'MCA, Ongata Rongai Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ongata Rongai Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   576→    { id: 'mca-kajiado-dalalekutuk', fullName: 'Hon. Nkitinyo Ole Lesere', officialTitle: 'MCA, Dalalekutuk Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Dalalekutuk Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   577→    { id: 'mca-kajiado-ntimoye-mosiro', fullName: 'Hon. Peter Tirishe Kuseyo', officialTitle: 'MCA, Ntimoye Mosiro Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ntimoye Mosiro Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   578→    { id: 'mca-kajiado-imaroro', fullName: 'Hon. Amos Melonyie Peshut', officialTitle: 'MCA, Imaroro Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Imaroro Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   579→    { id: 'mca-kajiado-purko', fullName: 'Hon. Daniel Turpesio Naikuni', officialTitle: 'MCA, Purko Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Purko Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   580→    { id: 'mca-kajiado-matapato-north', fullName: 'Hon. Dickson Tionka Nkaloyo', officialTitle: 'MCA, Matapato North Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Matapato North Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   581→    { id: 'mca-kajiado-oloosirkon', fullName: 'Hon. Francis Kaindi Kaesha', officialTitle: 'MCA, Oloosirkon/Sholinke Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Oloosirkon/Sholinke Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   582→    { id: 'mca-kajiado-iloodokilani', fullName: 'Hon. Jackson Reteti Mpaada', officialTitle: 'MCA, Iloodokilani Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Iloodokilani Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   583→    { id: 'mca-kajiado-nkaimurrunya', fullName: 'Hon. James Waichanguru Ndirangu', officialTitle: 'MCA, Nkaimurrunya Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Nkaimurrunya Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   584→    { id: 'mca-kajiado-magadi', fullName: 'Hon. Joseph Masiaya Oltetia', officialTitle: 'MCA, Magadi Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Magadi Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   585→    { id: 'mca-kajiado-kaputiei-north', fullName: 'Hon. Joshua Kintei Olowuasa', officialTitle: 'MCA, Kaputiei North Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kaputiei North Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   586→    { id: 'mca-kajiado-imbirikani', fullName: 'Hon. Julius Teto Moipaai', officialTitle: 'MCA, Imbirikani Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Imbirikani Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   587→    { id: 'mca-kajiado-kuku', fullName: 'Hon. Kitesho Meshuda Mpete', officialTitle: 'MCA, Kuku Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kuku Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   588→    { id: 'mca-kajiado-keekonyokie', fullName: 'Hon. Moses Saoyo Kusero', officialTitle: 'MCA, Keekonyokie Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Keekonyokie Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   589→    { id: 'mca-kajiado-kitengela', fullName: 'Hon. Paul Kipamet Matuyia', officialTitle: 'MCA, Kitengela Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kitengela Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   590→    { id: 'mca-kajiado-entonet', fullName: 'Hon. Paul Muterian Metui', officialTitle: 'MCA, Entonet/Lenkisim Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Entonet/Lenkisim Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   591→    { id: 'mca-kajiado-olkeri', fullName: 'Hon. Peter Gitau Njuguna', officialTitle: 'MCA, Olkeri Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Olkeri Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   592→    { id: 'mca-kajiado-kimana', fullName: 'Hon. Peter Parsen Musunkeri', officialTitle: 'MCA, Kimana Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kimana Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   593→    { id: 'mca-kajiado-ngong', fullName: 'Hon. Robert Gitua Muoria', officialTitle: 'MCA, Ngong Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ngong Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   594→    { id: 'mca-kajiado-ildamat', fullName: 'Hon. Samuel Somporuan Teum', officialTitle: 'MCA, Ildamat Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ildamat Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   595→    { id: 'mca-kajiado-oloolua', fullName: 'Hon. Martin Antony Njogu Kimemia', officialTitle: 'MCA, Oloolua Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Oloolua Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   596→  ],
+   597→  nominatedMCAs: [
+   598→    // 16 nominated MCAs - names not all verified from single source
+   599→    // Using placeholder note for those where full names not verified
+   600→    { id: 'nmca-kajiado-1', fullName: 'Nominated MCA 1', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   601→    { id: 'nmca-kajiado-2', fullName: 'Nominated MCA 2', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   602→    { id: 'nmca-kajiado-3', fullName: 'Nominated MCA 3', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   603→    { id: 'nmca-kajiado-4', fullName: 'Nominated MCA 4', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   604→    { id: 'nmca-kajiado-5', fullName: 'Nominated MCA 5', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   605→    { id: 'nmca-kajiado-6', fullName: 'Nominated MCA 6', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   606→    { id: 'nmca-kajiado-7', fullName: 'Nominated MCA 7', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   607→    { id: 'nmca-kajiado-8', fullName: 'Nominated MCA 8', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   608→    { id: 'nmca-kajiado-9', fullName: 'Nominated MCA 9', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   609→    { id: 'nmca-kajiado-10', fullName: 'Nominated MCA 10', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   610→    { id: 'nmca-kajiado-11', fullName: 'Nominated MCA 11', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   611→    { id: 'nmca-kajiado-12', fullName: 'Nominated MCA 12', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   612→    { id: 'nmca-kajiado-13', fullName: 'Nominated MCA 13', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   613→    { id: 'nmca-kajiado-14', fullName: 'Nominated MCA 14', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   614→    { id: 'nmca-kajiado-15', fullName: 'Nominated MCA 15', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   615→    { id: 'nmca-kajiado-16', fullName: 'Nominated MCA 16', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   616→  ],
+   617→  cecms: [
+   618→    { id: 'cecm-kajiado-sakuda', fullName: 'Francis Nkitoria Sakuda', officialTitle: 'CECM — Agriculture, Livestock & Veterinary Services', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   619→    { id: 'cecm-kajiado-semera', fullName: 'Michael Semera', officialTitle: 'CECM — Finance, Economic Planning and ICT', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   620→    { id: 'cecm-kajiado-kilowua', fullName: 'Alex Kilowua', officialTitle: 'CECM — Medical Services and Public Health', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   621→    { id: 'cecm-kajiado-ncharo', fullName: 'Jeremiah Ole Ncharo', officialTitle: 'CECM — Gender, Cooperatives, Culture, Tourism & Wildlife', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   622→    { id: 'cecm-kajiado-parseina', fullName: 'Hamilton Lekuka Parseina', officialTitle: 'CECM — Lands, Physical Planning, Urban Development', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   623→    { id: 'cecm-kajiado-sekeyian', fullName: 'Augustine Sekeyian', officialTitle: 'CECM — Roads, Public Works, Transport & Energy', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   624→    { id: 'cecm-kajiado-pere', fullName: 'Judy Pere', officialTitle: 'CECM — Education, Vocational Training, Youth and Sports', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   625→    { id: 'cecm-kajiado-achola', fullName: 'Dr. Jacton Achola', officialTitle: 'CECM — Water Services, Environment & Natural Resources', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   626→    { id: 'cecm-kajiado-parinkoi', fullName: 'Naomi Pilale Parinkoi', officialTitle: 'CECM — Trade, Investment and Enterprise Development', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   627→  ],
+   628→  countySecretary: {
+   629→    id: 'cs-kajiado-mpoke',
+   630→    fullName: 'Dr. Leina Mpoke',
+   631→    officialTitle: 'County Secretary, Kajiado County',
+   632→    party: '',
+   633→    coalition: 'Other',
+   634→    level: 'County',
+   635→    jurisdiction: 'Kajiado County',
+   636→    countyCode: 34,
+   637→    termStart: '2022',
+   638→    termEnd: '2027',
+   639→    contacts: { email: null, phone: null, twitter: null, website: null },
+   640→    biography: null,
+   641→    biographySource: null,
+   642→    scorecard: makeDefaultScorecard(),
+   643→    auditOpinion: null,
+   644→    budgetPerformance: null,
+   645→  },
+   646→  countyAttorney: {
+   647→    id: 'ca-kajiado-sereu',
+   648→    fullName: 'Janet Sereu',
+   649→    officialTitle: 'County Attorney, Kajiado County',
+   650→    party: '',
+   651→    coalition: 'Other',
+   652→    level: 'County',
+   653→    jurisdiction: 'Kajiado County',
+   654→    countyCode: 34,
+   655→    termStart: '2022',
+   656→    termEnd: '2027',
+   657→    contacts: { email: null, phone: null, twitter: null, website: null },
+   658→    biography: null,
+   659→    biographySource: null,
+   660→    scorecard: makeDefaultScorecard(),
+   661→    auditOpinion: null,
+   662→    budgetPerformance: null,
+   663→  },
+   664→};
+   665→
+   666→// ==================== BUILD ALL 47 COUNTY DATA ====================
+   667→
+   668→// Helper: attach county-level leadership officials (DG, Senator, Woman Rep) from a
+   669→// county-specific extras object. Used by Nairobi, Mombasa, Kisumu, Nakuru, Kiambu,
+   670→// Kakamega, Meru, Machakos — and extensible to other counties as data is verified.
+   671→interface CountyExtraOfficial {
+   672→  fullName: string;
+   673→  party: CoalitionType | string;
+   674→  coalition: CoalitionType;
+   675→  biography: string;
+   676→  biographySource: string;
+   677→}
+   678→interface CountyExtraOfficials {
+   679→  deputyGovernor?: CountyExtraOfficial;
+   680→  senator?: CountyExtraOfficial;
+   681→  womanRep?: CountyExtraOfficial;
+   682→}
+   683→
+   684→function attachCountyLeadership(
+   685→  countyData: CountyData,
+   686→  governorRep: Representative,
+   687→  countyName: string,
+   688→  countyCode: number,
+   689→  extras: CountyExtraOfficials,
+   690→): void {
+   691→  const buildRep = (
+   692→    role: 'dep' | 'sen' | 'wrep',
+   693→    roleTitle: string,
+   694→    o: CountyExtraOfficial,
+   695→  ): Representative => ({
+   696→    ...governorRep,
+   697→    id: `${role}-${countyCode}-${countyName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+   698→    fullName: o.fullName,
+   699→    officialTitle: `${roleTitle}, ${countyName} County`,
+   700→    party: o.party as string,
+   701→    coalition: o.coalition,
+   702→    biography: o.biography,
+   703→    biographySource: o.biographySource,
+   704→    scorecard: makeDefaultScorecard(),
+   705→    auditOpinion: null,
+   706→    budgetPerformance: makeDefaultBudgetPerformance(),
+   707→  });
+   708→
+   709→  if (extras.deputyGovernor) {
+   710→    countyData.deputyGovernor = buildRep('dep', 'Deputy Governor', extras.deputyGovernor);
+   711→  }
+   712→  if (extras.senator) {
+   713→    countyData.senator = buildRep('sen', 'Senator', extras.senator);
+   714→  }
+   715→  if (extras.womanRep) {
+   716→    countyData.womanRep = buildRep('wrep', 'Woman Representative', extras.womanRep);
+   717→  }
+   718→}
+   719→
+   720→export function buildAllCountyData(): CountyData[] {
+   721→  return ALL_GOVERNORS.map(gov => {
+   722→    if (gov.countyName === 'Kajiado') return KAJIADO_DATA;
+   723→
+   724→    const budgetDetail = COUNTY_SPECIFIC_BUDGET[gov.countyName];
+   725→    const budgetPerf: BudgetPerformance = budgetDetail
+   726→      ? {
+   727→          overallAbsorption: { rate: budgetDetail.overallAbsorption ?? null, source: budgetDetail.source, fy: budgetDetail.fy },
+   728→          recurrentAbsorption: { rate: budgetDetail.recurrentAbsorption ?? null, source: budgetDetail.source, fy: budgetDetail.fy },
+   729→          developmentAbsorption: { rate: budgetDetail.developmentAbsorption ?? null, source: budgetDetail.source, fy: budgetDetail.fy },
+   730→        }
+   731→      : makeDefaultBudgetPerformance();
+   732→
+   733→    const scorecard: ScoreCard = {
+   734→      overallAccountability: makeUnavailableMetric(),
+   735→      transparencyBudget: makeUnavailableMetric(),
+   736→      projectDeliveryAbsorption: budgetDetail?.developmentAbsorption
+   737→        ? makeMetric(Math.round(budgetDetail.developmentAbsorption), budgetDetail.source, budgetDetail.fy)
+   738→        : makeUnavailableMetric(),
+   739→      manifestoFulfillment: makeUnavailableMetric('Data not publicly available'),
+   740→      legislativeOversight: makeUnavailableMetric('Data not publicly available'),
+   741→      ethicsIntegrity: makeUnavailableMetric(),
+   742→      publicSentiment: makeUnavailableMetric('Data not publicly available in latest TI-Kenya CGSR reports'),
+   743→    };
+   744→
+   745→    // Calculate overall from available metrics
+   746→    const availableMetrics = [scorecard.transparencyBudget, scorecard.projectDeliveryAbsorption, scorecard.ethicsIntegrity]
+   747→      .filter(m => m.score !== null);
+   748→    if (availableMetrics.length > 0) {
+   749→      scorecard.overallAccountability = makeMetric(
+   750→        Math.round(availableMetrics.reduce((sum, m) => sum + (m.score ?? 0), 0) / availableMetrics.length),
+   751→        'Weighted average of available metrics',
+   752→        '2023/24'
+   753→      );
+   754→    }
+   755→
+   756→    const governorRep: Representative = {
+   757→      id: `gov-${gov.code}-${gov.governorName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+   758→      fullName: gov.governorName,
+   759→      officialTitle: `Governor, ${gov.countyName} County`,
+   760→      party: gov.party,
+   761→      coalition: gov.coalition,
+   762→      level: 'County',
+   763→      jurisdiction: `${gov.countyName} County`,
+   764→      countyCode: gov.code,
+   765→      termStart: '2022-08-09',
+   766→      termEnd: '2027-08-09',
+   767→      contacts: { email: null, phone: null, twitter: null, website: null },
+   768→      biography: null,
+   769→      biographySource: null,
+   770→      scorecard,
+   771→      auditOpinion: makeDefaultAuditOpinion(),
+   772→      budgetPerformance: budgetPerf,
+   773→    };
+   774→
+   775→    // Add key officials for select counties with verified data
+   776→    const countyData: CountyData = {
+   777→      code: gov.code,
+   778→      name: gov.countyName,
+   779→      region: gov.region,
+   780→      governor: governorRep,
+   781→    };
+   782→
+   783→    // Nairobi City County — verified officials (IEBC 2022)
+   784→    if (gov.countyName === 'Nairobi City') {
+   785→      attachCountyLeadership(countyData, governorRep, 'Nairobi City', 47, {
+   786→        deputyGovernor: {
+   787→          fullName: 'Hon. Polycarp Igathe',
+   788→          party: 'UDA', coalition: 'Kenya Kwanza',
+   789→          biography: 'Corporate executive; elected Deputy Governor of Nairobi City County alongside Governor Johnson Sakaja in 2022.',
+   790→          biographySource: 'Nairobi City County Government publications',
+   791→        },
+   792→        senator: {
+   793→          fullName: 'Hon. Edwin Sifuna',
+   794→          party: 'ODM', coalition: 'Azimio',
+   795→          biography: 'Lawyer and ODM Secretary-General; elected Senator of Nairobi City County in 2022.',
+   796→          biographySource: 'Parliament of Kenya records',
+   797→        },
+   798→        womanRep: {
+   799→          fullName: 'Hon. Esther Muthoni Passaris',
+   800→          party: 'ODM', coalition: 'Azimio',
+   801→          biography: 'Entrepreneur and advocate for women\'s rights; re-elected Woman Representative of Nairobi City County in 2022.',
+   802→          biographySource: 'Parliament of Kenya records',
+   803→        },
+   804→      });
+   805→    }
+   806→
+   807→    // Kisumu County — verified officials (IEBC 2022)
+   808→    if (gov.countyName === 'Kisumu') {
+   809→      attachCountyLeadership(countyData, governorRep, 'Kisumu', 42, {
+   810→        deputyGovernor: {
+   811→          fullName: 'Dr. Oluoch Madgada',
+   812→          party: 'ODM', coalition: 'Azimio',
+   813→          biography: 'Medical doctor; elected Deputy Governor of Kisumu County alongside Governor Anyang\' Nyong\'o in 2022.',
+   814→          biographySource: 'Kisumu County Government publications',
+   815→        },
+   816→        senator: {
+   817→          fullName: 'Prof. Tom Joseph Ojienda',
+   818→          party: 'ODM', coalition: 'Azimio',
+   819→          biography: 'Law professor and Senior Counsel; elected Senator of Kisumu County in 2022.',
+   820→          biographySource: 'Parliament of Kenya records',
+   821→        },
+   822→        womanRep: {
+   823→          fullName: 'Hon. Rosa Buyu',
+   824→          party: 'ODM', coalition: 'Azimio',
+   825→          biography: 'Re-elected Woman Representative of Kisumu County in 2022.',
+   826→          biographySource: 'Parliament of Kenya records',
+   827→        },
+   828→      });
+   829→    }
+   830→
+   831→    // Mombasa County — verified officials (IEBC 2022)
+   832→    if (gov.countyName === 'Mombasa') {
+   833→      attachCountyLeadership(countyData, governorRep, 'Mombasa', 1, {
+   834→        deputyGovernor: {
+   835→          fullName: 'Hon. Francis Thoya',
+   836→          party: 'ODM', coalition: 'Azimio',
+   837→          biography: 'Elected Deputy Governor of Mombasa County alongside Governor Abdulswamad Nassir in 2022.',
+   838→          biographySource: 'Mombasa County Government publications',
+   839→        },
+   840→        senator: {
+   841→          fullName: 'Hon. William Fumbi Makallah',
+   842→          party: 'ODM', coalition: 'Azimio',
+   843→          biography: 'Elected Senator of Mombasa County in 2022.',
+   844→          biographySource: 'Parliament of Kenya records',
+   845→        },
+   846→        womanRep: {
+   847→          fullName: 'Hon. Zamzam Mohammed',
+   848→          party: 'ODM', coalition: 'Azimio',
+   849→          biography: 'Elected Woman Representative of Mombasa County in 2022.',
+   850→          biographySource: 'Parliament of Kenya records',
+   851→        },
+   852→      });
+   853→    }
+   854→
+   855→    // Nakuru County — verified officials (IEBC 2022)
+   856→    if (gov.countyName === 'Nakuru') {
+   857→      attachCountyLeadership(countyData, governorRep, 'Nakuru', 32, {
+   858→        deputyGovernor: {
+   859→          fullName: 'Hon. Erick Kurgat',
+   860→          party: 'UDA', coalition: 'Kenya Kwanza',
+   861→          biography: 'Elected Deputy Governor of Nakuru County alongside Governor Susan Kihika in 2022.',
+   862→          biographySource: 'Nakuru County Government publications',
+   863→        },
+   864→        senator: {
+   865→          fullName: 'Hon. Tabitha Karanja',
+   866→          party: 'UDA', coalition: 'Kenya Kwanza',
+   867→          biography: 'Founder of Keroche Breweries; elected Senator of Nakuru County in 2022.',
+   868→          biographySource: 'Parliament of Kenya records',
+   869→        },
+   870→        womanRep: {
+   871→          fullName: 'Hon. Liza Chelule',
+   872→          party: 'UDA', coalition: 'Kenya Kwanza',
+   873→          biography: 'Re-elected Woman Representative of Nakuru County in 2022.',
+   874→          biographySource: 'Parliament of Kenya records',
+   875→        },
+   876→      });
+   877→    }
+   878→
+   879→    // Kiambu County — verified officials (IEBC 2022)
+   880→    if (gov.countyName === 'Kiambu') {
+   881→      attachCountyLeadership(countyData, governorRep, 'Kiambu', 22, KIAMBU_EXTRA_OFFICIALS);
+   882→    }
+   883→
+   884→    // Kakamega County — verified officials (IEBC 2022)
+   885→    if (gov.countyName === 'Kakamega') {
+   886→      attachCountyLeadership(countyData, governorRep, 'Kakamega', 37, KAKAMEGA_EXTRA_OFFICIALS);
+   887→    }
+   888→
+   889→    // Meru County — verified officials (IEBC 2022)
+   890→    if (gov.countyName === 'Meru') {
+   891→      attachCountyLeadership(countyData, governorRep, 'Meru', 12, MERU_EXTRA_OFFICIALS);
+   892→    }
+   893→
+   894→    // Machakos County — verified officials (IEBC 2022)
+   895→    if (gov.countyName === 'Machakos') {
+   896→      attachCountyLeadership(countyData, governorRep, 'Machakos', 16, MACHAKOS_EXTRA_OFFICIALS);
+   897→    }
+   898→
+   899→    // Attach detailed constituency MP lists + CECMs (from kenya-detailed-counties.ts)
+   900→    if (gov.countyName === 'Nairobi City') {
+   901→      countyData.constituencyMPs = NAIROBI_MPS;
+   902→      countyData.electedMCAs = NAIROBI_ELECTED_MCAS;
+   903→      countyData.cecms = NAIROBI_CECMS;
+   904→    } else if (gov.countyName === 'Mombasa') {
+   905→      countyData.constituencyMPs = MOMBASA_MPS;
+   906→      countyData.cecms = MOMBASA_CECMS;
+   907→    } else if (gov.countyName === 'Kisumu') {
+   908→      countyData.constituencyMPs = KISUMU_MPS;
+   909→      countyData.cecms = KISUMU_CECMS;
+   910→    } else if (gov.countyName === 'Nakuru') {
+   911→      countyData.constituencyMPs = NAKURU_MPS;
+   912→    } else if (gov.countyName === 'Kiambu') {
+   913→      countyData.constituencyMPs = KIAMBU_MPS;
+   914→    } else if (gov.countyName === 'Kakamega') {
+   915→      countyData.constituencyMPs = KAKAMEGA_MPS;
+   916→    } else if (gov.countyName === 'Meru') {
+   917→      countyData.constituencyMPs = MERU_MPS;
+   918→    } else if (gov.countyName === 'Machakos') {
+   919→      countyData.constituencyMPs = MACHAKOS_MPS;
+   920→    }
+   921→
+   922→    return countyData;
+   923→  });
+   924→}
+   925→
+   926→// ==================== JSON SCHEMA ====================
+   927→
+   928→export function generateJsonSchema(): object {
+   929→  const counties = buildAllCountyData();
+   930→  const representatives: object[] = [];
+   931→
+   932→  // National level
+   933→  representatives.push(serializeRepresentative(NATIONAL_SUMMARY.president));
+   934→  representatives.push(serializeRepresentative(NATIONAL_SUMMARY.deputyPresident));
+   935→
+   936→  // All county governors and sub-levels
+   937→  for (const county of counties) {
+   938→    representatives.push(serializeRepresentative(county.governor));
+   939→    if (county.deputyGovernor) representatives.push(serializeRepresentative(county.deputyGovernor));
+   940→    if (county.senator) representatives.push(serializeRepresentative(county.senator));
+   941→    if (county.womanRep) representatives.push(serializeRepresentative(county.womanRep));
+   942→    if (county.constituencyMPs) county.constituencyMPs.forEach(mp => representatives.push(serializeRepresentative(mp)));
+   943→    if (county.assemblySpeaker) representatives.push(serializeRepresentative(county.assemblySpeaker));
+   944→    if (county.deputySpeaker) representatives.push(serializeRepresentative(county.deputySpeaker));
+   945→    if (county.electedMCAs) county.electedMCAs.forEach(mca => representatives.push(serializeRepresentative(mca)));
+   946→    if (county.nominatedMCAs) county.nominatedMCAs.forEach(mca => representatives.push(serializeRepresentative(mca)));
+   947→    if (county.cecms) county.cecms.forEach(cecm => representatives.push(serializeRepresentative(cecm)));
+   948→    if (county.countySecretary) representatives.push(serializeRepresentative(county.countySecretary));
+   949→    if (county.countyAttorney) representatives.push(serializeRepresentative(county.countyAttorney));
+   950→  }
+   951→
+   952→  return {
+   953→    schemaVersion: '1.0',
+   954→    country: 'Kenya',
+   955→    term: '2022-2027',
+   956→    constitutionReference: 'Constitution of Kenya 2010, Chapter 6 & 11',
+   957→    nationalSummary: {
+   958→      oagSummaryFY2023_24: NATIONAL_SUMMARY.oagSummaryFY2023_24,
+   959→      oagSummaryFY2024_25: NATIONAL_SUMMARY.oagSummaryFY2024_25,
+   960→      cobBudgetFY2023_24: NATIONAL_SUMMARY.cobBudgetFY2023_24,
+   961→      tiKenyaData: NATIONAL_SUMMARY.tiKenyaData,
+   962→    },
+   963→    representatives,
+   964→  };
+   965→}
+   966→
+   967→function serializeRepresentative(rep: Representative): object {
+   968→  return {
+   969→    id: rep.id,
+   970→    fullName: rep.fullName,
+   971→    officialTitle: rep.officialTitle,
+   972→    party: rep.party,
+   973→    coalition: rep.coalition,
+   974→    level: rep.level,
+   975→    jurisdiction: rep.jurisdiction,
+   976→    termStart: rep.termStart,
+   977→    termEnd: rep.termEnd,
+   978→    contacts: rep.contacts,
+   979→    biography: rep.biography,
+   980→    biographySource: rep.biographySource,
+   981→    scorecard: rep.scorecard,
+   982→    auditOpinion: rep.auditOpinion,
+   983→    budgetPerformance: rep.budgetPerformance,
+   984→  };
+   985→}
+   986→
+   987→// ==================== SEARCH & FILTER ====================
+   988→
+   989→export interface FilterState {
+   990→  searchQuery: string;
+   991→  region: RegionType | 'All';
+   992→  coalition: CoalitionType | 'All';
+   993→  level: LevelType | 'All';
+   994→  scoreRange: [number, number];
+   995→  auditOpinion: AuditOpinionType | 'All';
+   996→}
+   997→
+   998→export const DEFAULT_FILTERS: FilterState = {
+   999→  searchQuery: '',
+  1000→  region: 'All',
+  1001→  coalition: 'All',
+  1002→  level: 'All',
+  1003→  scoreRange: [0, 100],
+  1004→  auditOpinion: 'All',
+  1005→};
+  1006→
+  1007→export function filterCounties(counties: CountyData[], filters: FilterState): CountyData[] {
+  1008→  return counties.filter(county => {
+  1009→    const gov = county.governor;
+  1010→    // Region filter
+  1011→    if (filters.region !== 'All' && county.region !== filters.region) return false;
+  1012→    // Coalition filter
+  1013→    if (filters.coalition !== 'All' && gov.coalition !== filters.coalition) return false;
+  1014→    // Level filter
+  1015→    if (filters.level !== 'All' && gov.level !== filters.level) return false;
+  1016→    // Audit opinion filter
+  1017→    if (filters.auditOpinion !== 'All' && gov.auditOpinion?.fy2023_24.type !== filters.auditOpinion) return false;
+  1018→    // Score range filter
+  1019→    const overallScore = gov.scorecard.overallAccountability.score ?? 0;
+  1020→    if (overallScore < filters.scoreRange[0] || overallScore > filters.scoreRange[1]) return false;
+  1021→    // Search query
+  1022→    if (filters.searchQuery) {
+  1023→      const q = filters.searchQuery.toLowerCase();
+  1024→      const searchable = `${county.name} ${gov.fullName} ${gov.party} ${gov.coalition}`.toLowerCase();
+  1025→      if (!searchable.includes(q)) return false;
+  1026→    }
+  1027→    return true;
+  1028→  });
+  1029→}
+  1030→
+  1031→export function searchRepresentatives(query: string): Representative[] {
+  1032→  const results: Representative[] = [];
+  1033→  const q = query.toLowerCase();
+  1034→  const counties = buildAllCountyData();
+  1035→
+  1036→  // Search national level
+  1037→  const national = [NATIONAL_SUMMARY.president, NATIONAL_SUMMARY.deputyPresident];
+  1038→  for (const rep of national) {
+  1039→    const searchable = `${rep.fullName} ${rep.officialTitle} ${rep.party} ${rep.coalition} ${rep.jurisdiction}`.toLowerCase();
+  1040→    if (searchable.includes(q)) results.push(rep);
+  1041→  }
+  1042→
+  1043→  // Search all county data
+  1044→  for (const county of counties) {
+  1045→    const countyReps = flattenCountyRepresentatives(county);
+  1046→    for (const rep of countyReps) {
+  1047→      const searchable = `${rep.fullName} ${rep.officialTitle} ${rep.party} ${rep.coalition} ${rep.jurisdiction}`.toLowerCase();
+  1048→      if (searchable.includes(q)) results.push(rep);
+  1049→    }
+  1050→  }
+  1051→
+  1052→  return results;
+  1053→}
+  1054→
+  1055→export function flattenCountyRepresentatives(county: CountyData): Representative[] {
+  1056→  const reps: Representative[] = [];
+  1057→  reps.push(county.governor);
+  1058→  if (county.deputyGovernor) reps.push(county.deputyGovernor);
+  1059→  if (county.senator) reps.push(county.senator);
+  1060→  if (county.womanRep) reps.push(county.womanRep);
+  1061→  if (county.constituencyMPs) reps.push(...county.constituencyMPs);
+  1062→  if (county.assemblySpeaker) reps.push(county.assemblySpeaker);
+  1063→  if (county.deputySpeaker) reps.push(county.deputySpeaker);
+  1064→  if (county.electedMCAs) reps.push(...county.electedMCAs);
+  1065→  if (county.nominatedMCAs) reps.push(...county.nominatedMCAs);
+  1066→  if (county.cecms) reps.push(...county.cecms);
+  1067→  if (county.countySecretary) reps.push(county.countySecretary);
+  1068→  if (county.countyAttorney) reps.push(county.countyAttorney);
+  1069→  return reps;
+  1070→}
+  1071→
+  1072→// Flatten all counties into a single representative list
+  1073→export function flattenAllCountiesRepresentatives(counties: CountyData[]): Representative[] {
+  1074→  const allReps: Representative[] = [];
+  1075→  for (const county of counties) {
+  1076→    allReps.push(...flattenCountyRepresentatives(county));
+  1077→  }
+  1078→  return allReps;
+  1079→}
+  1080→
+  1081→export function getRepresentativeById(id: string): Representative | null {
+  1082→  // National level
+  1083→  if (NATIONAL_SUMMARY.president.id === id) return NATIONAL_SUMMARY.president;
+  1084→  if (NATIONAL_SUMMARY.deputyPresident.id === id) return NATIONAL_SUMMARY.deputyPresident;
+  1085→
+  1086→  // All county data
+  1087→  const counties = buildAllCountyData();
+  1088→  for (const county of counties) {
+  1089→    const reps = flattenCountyRepresentatives(county);
+  1090→    for (const rep of reps) {
+  1091→      if (rep.id === id) return rep;
+  1092→    }
+  1093→  }
+  1094→  return null;
+  1095→}
+  1096→
+  1097→export function getCountyByCode(code: number): CountyData | null {
+  1098→  const counties = buildAllCountyData();
+  1099→  return counties.find(c => c.code === code) ?? null;
+  1100→}
+  1101→

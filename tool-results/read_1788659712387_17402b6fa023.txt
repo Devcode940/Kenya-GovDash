@@ -1,0 +1,302 @@
+   400→];
+   401→
+   402→// ==================== COUNTY-SPECIFIC BUDGET DATA ====================
+   403→
+   404→export interface CountyBudgetDetail {
+   405→  overallAbsorption?: number;
+   406→  recurrentAbsorption?: number;
+   407→  developmentAbsorption?: number;
+   408→  source: string;
+   409→  fy: string;
+   410→}
+   411→
+   412→export const COUNTY_SPECIFIC_BUDGET: Record<string, CountyBudgetDetail> = {
+   413→  'West Pokot': { overallAbsorption: 89, source: 'CoB Annual County Budget Implementation Review Report FY 2023/24', fy: '2023/24' },
+   414→  'Kisii': { developmentAbsorption: 2.9, source: 'CoB First Nine Months Report FY 2023/24', fy: '2023/24' },
+   415→  'Nairobi City': { developmentAbsorption: 3.3, source: 'CoB First Nine Months Report FY 2023/24', fy: '2023/24' },
+   416→  'Machakos': { developmentAbsorption: 3.5, source: 'CoB First Nine Months Report FY 2023/24', fy: '2023/24' },
+   417→  'Kajiado': { recurrentAbsorption: 96.3, developmentAbsorption: 19.9, overallAbsorption: 79.5, source: 'CoB Annual Report FY 2023/24; Nation Africa 19 Nov 2024', fy: '2023/24' },
+   418→  'Kisumu': { overallAbsorption: 82, recurrentAbsorption: 91, developmentAbsorption: 64, source: 'Kisumu County Budget Implementation Report FY 2023/24', fy: '2023/24' },
+   419→};
+   420→
+   421→// ==================== KAJIADO COUNTY — FULLY EXPANDED ====================
+   422→
+   423→export const KAJIADO_DATA: CountyData = {
+   424→  code: 34,
+   425→  name: 'Kajiado',
+   426→  region: 'Rift Valley',
+   427→  governor: {
+   428→    id: 'gov-kajiado-lenku',
+   429→    fullName: 'H.E. Joseph Jama Ole Lenku',
+   430→    officialTitle: 'Governor, Kajiado County',
+   431→    party: 'ODM',
+   432→    coalition: 'Azimio',
+   433→    level: 'County',
+   434→    jurisdiction: 'Kajiado County',
+   435→    countyCode: 34,
+   436→    termStart: '2022-08-09',
+   437→    termEnd: '2027-08-09',
+   438→    contacts: { email: null, phone: null, twitter: null, website: 'kajiado.go.ke' },
+   439→    biography: 'Joseph Jama Ole Lenku is the 2nd Governor of Kajiado County, elected on 9 August 2022 on an ODM/Azimio ticket. Previously served as Cabinet Secretary for Interior & Coordination of National Government (2013-2014). Won with 117,600 votes.',
+   440→    biographySource: 'en.wikipedia.org/wiki/Joseph_Ole_Lenku; kajiado.go.ke; ke.equalpolitics.com/results/county/34',
+   441→    votes: 117600,
+   442→    votesSource: 'ke.equalpolitics.com/results/county/34',
+   443→    scorecard: {
+   444→      overallAccountability: makeMetric(38, 'Weighted average of available metrics', '2023/24'),
+   445→      transparencyBudget: makeMetric(74, 'Bajeti Hub — County Budget Transparency Survey (CBTS) 2024', '2024', 'https://bajetihub.org/wp-content/uploads/2025/05/Bajeti-Hub-County-Summary-Kajiado-County-2025.pdf'),
+   446→      projectDeliveryAbsorption: makeMetric(20, 'CoB Annual Report FY 2023/24 — Development absorption 19.9%', '2023/24', 'https://cob.go.ke/reports/consolidated-county-budget-implementation-review-reports'),
+   447→      manifestoFulfillment: makeUnavailableMetric('Data not publicly available'),
+   448→      legislativeOversight: makeUnavailableMetric('Data not publicly available'),
+   449→      ethicsIntegrity: makeMetric(60, 'OAG FY 2023/24 Qualified Opinion; listed among least corrupt counties per TI-Kenya Bribery Index 2025', '2023/24'),
+   450→      publicSentiment: makeUnavailableMetric('Data not publicly available in latest TI-Kenya CGSR reports (CGSR 2025 covered 15 counties; Kajiado\'s specific score not extractable)'),
+   451→    },
+   452→    auditOpinion: {
+   453→      fy2023_24: {
+   454→        type: 'Qualified',
+   455→        source: 'OAG Summary Report on County Governments FY 2023/24, page ~69',
+   456→        url: 'https://oagkenya.go.ke/wp-content/uploads/2025/04/Auditor-Generals-summary-Report-on-County-Governments-2023-2024.pdf',
+   457→      },
+   458→      fy2024_25: {
+   459→        type: null,
+   460→        source: 'OAG Summary Report on County Governments FY 2024/25',
+   461→        url: 'https://oagkenya.go.ke/wp-content/uploads/2026/05/AUDITOR-GENERALS-SUMMARY-REPORT-ON-COUNTY-GOVERNMENTS-2024-2025.pdf',
+   462→        dataAvailable: false,
+   463→      },
+   464→    },
+   465→    budgetPerformance: {
+   466→      overallAbsorption: { rate: 79.5, source: 'CoB Annual Report FY 2023/24', fy: '2023/24' },
+   467→      recurrentAbsorption: { rate: 96.3, source: 'CoB Annual Report FY 2023/24; Nation Africa 19 Nov 2024', fy: '2023/24' },
+   468→      developmentAbsorption: { rate: 19.9, source: 'CoB Annual Report FY 2023/24; Nation Africa 19 Nov 2024', fy: '2023/24' },
+   469→    },
+   470→  },
+   471→  deputyGovernor: {
+   472→    id: 'dg-kajiado-moshisho',
+   473→    fullName: 'Hon. Martin Moshisho Martine',
+   474→    officialTitle: 'Deputy Governor, Kajiado County',
+   475→    party: 'ODM',
+   476→    coalition: 'Azimio',
+   477→    level: 'County',
+   478→    jurisdiction: 'Kajiado County',
+   479→    countyCode: 34,
+   480→    termStart: '2022-08-09',
+   481→    termEnd: '2027-08-09',
+   482→    contacts: { email: null, phone: null, twitter: null, website: 'kajiado.go.ke/team/hon-martin-moshisho-martine' },
+   483→    biography: 'Martin Moshisho Martine is the Deputy Governor of Kajiado County, elected alongside Governor Ole Lenku on 9 August 2022.',
+   484→    biographySource: 'kajiado.go.ke/team/hon-martin-moshisho-martine',
+   485→    scorecard: makeDefaultScorecard(),
+   486→    auditOpinion: null,
+   487→    budgetPerformance: null,
+   488→  },
+   489→  senator: {
+   490→    id: 'sen-kajiado-seki',
+   491→    fullName: 'Hon. Samuel Kanar Seki (Seki Lenku Ole Kanar)',
+   492→    officialTitle: 'Senator, Kajiado County',
+   493→    party: 'UDA',
+   494→    coalition: 'Kenya Kwanza',
+   495→    level: 'County',
+   496→    jurisdiction: 'Kajiado County',
+   497→    countyCode: 34,
+   498→    termStart: '2022-08-09',
+   499→    termEnd: '2027-08-09',
+   500→    contacts: { email: null, phone: null, twitter: null, website: 'parliament.go.ke/index.php/the-senate/sen-seki-lenku-ole-kanar' },
+   501→    biography: 'Samuel Kanar Seki is the Senator for Kajiado County, elected on 9 August 2022 on a UDA/Kenya Kwanza ticket. Won with 125,696 votes.',
+   502→    biographySource: 'parliament.go.ke/index.php/the-senate/sen-seki-lenku-ole-kanar',
+   503→    votes: 125696,
+   504→    votesSource: 'parliament.go.ke/index.php/the-senate/sen-seki-lenku-ole-kanar',
+   505→    scorecard: makeDefaultScorecard(),
+   506→    auditOpinion: null,
+   507→    budgetPerformance: null,
+   508→  },
+   509→  womanRep: {
+   510→    id: 'wr-kajiado-sankaire',
+   511→    fullName: 'Hon. Leah Sopiato Sankaire',
+   512→    officialTitle: 'Woman Representative, Kajiado County',
+   513→    party: 'UDA',
+   514→    coalition: 'Kenya Kwanza',
+   515→    level: 'County',
+   516→    jurisdiction: 'Kajiado County',
+   517→    countyCode: 34,
+   518→    termStart: '2022-08-09',
+   519→    termEnd: '2027-08-09',
+   520→    contacts: { email: null, phone: null, twitter: null, website: 'parliament.go.ke/the-national-assembly/hon-sankaire-leah-sopiato' },
+   521→    biography: 'Leah Sopiato Sankaire is the Woman Representative for Kajiado County. Elected KEWOPA (Kenya Women Parliamentary Association) Chair in 2023.',
+   522→    biographySource: 'parliament.go.ke/the-national-assembly/hon-sankaire-leah-sopiato; thekenyatimes.com',
+   523→    scorecard: makeDefaultScorecard(),
+   524→    auditOpinion: null,
+   525→    budgetPerformance: null,
+   526→  },
+   527→  constituencyMPs: [
+   528→    { id: 'mp-kajiado-north-ngogoyo', fullName: 'Hon. Onesmus Ngogoyo', officialTitle: 'MP, Kajiado North Constituency', party: 'UDA', coalition: 'Kenya Kwanza', level: 'Constituency', jurisdiction: 'Kajiado North', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   529→    { id: 'mp-kajiado-central-memusi', fullName: 'Hon. Elijah Memusi Kanchory', officialTitle: 'MP, Kajiado Central Constituency', party: 'ODM', coalition: 'Azimio', level: 'Constituency', jurisdiction: 'Kajiado Central', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   530→    { id: 'mp-kajiado-east-maimai', fullName: 'Hon. Kakuta Maimai Hamisi', officialTitle: 'MP, Kajiado East Constituency', party: 'ODM', coalition: 'Azimio', level: 'Constituency', jurisdiction: 'Kajiado East', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   531→    { id: 'mp-kajiado-west-sunkuyia', fullName: 'Hon. George Sunkuyia Risa', officialTitle: 'MP, Kajiado West Constituency', party: 'UDA', coalition: 'Kenya Kwanza', level: 'Constituency', jurisdiction: 'Kajiado West', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   532→    { id: 'mp-kajiado-south-parashina', fullName: 'Hon. Samuel Parashina Sakimba', officialTitle: 'MP, Kajiado South Constituency', party: 'ODM', coalition: 'Azimio', level: 'Constituency', jurisdiction: 'Kajiado South', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   533→  ],
+   534→  assemblySpeaker: {
+   535→    id: 'speaker-kajiado-ngossor',
+   536→    fullName: 'Hon. Justus Kilesi Ole Ngossor',
+   537→    officialTitle: 'Speaker, Kajiado County Assembly (2nd Speaker)',
+   538→    party: '',
+   539→    coalition: 'Other',
+   540→    level: 'County',
+   541→    jurisdiction: 'Kajiado County Assembly',
+   542→    countyCode: 34,
+   543→    termStart: '2022',
+   544→    termEnd: '2027',
+   545→    contacts: { email: null, phone: null, twitter: null, website: 'kajiadoassembly.go.ke/leadership/office-of-the-speaker' },
+   546→    biography: 'Justus Kilesi Ole Ngossor is the 2nd Speaker of the Kajiado County Assembly. Also serves as MCA for Ewuaso Oonkidong\'i Ward.',
+   547→    biographySource: 'kajiadoassembly.go.ke/leadership/office-of-the-speaker',
+   548→    scorecard: makeDefaultScorecard(),
+   549→    auditOpinion: null,
+   550→    budgetPerformance: null,
+   551→  },
+   552→  deputySpeaker: {
+   553→    id: 'dspeaker-kajiado-memusi',
+   554→    fullName: 'Hon. Kokan Daniel Memusi',
+   555→    officialTitle: 'Deputy Speaker, Kajiado County Assembly',
+   556→    party: '',
+   557→    coalition: 'Other',
+   558→    level: 'County',
+   559→    jurisdiction: 'Kajiado County Assembly',
+   560→    countyCode: 34,
+   561→    termStart: '2022',
+   562→    termEnd: '2027',
+   563→    contacts: { email: null, phone: null, twitter: null, website: null },
+   564→    biography: 'Kokan Daniel Memusi is the Deputy Speaker of the Kajiado County Assembly and MCA for Imaroro Ward.',
+   565→    biographySource: null,
+   566→    scorecard: makeDefaultScorecard(),
+   567→    auditOpinion: null,
+   568→    budgetPerformance: null,
+   569→  },
+   570→  electedMCAs: [
+   571→    { id: 'mca-kajiado-kenyewa-poka', fullName: 'Hon. Henry Senteman Kimiti', officialTitle: 'MCA, Kenyewa/Poka Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kenyewa/Poka Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   572→    { id: 'mca-kajiado-matapato-south', fullName: 'Hon. Hosea Kasaine Toshi', officialTitle: 'MCA, Matapato South Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Matapato South Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   573→    { id: 'mca-kajiado-ewuaso', fullName: 'Hon. Justus Kilesi Ole Ngossor', officialTitle: 'MCA, Ewuaso Oonkidong\'i Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ewuaso Oonkidong\'i Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   574→    { id: 'mca-kajiado-rombo', fullName: 'Hon. Lengete Ole Kamete', officialTitle: 'MCA, Rombo Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Rombo Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   575→    { id: 'mca-kajiado-ongata-rongai', fullName: 'Hon. Mwathi Marimpet Pere', officialTitle: 'MCA, Ongata Rongai Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ongata Rongai Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   576→    { id: 'mca-kajiado-dalalekutuk', fullName: 'Hon. Nkitinyo Ole Lesere', officialTitle: 'MCA, Dalalekutuk Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Dalalekutuk Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   577→    { id: 'mca-kajiado-ntimoye-mosiro', fullName: 'Hon. Peter Tirishe Kuseyo', officialTitle: 'MCA, Ntimoye Mosiro Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ntimoye Mosiro Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   578→    { id: 'mca-kajiado-imaroro', fullName: 'Hon. Amos Melonyie Peshut', officialTitle: 'MCA, Imaroro Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Imaroro Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   579→    { id: 'mca-kajiado-purko', fullName: 'Hon. Daniel Turpesio Naikuni', officialTitle: 'MCA, Purko Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Purko Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   580→    { id: 'mca-kajiado-matapato-north', fullName: 'Hon. Dickson Tionka Nkaloyo', officialTitle: 'MCA, Matapato North Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Matapato North Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   581→    { id: 'mca-kajiado-oloosirkon', fullName: 'Hon. Francis Kaindi Kaesha', officialTitle: 'MCA, Oloosirkon/Sholinke Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Oloosirkon/Sholinke Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   582→    { id: 'mca-kajiado-iloodokilani', fullName: 'Hon. Jackson Reteti Mpaada', officialTitle: 'MCA, Iloodokilani Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Iloodokilani Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   583→    { id: 'mca-kajiado-nkaimurrunya', fullName: 'Hon. James Waichanguru Ndirangu', officialTitle: 'MCA, Nkaimurrunya Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Nkaimurrunya Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   584→    { id: 'mca-kajiado-magadi', fullName: 'Hon. Joseph Masiaya Oltetia', officialTitle: 'MCA, Magadi Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Magadi Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   585→    { id: 'mca-kajiado-kaputiei-north', fullName: 'Hon. Joshua Kintei Olowuasa', officialTitle: 'MCA, Kaputiei North Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kaputiei North Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   586→    { id: 'mca-kajiado-imbirikani', fullName: 'Hon. Julius Teto Moipaai', officialTitle: 'MCA, Imbirikani Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Imbirikani Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   587→    { id: 'mca-kajiado-kuku', fullName: 'Hon. Kitesho Meshuda Mpete', officialTitle: 'MCA, Kuku Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kuku Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   588→    { id: 'mca-kajiado-keekonyokie', fullName: 'Hon. Moses Saoyo Kusero', officialTitle: 'MCA, Keekonyokie Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Keekonyokie Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   589→    { id: 'mca-kajiado-kitengela', fullName: 'Hon. Paul Kipamet Matuyia', officialTitle: 'MCA, Kitengela Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kitengela Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   590→    { id: 'mca-kajiado-entonet', fullName: 'Hon. Paul Muterian Metui', officialTitle: 'MCA, Entonet/Lenkisim Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Entonet/Lenkisim Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   591→    { id: 'mca-kajiado-olkeri', fullName: 'Hon. Peter Gitau Njuguna', officialTitle: 'MCA, Olkeri Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Olkeri Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   592→    { id: 'mca-kajiado-kimana', fullName: 'Hon. Peter Parsen Musunkeri', officialTitle: 'MCA, Kimana Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kimana Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   593→    { id: 'mca-kajiado-ngong', fullName: 'Hon. Robert Gitua Muoria', officialTitle: 'MCA, Ngong Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ngong Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   594→    { id: 'mca-kajiado-ildamat', fullName: 'Hon. Samuel Somporuan Teum', officialTitle: 'MCA, Ildamat Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Ildamat Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   595→    { id: 'mca-kajiado-oloolua', fullName: 'Hon. Martin Antony Njogu Kimemia', officialTitle: 'MCA, Oloolua Ward', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Oloolua Ward', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   596→  ],
+   597→  nominatedMCAs: [
+   598→    // 16 nominated MCAs - names not all verified from single source
+   599→    // Using placeholder note for those where full names not verified
+   600→    { id: 'nmca-kajiado-1', fullName: 'Nominated MCA 1', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   601→    { id: 'nmca-kajiado-2', fullName: 'Nominated MCA 2', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   602→    { id: 'nmca-kajiado-3', fullName: 'Nominated MCA 3', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   603→    { id: 'nmca-kajiado-4', fullName: 'Nominated MCA 4', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   604→    { id: 'nmca-kajiado-5', fullName: 'Nominated MCA 5', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   605→    { id: 'nmca-kajiado-6', fullName: 'Nominated MCA 6', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   606→    { id: 'nmca-kajiado-7', fullName: 'Nominated MCA 7', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   607→    { id: 'nmca-kajiado-8', fullName: 'Nominated MCA 8', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   608→    { id: 'nmca-kajiado-9', fullName: 'Nominated MCA 9', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   609→    { id: 'nmca-kajiado-10', fullName: 'Nominated MCA 10', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   610→    { id: 'nmca-kajiado-11', fullName: 'Nominated MCA 11', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   611→    { id: 'nmca-kajiado-12', fullName: 'Nominated MCA 12', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   612→    { id: 'nmca-kajiado-13', fullName: 'Nominated MCA 13', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   613→    { id: 'nmca-kajiado-14', fullName: 'Nominated MCA 14', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   614→    { id: 'nmca-kajiado-15', fullName: 'Nominated MCA 15', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   615→    { id: 'nmca-kajiado-16', fullName: 'Nominated MCA 16', officialTitle: 'Nominated MCA, Kajiado County Assembly', party: '', coalition: 'Other', level: 'Ward', jurisdiction: 'Kajiado County (Nominated)', countyCode: 34, termStart: '2022-08-09', termEnd: '2027-08-09', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   616→  ],
+   617→  cecms: [
+   618→    { id: 'cecm-kajiado-sakuda', fullName: 'Francis Nkitoria Sakuda', officialTitle: 'CECM — Agriculture, Livestock & Veterinary Services', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   619→    { id: 'cecm-kajiado-semera', fullName: 'Michael Semera', officialTitle: 'CECM — Finance, Economic Planning and ICT', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   620→    { id: 'cecm-kajiado-kilowua', fullName: 'Alex Kilowua', officialTitle: 'CECM — Medical Services and Public Health', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   621→    { id: 'cecm-kajiado-ncharo', fullName: 'Jeremiah Ole Ncharo', officialTitle: 'CECM — Gender, Cooperatives, Culture, Tourism & Wildlife', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   622→    { id: 'cecm-kajiado-parseina', fullName: 'Hamilton Lekuka Parseina', officialTitle: 'CECM — Lands, Physical Planning, Urban Development', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   623→    { id: 'cecm-kajiado-sekeyian', fullName: 'Augustine Sekeyian', officialTitle: 'CECM — Roads, Public Works, Transport & Energy', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   624→    { id: 'cecm-kajiado-pere', fullName: 'Judy Pere', officialTitle: 'CECM — Education, Vocational Training, Youth and Sports', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   625→    { id: 'cecm-kajiado-achola', fullName: 'Dr. Jacton Achola', officialTitle: 'CECM — Water Services, Environment & Natural Resources', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   626→    { id: 'cecm-kajiado-parinkoi', fullName: 'Naomi Pilale Parinkoi', officialTitle: 'CECM — Trade, Investment and Enterprise Development', party: '', coalition: 'Other', level: 'County', jurisdiction: 'Kajiado County', countyCode: 34, termStart: '2022', termEnd: '2027', contacts: { email: null, phone: null, twitter: null, website: null }, biography: null, biographySource: null, scorecard: makeDefaultScorecard(), auditOpinion: null, budgetPerformance: null },
+   627→  ],
+   628→  countySecretary: {
+   629→    id: 'cs-kajiado-mpoke',
+   630→    fullName: 'Dr. Leina Mpoke',
+   631→    officialTitle: 'County Secretary, Kajiado County',
+   632→    party: '',
+   633→    coalition: 'Other',
+   634→    level: 'County',
+   635→    jurisdiction: 'Kajiado County',
+   636→    countyCode: 34,
+   637→    termStart: '2022',
+   638→    termEnd: '2027',
+   639→    contacts: { email: null, phone: null, twitter: null, website: null },
+   640→    biography: null,
+   641→    biographySource: null,
+   642→    scorecard: makeDefaultScorecard(),
+   643→    auditOpinion: null,
+   644→    budgetPerformance: null,
+   645→  },
+   646→  countyAttorney: {
+   647→    id: 'ca-kajiado-sereu',
+   648→    fullName: 'Janet Sereu',
+   649→    officialTitle: 'County Attorney, Kajiado County',
+   650→    party: '',
+   651→    coalition: 'Other',
+   652→    level: 'County',
+   653→    jurisdiction: 'Kajiado County',
+   654→    countyCode: 34,
+   655→    termStart: '2022',
+   656→    termEnd: '2027',
+   657→    contacts: { email: null, phone: null, twitter: null, website: null },
+   658→    biography: null,
+   659→    biographySource: null,
+   660→    scorecard: makeDefaultScorecard(),
+   661→    auditOpinion: null,
+   662→    budgetPerformance: null,
+   663→  },
+   664→};
+   665→
+   666→// ==================== BUILD ALL 47 COUNTY DATA ====================
+   667→
+   668→// Helper: attach county-level leadership officials (DG, Senator, Woman Rep) from a
+   669→// county-specific extras object. Used by Nairobi, Mombasa, Kisumu, Nakuru, Kiambu,
+   670→// Kakamega, Meru, Machakos — and extensible to other counties as data is verified.
+   671→interface CountyExtraOfficial {
+   672→  fullName: string;
+   673→  party: CoalitionType | string;
+   674→  coalition: CoalitionType;
+   675→  biography: string;
+   676→  biographySource: string;
+   677→}
+   678→interface CountyExtraOfficials {
+   679→  deputyGovernor?: CountyExtraOfficial;
+   680→  senator?: CountyExtraOfficial;
+   681→  womanRep?: CountyExtraOfficial;
+   682→}
+   683→
+   684→function attachCountyLeadership(
+   685→  countyData: CountyData,
+   686→  governorRep: Representative,
+   687→  countyName: string,
+   688→  countyCode: number,
+   689→  extras: CountyExtraOfficials,
+   690→): void {
+   691→  const buildRep = (
+   692→    role: 'dep' | 'sen' | 'wrep',
+   693→    roleTitle: string,
+   694→    o: CountyExtraOfficial,
+   695→  ): Representative => ({
+   696→    ...governorRep,
+   697→    id: `${role}-${countyCode}-${countyName.toLowerCase().replace(/[^a-z0-9]/g, '-')}`,
+   698→    fullName: o.fullName,
+   699→    officialTitle: `${roleTitle}, ${countyName} County`,
+
+[showing lines 400-699 of 1101; use offset=700 with limit to continue reading]

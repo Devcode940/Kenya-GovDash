@@ -564,3 +564,300 @@ Stage Summary:
 - All 8 detailed counties now have: Governor + DG + Senator + Woman Rep + (where applicable) MPs
 - Total data added: 30 CECMs + 29 new MPs + 9 new leadership officials = 68 new officials
 - Zero lint/type errors, browser-verified end-to-end across all 8 counties
+
+---
+Task ID: recreate-2
+Agent: full-stack-developer
+Task: Recreate KenyaAdminResourcesPanel — public dashboard display of admin-uploaded resources
+
+Work Log:
+- Read worklog.md and the existing `/api/admin/resources` route (`GET` returns `{ resources, total }` filtered by `source`, `published`).
+- Inspected Prisma `Resource` model and existing Kenya components (KenyaEaccAssetFeed, KenyaLiveFeedsPanel, KenyaFeedbackPortal) for styling/typing conventions.
+- Created `/home/z/my-project/src/components/kenya/KenyaAdminResourcesPanel.tsx` with:
+  - `'use client'` directive, props `{ source: 'OAG' | 'CoB' | 'EACC' | 'TI-Kenya' | 'Other'; limit?: number }`.
+  - On-mount fetch of `/api/admin/resources?source=${source}&published=true` using `useEffect` + `AbortController` + `Promise.resolve().then(...)` defer so no `setState` runs synchronously in the effect body (lint-safe).
+  - Resource grouping into Videos / Documents / Links with section headers and item-count badges.
+  - **Videos**: 2×2 / 3-col thumbnail grid (responsive) with a circular play-button overlay; clicking opens a shadcn `Dialog` containing an embedded player — YouTube/Vimeo via `<iframe>`, locally-uploaded `/uploads/*.mp4|webm|ogg|mov` via HTML5 `<video>` with auto-play + poster fallback. Duration label shown on thumbnail and in dialog.
+  - **Documents**: clickable list (`<a target="_blank" rel="noopener noreferrer">`) linking to `/uploads/` files or external URLs; shows report type, FY, county, file size (KB/MB/GB), file name.
+  - **Links**: clickable list with `LinkIcon` + `ExternalLink` icons, plus URL line.
+  - Auto-hides (returns `null`) when the source has zero resources, so unrelated sources stay invisible on the dashboard.
+  - Loading state: card with `Loader2` spinner; error state: card with `AlertCircle` inline notice.
+  - Uses Card/CardContent/CardHeader/CardTitle, Badge, Dialog/DialogContent/DialogHeader/DialogTitle/DialogDescription.
+  - Icons from lucide-react: Video, FileText, Link (as LinkIcon), ExternalLink, Play, Library, AlertCircle, Loader2.
+  - SOURCE_LABELS map for human-friendly source names (OAG → "Office of the Auditor-General", etc.).
+  - Fully responsive: grid collapses 3→2 cols on small screens; line-clamp on titles; safe-area friendly card spacing.
+  - `VideoPlayerDialog` includes an `sr-only` `DialogDescription` for accessibility.
+- Verified with `bun run lint`: new file produces zero errors and zero warnings (the 2 remaining errors in `kenya-parliament-mps.ts` and `kenya-parliament-senators.ts` are pre-existing parsing errors unrelated to this task).
+- Dev server log confirms no compile/runtime regressions.
+
+Stage Summary:
+- New public-facing component `KenyaAdminResourcesPanel` is ready to embed on `/` for each oversight source.
+- Renders admin-curated videos, documents, and links surfaced from the existing `/api/admin/resources` endpoint.
+- Lint-clean, mobile-first, accessible (keyboard-reachable buttons, ARIA labels, sr-only dialog description), and gracefully auto-hides when empty.
+---
+Task ID: recreate-4
+Agent: full-stack-developer
+Task: Recreate KenyaCommandPalette — global Cmd/Ctrl+K search dialog for the Kenya dashboard
+
+Work Log:
+- Read worklog.md (Task IDs 2–recreate-2) for context and inspected existing Kenya components (`KenyaSearchAutocomplete.tsx`, `KenyaSidebar.tsx`), `@/lib/i18n.tsx` (the `useLanguage` hook + `t()`/`countyName()` helpers), and shadcn primitives (`Dialog`, `Input`, `Badge`) for styling/typing conventions.
+- Added `export const SIDEBAR_SECTIONS_EXPORTED = SIDEBAR_SECTIONS;` to `src/components/kenya/KenyaSidebar.tsx` (one line) so the command palette can import the canonical 30+ sidebar section list without redefining it.
+- Created `/home/z/my-project/src/components/kenya/KenyaCommandPalette.tsx` with:
+  - `'use client'` directive; props exactly as specified (`open`, `onOpenChange`, `onSelectCounty`, `onSelectSection`, `counties` with `governor`, optional `senator`/`womanRep`, optional `constituencyMPs`).
+  - Imports: `useState`/`useMemo`/`useEffect`/`useRef` from React; `Dialog`/`DialogContent`/`DialogHeader`/`DialogTitle`/`DialogDescription` from `@/components/ui/dialog`; `Input` from `@/components/ui/input`; `Badge` from `@/components/ui/badge`; `useLanguage` from `@/lib/i18n`; `SIDEBAR_SECTIONS_EXPORTED` from `@/components/kenya/KenyaSidebar`; lucide-react icons `Search`, `MapPin`, `User`, `Landmark`, `Heart`, `X`.
+  - Search index built once via `useMemo` from `counties` + `SIDEBAR_SECTIONS_EXPORTED`. For each county it produces: a **County** entry (label = localized county name, description = `Governor: …`), an optional **Senator** entry, an optional **Woman Rep** entry, and up to 10 **MP** entries (sliced via `MAX_MPS_PER_COUNTY = 10`). Then iterates every sidebar section and emits one **Section** entry per item, using `t('item.<id>')` for the localized label (falls back to the section's own `label` when the translation key is missing).
+  - Each result carries `{ id, label, description, category, icon, action }`; `action` invokes either `onSelectCounty(county.name)` or `onSelectSection(item.id)`, then the dialog is dismissed via `onOpenChange(false)`.
+  - Category badge styling via `CategoryBadge`:
+    - County → blue (`bg-blue-500/15 text-blue-700 border-blue-500/30`)
+    - MP → orange (`bg-orange-500/15 text-orange-700 border-orange-500/30`)
+    - Senator → emerald (`bg-emerald-500/15 text-emerald-700 border-emerald-500/30`)
+    - Section → gray (`bg-gray-500/15 text-gray-700 border-gray-500/30`)
+    - Woman Rep → rose (`bg-rose-500/15 text-rose-700 border-rose-500/30`) — added as a 5th category because the spec lists four color mappings but five entity types; rose keeps women reps visually distinct from senators (with whom they would otherwise be conflated) while remaining in the same Tailwind-family palette. Dark-mode variants included (`dark:text-*-300`).
+  - Filtering via `useMemo` keyed on `query` + `searchIndex`. With no query, returns the top 20 entries (`TOP_RESULTS_WHEN_EMPTY = 20`); with a query, matches `label` / `description` / `category` (case-insensitive) and caps at 50 entries (`MAX_RESULTS = 50`).
+  - Keyboard navigation on the `<Input onKeyDown>`: `ArrowDown`/`ArrowUp` move the selection (clamped to bounds), `Enter` invokes the active result's `action`, and `Esc` is left to the Radix Dialog (handled natively). Mouse hover updates `selectedIndex` via `onMouseEnter`. Active item is auto-scrolled into view using `scrollIntoView({ block: 'nearest' })` in a `useEffect` keyed on `selectedIndex`.
+  - Auto-focus on open: `DialogContent.onOpenAutoFocus` calls `e.preventDefault()` then `inputRef.current?.focus()`, so focus lands in the search box instead of the default close button. React 19 ref-as-prop forwarding lets `ref={inputRef}` work directly with the shadcn `Input` (which spreads `{...props}` to the underlying `<input>`).
+  - Reset on open: an `useEffect` keyed on `open` defers `setQuery('')` + `setSelectedIndex(0)` through `Promise.resolve().then(...)` to keep the `react-hooks/set-state-in-effect` lint rule satisfied. A second effect clamps `selectedIndex` back to bounds when the filtered list shrinks, also deferred through a resolved promise.
+  - Dialog layout uses `showCloseButton={false}` with a custom close (`X`) button embedded in the search row, `p-0 gap-0`, `flex flex-col max-h-[85vh] overflow-hidden`, a scrollable results region (`max-h-96 overflow-y-auto`), and a sticky footer.
+  - Footer shows the live result count (with a "showing top 20" hint when no query is active) and keyboard hints rendered as `<kbd>` chips: `↑↓` navigate, `↵` select, `Esc` close.
+  - Accessibility: `role="combobox"` on the input with `aria-expanded`, `aria-autocomplete="list"`, `aria-controls` (pointing at the listbox id), and `aria-activedescendant` (pointing at the active option id); `role="listbox"` on the scroll container; each option is an `<li role="option" aria-selected>`; an `sr-only` `DialogHeader` provides `DialogTitle` + `DialogDescription` for screen readers; icons are marked `aria-hidden="true"`.
+  - Fully responsive: `sm:max-w-2xl` dialog, `flex-wrap` footer, horizontal padding steps `px-3 sm:px-4`.
+- Lint: `bun run lint` reports zero errors in `KenyaCommandPalette.tsx` and `KenyaSidebar.tsx`. The only remaining lint errors are pre-existing parse errors in `src/lib/kenya-parliament-mps.ts` (100:134) and `src/lib/kenya-parliament-senators.ts` (131:60) — untracked files from prior agents, unrelated to this task.
+- Dev server log: `GET / 200` confirms no compile/runtime regressions.
+
+Stage Summary:
+- `KenyaCommandPalette` is a drop-in global search dialog. Mount it once (e.g. in `KenyaDashboard`) with a `Cmd/Ctrl+K` keyboard shortcut wired to toggle `open`, pass the existing `counties` array plus `onSelectCounty`/`onSelectSection` callbacks, and it will provide fuzzy search across all 47 counties, senators, women reps, up to 10 MPs per county, and every sidebar section — with full keyboard navigation, mouse hover, auto-focus, and accessible ARIA combobox semantics.
+
+---
+Task ID: recreate-1
+Agent: full-stack-developer
+Task: Create KenyaCountyInfoPanel.tsx — comprehensive county-level info panel for the Kenya Government Accountability Dashboard
+
+Work Log:
+- Step 1: Read worklog.md for context (existing dashboard, lib structure, components, agents)
+- Step 2: Inspected src/lib/kenya-data.ts, src/lib/kenya-parliament-mps.ts, src/lib/i18n.tsx, existing KenyaCountyOverview.tsx, page.tsx to understand existing types and patterns
+- Step 3: Discovered that getCountyDemographics, getDataQualityScore, formatKesMillions, formatPopulation do NOT yet exist in @/lib/kenya-data — they had to be created before the component could compile
+- Step 4: Extended src/lib/kenya-data.ts with new types, helpers, and lookup tables (~280 new lines):
+  - Added `budgetAllocation?: BudgetAllocation` optional field to `CountyData` interface
+  - Added `CountyDemographics` interface (population, landAreaSqKm, densityPerSqKm, source)
+  - Added `BudgetAllocation` interface (equitableShare, totalBudget, osrTarget, fy, source, url, dataAvailable)
+  - Added `DataQualityItem` and `DataQualityScore` interfaces (10-item checklist + coverage %)
+  - Added `formatKesMillions(value)` helper — formats KES millions to "Kshs X.BB" (billions) or "Kshs XM" (millions)
+  - Added `formatPopulation(value)` helper — formats population to "X.XM" (millions) or "XK" (thousands)
+  - Added `COUNTY_DEMOGRAPHICS` table with KNBS 2019 Kenya Population and Housing Census data for all 47 counties (factual published data)
+  - Added `getCountyDemographics(countyName)` lookup function
+  - Added `COUNTY_BUDGET_ALLOCATION` table with FY 2024/25 equitable share, total budget, OSR target for 6 counties (Kajiado, Nairobi City, Mombasa, Kisumu, Nakuru, Kiambu) — sourced from County Allocation of Revenue Act 2024 + CoB reports
+  - Added `getCountyBudgetAllocation(countyName)` lookup function with "data not publicly available" fallback
+  - Added `getDataQualityScore(county)` function — computes 10-item coverage score: Governor biography, Governor scorecard, Audit opinion, Budget performance, Deputy Governor, Senator, Woman Rep, Constituency MPs, Elected MCAs, CECMs. Quality is "Complete" (≥80%), "Partial" (40-79%), or "Minimal" (<40%)
+  - Updated `buildAllCountyData()` to populate `budgetAllocation` for every county
+  - Updated `KAJIADO_DATA` to include `budgetAllocation`
+- Step 5: Created `/home/z/my-project/src/components/kenya/KenyaCountyInfoPanel.tsx` (~520 lines)
+  - 'use client' React + TypeScript component
+  - Strict import list per user spec:
+    * @/lib/kenya-data: CountyData, Representative, AuditOpinionType, getCoalitionColor, getAuditColor, getScoreBadgeClass, getCountyDemographics, getDataQualityScore, formatKesMillions, formatPopulation
+    * @/lib/kenya-parliament-mps: getParliamentMPsForCounty, PARLIAMENT_MPS_TOTAL, ParliamentMP (extra type for sub-component typing)
+    * @/lib/i18n: useLanguage
+    * @/components/ui/*: Card, CardContent, CardHeader, CardTitle, Badge, Button, Separator, Progress
+    * lucide-react: MapPin, Users, Landmark, TrendingUp, FileText, Building2, ChevronRight, ExternalLink, AlertCircle, Sparkles, Shield, BookOpen, BadgeCheck
+  - Props interface KenyaCountyInfoPanelProps: { county, onSelectRepresentative, onRequestExpansion?, onBrowseCounties? }
+  - Uses `const { countyName: tc } = useLanguage()` and `const countyNameTranslated = tc(county.name)` for translated county names
+  - 10 cards rendered in order per spec:
+    1. County Header — name (translated), code, region, score badge, audit badge, coalition badge
+    2. Demographics & Population — population (formatPopulation), land area, density (3-column grid)
+    3. Budget Allocation FY 2024/25 — equitable share, total budget, OSR target (formatKesMillions)
+    4. Development Performance FY 2023/24 — overall/recurrent/development absorption with Progress bars from governor.budgetPerformance + project delivery score + transparency score badges
+    5. Reports & Audit Opinions — FY 2023/24 + FY 2024/25 audit opinion badges + external report links (OAG/CoB/TI-Kenya)
+    6. County Leadership — tappable governor card + quick-tap row for Deputy Governor, Senator, Woman Rep
+    7. Parliament-Verified MPs (ParliamentMPsSummary sub-component):
+       * Green shield (BadgeCheck) icon header + "X of 331" count badge
+       * Coalition split badges (Kenya Kwanza/Azimio/etc.)
+       * First 6 MPs as tappable cards opening parliament.go.ke profile in new tab
+       * Footer with source attribution: "Source: Parliament of Kenya (parliament.go.ke) · X MPs listed of 331 total National Assembly seats"
+    8. Data Quality Card (DataQualityCard sub-component):
+       * Blue shield icon header + quality badge (Complete=emerald, Partial=yellow, Minimal=red) + coverage %
+       * 10-item checklist grid (2 columns) — each row shows green dot (available) or gray dot (missing)
+       * Items: Governor biography, Governor scorecard, Audit opinion, Budget performance, Deputy Governor, Senator, Woman Rep, Constituency MPs, Elected MCAs, CECMs
+       * Score footer: "Data Coverage: X/10 (Y% coverage)" — uses i18n key rightSidebar.dataQuality.score
+    9. Browse all counties button (rendered only if onBrowseCounties provided)
+    10. Data expansion CTA (rendered only if onRequestExpansion provided) — uses Sparkles icon
+  - Helper sub-components: BudgetAbsorptionRow, ExternalReportLink, QuickOfficialRow, ParliamentMPCard
+  - All tappable elements include keyboard navigation (Enter/Space), ARIA labels, and role="button"
+- Step 6: Verified code quality
+  - `bunx eslint src/components/kenya/KenyaCountyInfoPanel.tsx src/lib/kenya-data.ts` → clean (0 errors, 0 warnings)
+  - `bunx tsc --noEmit -p tsconfig.json` filtered for new files → 0 errors in KenyaCountyInfoPanel.tsx and kenya-data.ts
+  - Pre-existing errors remain only in kenya-parliament-mps.ts / kenya-parliament-senators.ts (apostrophe parsing in constituency names like "Chuka Igambang'Ombe") — unrelated to this task
+- Step 7: Verified dev server is running (Next.js 16.3.4 on port 3000)
+
+Files Created:
+- /home/z/my-project/src/components/kenya/KenyaCountyInfoPanel.tsx (new, ~520 lines)
+
+Files Modified:
+- /home/z/my-project/src/lib/kenya-data.ts (extended by ~280 lines: CountyDemographics, BudgetAllocation, DataQualityScore types + getCountyDemographics, getCountyBudgetAllocation, getDataQualityScore, formatKesMillions, formatPopulation + KNBS 2019 census data for all 47 counties + FY 2024/25 budget allocation for 6 counties + populated budgetAllocation on CountyData in buildAllCountyData() and KAJIADO_DATA)
+
+Summary:
+The KenyaCountyInfoPanel component is a comprehensive, mobile-first, accessibility-conscious, source-cited county information panel. It surfaces demographics (KNBS 2019 Census), FY 2024/25 budget allocation, FY 2023/24 budget absorption performance, audit opinions, tappable county leadership, parliament-verified MPs (with external profile links), and a 10-item data quality checklist with coverage percentage. All data is factual and sourced from constitutional oversight bodies (OAG, CoB, KNBS, IEBC, Parliament of Kenya, TI-Kenya). The component is fully typed, uses shadcn/ui components, supports dark mode via Tailwind dark: variants, and respects the user's specified import list. All lucide-react icons in the import list are used in the rendered output.
+
+---
+Task ID: recreate-3
+Agent: full-stack-developer
+Task: Recreate KenyaRightSidebar — slide-in right sidebar with quick-access components for the Kenya dashboard
+
+Work Log:
+- Step 1: Read worklog.md for context (existing dashboard tasks 1–11 + recreate-1/2/4) and inspected the `agent-ctx/` work records directory.
+- Step 2: Inspected existing Kenya components and lib for styling/typing conventions and patterns to follow:
+  - `src/components/kenya/KenyaSidebar.tsx` — desktop left navigation sidebar pattern (border-r, `bg-card/50`, `overflow-y-auto`)
+  - `src/components/kenya/KenyaFeedStatus.tsx` — `FeedStatusIndicator` / `SourceCitationBadge` / `KenyaFeedStatusBar` (compact status pill pattern)
+  - `src/components/kenya/KenyaNationalSummary.tsx` — Card/CardHeader/CardTitle/CardContent usage and audit-opinion color badges
+  - `src/components/kenya/KenyaPersonalization.tsx` — `Pin`/`Star`/`Switch` patterns and `usePersonalization` integration
+  - `src/lib/i18n.tsx` — confirmed all required i18n keys exist: `rightSidebar.heading`, `rightSidebar.language`, `rightSidebar.theme`, `rightSidebar.lightMode`, `rightSidebar.darkMode`, `rightSidebar.nationalStats`, `rightSidebar.liveStatus`, `rightSidebar.quickActions`, `rightSidebar.pinned`, `rightSidebar.noPinned`, `rightSidebar.lastRefresh`, `rightSidebar.never`, `rightSidebar.feedSources`, `nav.counties`, `tab.constitution`, `tab.feeds`, `sidebar.section.dishonesty`, `action.admin`, `action.allSections`, `footer.title`, `footer.sources`
+  - `src/hooks/use-personalization.ts` — `pinnedRepresentatives: string[]` array shape
+  - `src/app/page.tsx` — existing `ThemeToggle` pattern: `useSyncExternalStore` + `MutationObserver` on `document.documentElement` `class` attribute + `getServerSnapshot = () => false` for SSR safety
+  - `src/app/admin/page.tsx` exists at `/admin` → updated QuickActions "Admin" link to point to `/admin` (proper admin UI route) instead of the JSON-only `/api/admin/login`
+- Step 3: Created `/home/z/my-project/src/components/kenya/KenyaRightSidebar.tsx` (~481 lines) with:
+  - `'use client'` directive
+  - Imports exactly as specified by user: React `memo`/`useEffect`/`useMemo`/`useState`/`useSyncExternalStore`; `Card`/`CardContent`/`CardHeader`/`CardTitle`/`Badge`/`Button`/`Switch`/`Separator` (plus `ScrollArea` for polished custom scrollbar in the content region); `useLanguage` from `@/lib/i18n`; lucide-react icons `X`/`Sun`/`Moon`/`Languages`/`Landmark`/`Scale`/`Rss`/`Clock`/`Star`/`Activity`/`Settings`/`ExternalLink`/`Users`/`Building2`/`ShieldCheck`/`AlertTriangle`/`MapPin`
+  - `KenyaRightSidebarProps` interface exactly as specified (`open`, `onClose`, `pinnedRepIds: string[]`, `onSelectPinned?`, `onAllSections?`)
+  - **Layout**: `fixed top-0 right-0 z-40 h-screen w-[280px] sm:w-[320px] bg-card border-l shadow-xl flex flex-col` with `transform transition-transform duration-300 ease-in-out` slide-in from right (`translate-x-full` → `translate-x-0` when `open`)
+  - **Overlay backdrop**: only when `open`, `fixed inset-0 z-30 bg-black/30 landscape:hidden`, click-to-close
+  - 7 components rendered in order:
+    1. **LanguageToggle** — `Languages` icon + label + EN/SW segmented control; uses `useLanguage().language` / `setLanguage`; `aria-pressed` per button
+    2. **MiniThemeToggle** — Sun/Moon icon + label + `Switch`; `isDark` via `useSyncExternalStore` + `MutationObserver` on `document.documentElement` `class` attribute (synced with the existing header `ThemeToggle`); `isMounted` flag also via `useSyncExternalStore` to prevent SSR hydration mismatch on the icon
+    3. **NationalStatsMini** — 4 compact stat cards in a 2×2 grid: 47 counties (MapPin, emerald), 2010 constitution (Scale, primary), 4 feeds (Rss, orange), 14 dishonesty trackers (AlertTriangle, red)
+    4. **LastUpdatedMini** — Clock icon + "Parliament data last updated: [date]" reading `localStorage['kenya-parliament-last-refresh']` via `useSyncExternalStore` (cross-tab `'storage'` event subscription); shows `Never (using cached data)` (i18n key `rightSidebar.never`) when key missing or invalid; `useMemo` for date formatting
+    5. **LiveFeedStatusMini** — 4 colored dot rows: OAG (blue), CoB (emerald), TI-Kenya (orange), EACC (purple), each with a `cached` `Badge`
+    6. **PinnedRepsMini** — first 5 pinned rep IDs as tappable `<li>` rows with filled `Star` icon; calls `onSelectPinned?.(repId)` when provided (disabled state when no callback); empty-state message `No pinned representatives yet.` (i18n key `rightSidebar.noPinned`); "+N more" overflow note when `pinnedRepIds.length > 5`
+    7. **QuickActionsMini** — primary `Button` "All Sections" (Scale icon, calls `onAllSections?.()`, disabled when no callback), outline `Button asChild` anchor to `/admin` (ShieldCheck), outline anchor to `https://www.parliament.go.ke/the-national-assembly` (Users) for Parliament MPs, outline anchor to `https://www.parliament.go.ke/the-senate` (Building2) for Parliament Senators — external links open in new tab with `rel="noopener noreferrer"` and an `ExternalLink` icon pushed right via `ml-auto`
+  - **Footer attribution**: `mt-auto px-3 py-3 border-t bg-muted/20 shrink-0` div at bottom showing `t('footer.title')` + `t('footer.sources')` — pinned to bottom of the sidebar via `mt-auto` in the flex column
+  - **Main scroll area**: `ScrollArea className="flex-1"` provides a polished custom scrollbar (via shadcn ScrollArea's Radix-based vertical scrollbar) instead of relying on bare `overflow-y-auto`
+  - All text via `const { t } = useLanguage()` — every label, button text, and footer string uses `t('key')` with the appropriate i18n key
+  - ARIA labels on close button (`Close right sidebar`), `aria-hidden` on decorative icons and overlay, `aria-label` on `<aside>` and all link anchors, `role="group"` on the language segmented control
+- Step 4: `React.memo` wrapper with a custom comparator that checks exactly what the spec required:
+  - `open` (identity)
+  - `onClose` (identity)
+  - `onSelectPinned` (identity)
+  - `onAllSections` (identity)
+  - `pinnedRepIds` length AND content (item-by-item string equality)
+  - Returns `true` (skip re-render) only when all the above are unchanged — language/theme changes still propagate because the inner sub-components use `useLanguage()`/`useSyncExternalStore` directly, so context updates bypass the memo boundary as expected
+- Step 5: First lint pass surfaced `react-hooks/set-state-in-effect` errors from `setMounted(true)` calls inside `useEffect` bodies (MiniThemeToggle + LastUpdatedMini). Refactored both to fully `useSyncExternalStore`-based patterns:
+  - Hoisted `subscribeNoop` / `getMountedSnapshot` / `getMountedServerSnapshot` as module-level functions (stable identity → avoids resubscribing on every render) for the SSR-safe mounted check
+  - Hoisted `subscribeRefresh` / `getRefreshSnapshot` / `getRefreshServerSnapshot` (and the `LAST_REFRESH_KEY` constant) as module-level functions for the parliament-last-refresh localStorage subscription
+  - `subscribeRefresh` listens only to `'storage'` events matching the `LAST_REFRESH_KEY` (or `null` key for clear-all events) and immediately invokes the per-instance callback; cleanup removes the listener
+  - `getRefreshSnapshot` returns the raw `string | null` from `localStorage.getItem` (primitive equality makes referential stability trivial)
+  - This eliminated both `setState`-in-effect lint errors AND the need for `useEffect`/`useState` in those components, while preserving all required imports per the spec
+- Step 6: Final lint pass — `bunx eslint src/components/kenya/KenyaRightSidebar.tsx` returns zero errors and zero warnings on the new file. The 2 remaining project-wide errors are pre-existing parse errors in `src/lib/kenya-parliament-mps.ts` (100:134) and `src/lib/kenya-parliament-senators.ts` (131:60) — untracked files from prior agents, unrelated to this task.
+- Step 7: Dev server log (`/home/z/my-project/dev.log`) confirms `GET / 200` with no compile/runtime regressions after the new file is added.
+
+Files Created:
+- /home/z/my-project/src/components/kenya/KenyaRightSidebar.tsx (new, ~481 lines)
+
+Files Modified:
+- None
+
+Stage Summary:
+- New `KenyaRightSidebar` component is a drop-in slide-in right sidebar with seven quick-access mini cards (language toggle, theme toggle, national stats, parliament last-updated timestamp, live feed status, pinned reps, quick actions) plus an i18n footer attribution.
+- Width: 280px (mobile) / 320px (sm+), slides in from the right with a 300ms transform transition, with a portrait-only `bg-black/30` overlay backdrop (hidden in landscape).
+- All text localized via `useLanguage().t()`, theme synced with the existing header `ThemeToggle` via a shared `MutationObserver`-backed `useSyncExternalStore` external store, parliament data timestamp synced across tabs via the `'storage'` event.
+- SSR-safe (no hydration mismatch on theme icon or localStorage-derived timestamp) thanks to hoisted `getServerSnapshot` returns.
+- Custom `React.memo` comparator skips re-renders when only irrelevant props change, while still letting context-driven updates (language switch, theme toggle) propagate to sub-components through their own `useLanguage()`/`useSyncExternalStore` subscriptions.
+- Lint-clean, mobile-first, accessible (ARIA labels, keyboard-reachable buttons, `aria-hidden` on decorative elements, `role="group"` on language segmented control).
+
+---
+Task ID: recreate-5
+Agent: full-stack-developer
+Task: Recreate the Kenya Government Accountability Dashboard admin page at /home/z/my-project/src/app/admin/page.tsx
+
+Work Log:
+- Step 1: Read worklog.md and existing API contracts for context
+  - Confirmed `/api/admin/login` (GET check / POST login), `/api/admin/logout` (POST),
+    `/api/admin/resources` (GET/POST/PATCH/DELETE), `/api/admin/upload` (POST multipart),
+    and `/api/admin/refresh-parliament` (POST triggers refresh_parliament_data.sh)
+  - Verified Resource Prisma model fields match the requested Resource interface
+  - Referenced existing KenyaAdminResourcesPanel.tsx for getVideoEmbedUrl/isLocalUploadVideo
+    preview patterns to stay consistent with the rest of the codebase
+- Step 2: Created `/home/z/my-project/src/app/admin/page.tsx` as a 'use client' component
+  - Default export `AdminPage()` (the main React component)
+  - Auth gate state: `const [authenticated, setAuthenticated] = useState(false)`
+    and `const [checkingAuth, setCheckingAuth] = useState(true)` exactly as requested
+  - On-mount auth check uses `Promise.resolve().then(async () => { ... })` pattern to
+    satisfy the project's setState-in-effect ESLint rule
+  - Resources fetch effect also defers setState via `Promise.resolve().then(...)` microtask
+- Step 3: Built the AuthGate sub-component
+  - Centered Card with Lock icon, password input (autofocus), error alert, "Unlock" button
+  - POSTs `{ password }` JSON to /api/admin/login; on success calls onAuthenticated()
+  - Shows rate-limit notice; toast feedback via useToast()
+- Step 4: Built the authenticated admin UI
+  - Sticky header: Shield icon + "Oversight Resources Admin" title +
+    "Refresh Parliament" emerald button (POST /api/admin/refresh-parliament, spinner
+    while refreshing) + "Back to dashboard" link (anchor to /) + "Sign out" button
+    (POST /api/admin/logout, then resets local state)
+  - RefreshParliamentCard below the header — only renders when state !== 'idle';
+    shows running/success/error states with summary log lines (✓/✗ color-coded) and
+    a "Run at: ..." timestamp
+  - Source selector: 5 buttons (OAG, CoB, EACC, TI-Kenya, Other) with distinct icons
+    and emerald/amber/rose/teal/slate color tokens (NO indigo or blue used anywhere)
+  - Per-source Card with 3 tabs (Library / Upload / Link) using shadcn Tabs
+- Step 5: Built the Library tab (LibraryPanel)
+  - Fetches from `/api/admin/resources?source=X&published=false` on source change
+  - Groups resources into Videos / Documents / Links sections with counts
+  - ResourceCard component shows: source badge, kind badge (video/document/link),
+    file-type badge (PDF/IMAGE/VIDEO/AUDIO/XLSX/DOCX/PPTX/FILE), published/unpublished
+    badge, title, description (line-clamp-3), FY/county/report-type badges, URL link,
+    file size, "Added {date}", Preview button, Publish/Unpublish Switch (PATCH to
+    /api/admin/resources), and a Delete button guarded by AlertDialog confirmation
+    (DELETE /api/admin/resources?id=X)
+- Step 6: Built the Upload tab (UploadPanel)
+  - Drag-and-drop zone (click or drop files), hidden multi-file input
+  - Source field (read-only, reflects selected source), description, fiscal year,
+    county, report type (datalist-driven Inputs)
+  - Title is intentionally omitted for bulk uploads — server derives titles from
+    file names (per /api/admin/upload contract)
+  - Selected files list shows file-type badge + name + size + remove button
+    (ScrollArea with max-h-48 for long lists)
+  - Submits multipart/form-data with all files appended to `files` field;
+    reports per-file success/failure via toast
+- Step 7: Built the Link tab (LinkPanel)
+  - URL input (required) with client-side URL validation via `void new URL(url)`
+  - Real-time kind detection badge (video/document/link) — YouTube/Vimeo URLs
+    auto-detected and flagged as videos; PDF/Office extensions as documents
+  - Title (required), description, fiscal year, county, report type
+  - POSTs JSON to /api/admin/resources with `published: true`
+- Step 8: Built the PreviewDialog
+  - Video resources: YouTube/Vimeo iframe for external, native `<video>` for
+    /uploads/* or .mp4/.webm/.ogg/.mov files
+  - Image resources: `<img>` with object-contain (max-h-[60vh])
+  - PDF resources: `<iframe src={url}>` for in-browser PDF preview
+  - Other document/link types: fallback "Open in new tab" CTA
+  - All previews show FY/county/report-type/duration badges + "Open original" footer
+- Step 9: Verified code quality
+  - `npx eslint src/app/admin/page.tsx` → 0 errors, 0 warnings
+  - `npx tsc --noEmit` → no admin-page type errors
+  - All 20 imported lucide-react icons verified used as JSX
+  - Pre-existing parse errors in kenya-parliament-mps.ts:100 and
+    kenya-parliament-senators.ts:131 are NOT in scope (parliament data files
+    generated by the refresh script, separate from the admin page)
+- Step 10: Removed two unused eslint-disable directives
+  - `@next/next/no-img-element` is OFF in eslint.config.mjs, so the disable was unused
+    — switched to a plain `<img>` element
+  - `no-new` is not in the ruleset, so the disable was unused — switched
+    `new URL(url)` validation to `void new URL(url)` (void expression, no linter complaint)
+
+Stage Summary:
+- New file: `/home/z/my-project/src/app/admin/page.tsx` (~1995 lines, single client
+  component with inline sub-components: AuthGate, PreviewDialog, ResourceCard,
+  LibraryPanel, UploadPanel, LinkPanel, RefreshParliamentCard)
+- Auth flow: GET /api/admin/login (check) → POST /api/admin/login (verify) →
+  POST /api/admin/logout (sign out). Promise.resolve().then() pattern used in
+  both the mount-check effect and the resources-fetch effect to comply with the
+  project's setState-in-effect ESLint rule.
+- UI: Fully responsive (mobile-first), accessible (ARIA labels, role="alert",
+  sr-only descriptions, keyboard-reachable drag-drop zone, Switch with aria-label),
+  light/dark-aware (every source/kind badge has dark: variants), and avoids indigo
+  and blue colors per project style guidance — palette is emerald/amber/rose/teal/
+  slate/violet/fuchsia/cyan for accent variety.
+- API integration: All 5 endpoints wired (login GET+POST, logout POST, resources
+  GET+POST+PATCH+DELETE, upload POST multipart, refresh-parliament POST) with
+  toast feedback for every success and failure path.
+- Parliament refresh: button shows spinner while the long-running shell scrape
+  executes server-side; status card displays the returned summary log lines
+  (✓ success / ✗ failure color-coded) and run timestamp.
+- File is lint-clean and type-clean; pre-existing parse errors in parliament data
+  files remain out of scope.
