@@ -1,0 +1,679 @@
+{
+  "source": "https://www.parliament.go.ke/the-senate/senators",
+  "parliament": "13th Parliament (2022-2027)",
+  "fetched_at": "2026-09-03T04:08:36+0000",
+  "fetch_method": "Drupal views/ajax POST endpoint (first page via z-ai page_reader)",
+  "total_senators": 67,
+  "senators": [
+    {
+      "raw_name": "Sen. Sifuna Edwin Watenya",
+      "name": "Sifuna Edwin Watenya",
+      "honorific": null,
+      "county": "Nairobi",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-sifuna-edwin-watenya",
+      "photo_alt": "Sen. Sifuna Edwine Watenya"
+    },
+    {
+      "raw_name": "Sen. (Dr.) Khalwale Boni",
+      "name": "(Dr.) Khalwale Boni",
+      "honorific": null,
+      "county": "Kakamega",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-dr-khalwale-boni",
+      "photo_alt": "Sen. (Dr.) Khalwale Boni"
+    },
+    {
+      "raw_name": "Sen. (Rtd) Justice Stewart Madzayo, CBS, MP",
+      "name": "(Rtd) Justice Stewart Madzayo",
+      "honorific": "CBS, MP",
+      "county": "Kilifi",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-rtd-justice-stewart-madzayo-cbs-mp",
+      "photo_alt": "Sen. (Rtd) Justice Stewart Madzayo, CBS, MP"
+    },
+    {
+      "raw_name": "Sen. Abdalla Shakilla Mohamed",
+      "name": "Abdalla Shakilla Mohamed",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "WDM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-abdalla-shakila-mohamed",
+      "photo_alt": "Sen. Abdalla Shakila Mohamed"
+    },
+    {
+      "raw_name": "Sen. Beatrice Akinyi Ogolla",
+      "name": "Beatrice Akinyi Ogolla",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-beatrice-akinyi-ogolla",
+      "photo_alt": "Sen. Beatrice Akinyi Ogolla"
+    },
+    {
+      "raw_name": "Sen. Beth Kalunda Syengo",
+      "name": "Beth Kalunda Syengo",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-beth-kalunda-syengo",
+      "photo_alt": "Sen. Beth Kalunda Syengo"
+    },
+    {
+      "raw_name": "Sen. Betty Batuli Montet",
+      "name": "Betty Batuli Montet",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-betty-batuli-montet",
+      "photo_alt": "Sen. Betty Batuli Montet"
+    },
+    {
+      "raw_name": "Sen. Boy Issa Juma, CBS",
+      "name": "Boy Issa Juma",
+      "honorific": "CBS",
+      "county": "Kwale",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-boy-issa-juma-cbs",
+      "photo_alt": "Sen. Boy Issa Juma, CBS"
+    },
+    {
+      "raw_name": "Sen. Catherine Muyeka Mumma",
+      "name": "Catherine Muyeka Mumma",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-catherine-muyeka-mumma",
+      "photo_alt": "Sen. Catherine Muyeka Mumma"
+    },
+    {
+      "raw_name": "Sen. Cheburet Kiprono Chemitei V.",
+      "name": "Cheburet Kiprono Chemitei V.",
+      "honorific": null,
+      "county": "Baringo",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-cheburet-kiprono-chemitei-v",
+      "photo_alt": "Sen. Cheburet Kiprono Chemitei"
+    },
+    {
+      "raw_name": "Sen. Cherarkey Samson K",
+      "name": "Cherarkey Samson K",
+      "honorific": null,
+      "county": "Nandi",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-cherarkey-samson-k",
+      "photo_alt": "Sen. Cherarkey Samson K"
+    },
+    {
+      "raw_name": "Sen. Cheruiyot Aaron Kipkirui",
+      "name": "Cheruiyot Aaron Kipkirui",
+      "honorific": null,
+      "county": "Kericho",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-cheruiyot-aaron-kipkirui-0",
+      "photo_alt": "Sen. Cheruiyot Aaron Kipkirui"
+    },
+    {
+      "raw_name": "Sen. Chesang Allan Kiprotich, CBS",
+      "name": "Chesang Allan Kiprotich",
+      "honorific": "CBS",
+      "county": "Trans Nzoia",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-chesang-allan-kiprotich-cbs",
+      "photo_alt": "Sen. Chesang Allan Kiprotich, CBS"
+    },
+    {
+      "raw_name": "Sen. Chimera Raphael Mwinzago",
+      "name": "Chimera Raphael Mwinzago",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-chimera-raphael-mwinzago",
+      "photo_alt": "Sen. Chimera Raphael Mwinzago"
+    },
+    {
+      "raw_name": "Sen. Chute Mohamed Said, CBS",
+      "name": "Chute Mohamed Said",
+      "honorific": "CBS",
+      "county": "Marsabit",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-chute-mohamed-said-cbs",
+      "photo_alt": "Sen. Chute Mohamed Said, CBS"
+    },
+    {
+      "raw_name": "Sen. Consolata Nabwire Wakwabubi",
+      "name": "Consolata Nabwire Wakwabubi",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-consolata-nabwire-wakwabubi",
+      "photo_alt": "Sen. Consolata Nabwire Wakwabubi"
+    },
+    {
+      "raw_name": "Sen. Crystal Asige",
+      "name": "Crystal Asige",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-crystal-asige",
+      "photo_alt": "Sen. Crystal Asige"
+    },
+    {
+      "raw_name": "Sen. David Wakoli Wafula, CBS",
+      "name": "David Wakoli Wafula",
+      "honorific": "CBS",
+      "county": "Bungoma County",
+      "party": "(Ford K)",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-david-wakoli-wafula-cbs",
+      "photo_alt": "Sen. David Wakoli Wafula, CBS"
+    },
+    {
+      "raw_name": "Sen. Dullo Fatuma Adan",
+      "name": "Dullo Fatuma Adan",
+      "honorific": null,
+      "county": "Isiolo",
+      "party": "JP",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-dullo-fatuma-adan",
+      "photo_alt": "Sen. Dullo Fatuma Adan"
+    },
+    {
+      "raw_name": "Sen. Ekomwa James Lomenen",
+      "name": "Ekomwa James Lomenen",
+      "honorific": null,
+      "county": "Turkana",
+      "party": "JP",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-ekomwa-james-lomenen",
+      "photo_alt": "Sen. Ekomwa James Lomenen"
+    },
+    {
+      "raw_name": "Sen. Essy Okenyuri Nyaituga Anyieni",
+      "name": "Essy Okenyuri Nyaituga Anyieni",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-essy-okenyuri-nyaituga-anyieni",
+      "photo_alt": "Sen. Essy Okenyuri Nyaituga Anyieni"
+    },
+    {
+      "raw_name": "Sen. Faki Mohamed Mwinyihaji",
+      "name": "Faki Mohamed Mwinyihaji",
+      "honorific": null,
+      "county": "Mombasa",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-faki-mohamed-mwinyihaji",
+      "photo_alt": "Sen. Faki Mohamed Mwinyihaji"
+    },
+    {
+      "raw_name": "Sen. George Mungai Mbugua",
+      "name": "George Mungai Mbugua",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-george-mungai-mbugua",
+      "photo_alt": "Sen. George Mungai Mbugua"
+    },
+    {
+      "raw_name": "Sen. Haji Abdul Mohammed",
+      "name": "Haji Abdul Mohammed",
+      "honorific": null,
+      "county": "Garissa",
+      "party": "JP",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-haji-abdul-mohammed",
+      "photo_alt": "Sen. Haji Abdul Mohammed"
+    },
+    {
+      "raw_name": "Sen. Hamida Ali Kibwana",
+      "name": "Hamida Ali Kibwana",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-hamida-ali-kibwana",
+      "photo_alt": "Sen. Hamida Ali Kibwana"
+    },
+    {
+      "raw_name": "Sen. Hezena M. Lemaletian",
+      "name": "Hezena M. Lemaletian",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "ODM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-hezena-m-lemaletian",
+      "photo_alt": "Sen. Hezena M. Lemaletian"
+    },
+    {
+      "raw_name": "Sen. Joe Nyutu",
+      "name": "Joe Nyutu",
+      "honorific": null,
+      "county": "Muranga",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-joe-nyutu",
+      "photo_alt": "Sen. Joe Nyutu"
+    },
+    {
+      "raw_name": "Sen. Joyce Chepkoech Korir",
+      "name": "Joyce Chepkoech Korir",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-joyce-chepkoech-korir",
+      "photo_alt": "Sen. Joyce Chepkoech Korir"
+    },
+    {
+      "raw_name": "Sen. Kajwang' Moses Otieno",
+      "name": "Kajwang' Moses Otieno",
+      "honorific": null,
+      "county": "Homa Bay",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-kajwang-moses-otieno-0",
+      "photo_alt": "Sen. Kajwang&#039; Moses Otieno"
+    },
+    {
+      "raw_name": "Sen. Kamau Joseph Githuku",
+      "name": "Kamau Joseph Githuku",
+      "honorific": null,
+      "county": "Lamu",
+      "party": "JP",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-kamau-joseph-githuku",
+      "photo_alt": "Sen. Kamau Joseph Githuku"
+    },
+    {
+      "raw_name": "Sen. Karungo Paul Thangwa",
+      "name": "Karungo Paul Thangwa",
+      "honorific": null,
+      "county": "Kiambu",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-karungo-paul-thangwa",
+      "photo_alt": "Sen. Karungo Paul Thangwa"
+    },
+    {
+      "raw_name": "Sen. Keroche Tabitha Karanja",
+      "name": "Keroche Tabitha Karanja",
+      "honorific": null,
+      "county": "Nakuru",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-keroche-tabitha-karanja",
+      "photo_alt": "Sen. Keroche Tabitha Karanja"
+    },
+    {
+      "raw_name": "Sen. Kiplagat Jackson Mandago",
+      "name": "Kiplagat Jackson Mandago",
+      "honorific": null,
+      "county": "Uasin Gishu",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-kiplagat-jackson-mandago",
+      "photo_alt": "Sen. Kiplagat Jackson Mandago"
+    },
+    {
+      "raw_name": "Sen. Kisang William Kipkemoi, CBS",
+      "name": "Kisang William Kipkemoi",
+      "honorific": "CBS",
+      "county": "Elgeyo Marakwet",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-kisang-william-kipkemoi-cbs",
+      "photo_alt": "Sen. Kisang William Kipkemoi, CBS"
+    },
+    {
+      "raw_name": "Sen. Lelegwe Steve Ltumbesi",
+      "name": "Lelegwe Steve Ltumbesi",
+      "honorific": null,
+      "county": "Samburu",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-lelegwe-steve-ltumbesi",
+      "photo_alt": "Sen. Lelegwe Steve Ltumbesi"
+    },
+    {
+      "raw_name": "Sen. Maanzo Daniel Kitonga",
+      "name": "Maanzo Daniel Kitonga",
+      "honorific": null,
+      "county": "Makueni",
+      "party": "WDM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-maanzo-daniel-kitonga",
+      "photo_alt": "Sen. Maanzo Daniel Kitonga"
+    },
+    {
+      "raw_name": "Sen. Methu John Muhia",
+      "name": "Methu John Muhia",
+      "honorific": null,
+      "county": "Nyandarua",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-methu-john-muhia",
+      "photo_alt": "Sen. Methu John Muhia"
+    },
+    {
+      "raw_name": "Sen. Miraj Abdillahi Abdulrahman",
+      "name": "Miraj Abdillahi Abdulrahman",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-miraj-abdillahi-abdulrahman",
+      "photo_alt": "Sen. Miraj Abdillahi Abdulrahman"
+    },
+    {
+      "raw_name": "Sen. Mogeni Erick Okongo",
+      "name": "Mogeni Erick Okongo",
+      "honorific": null,
+      "county": "Nyamira",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-mogeni-erick-okongo",
+      "photo_alt": "Sen. Mogeni Erick Okongo"
+    },
+    {
+      "raw_name": "Sen. Mohamed Abass Sheikh",
+      "name": "Mohamed Abass Sheikh",
+      "honorific": null,
+      "county": "Wajir",
+      "party": "UDM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-mohamed-abass-sheikh",
+      "photo_alt": "Sen. Mohamed Abass Sheikh"
+    },
+    {
+      "raw_name": "Sen. Mungatana Danson Buya",
+      "name": "Mungatana Danson Buya",
+      "honorific": null,
+      "county": "Tana River",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-mungatana-danson-buya",
+      "photo_alt": "Sen. Mungatana Danson Buya"
+    },
+    {
+      "raw_name": "Sen. Munyi Alexander Mundigi",
+      "name": "Munyi Alexander Mundigi",
+      "honorific": null,
+      "county": "Embu",
+      "party": "DP",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-munyi-alexander-mundigi",
+      "photo_alt": "Sen. Munyi Alexander Mundigi"
+    },
+    {
+      "raw_name": "Sen. Murango James Kamau",
+      "name": "Murango James Kamau",
+      "honorific": null,
+      "county": "Kirinyaga",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-murango-james-kamau",
+      "photo_alt": "Sen. Murango James Kamau"
+    },
+    {
+      "raw_name": "Sen. Murungi Kathuri",
+      "name": "Murungi Kathuri",
+      "honorific": null,
+      "county": "Meru",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-murungi-kathuri",
+      "photo_alt": "Sen. Murungi Kathuri"
+    },
+    {
+      "raw_name": "Sen. Muthama Agnes Kavindu Mbuku",
+      "name": "Muthama Agnes Kavindu Mbuku",
+      "honorific": null,
+      "county": "Machakos",
+      "party": "WDM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-muthama-agnes-kavindu-mbuku",
+      "photo_alt": "Sen. Muthama Agnes Kavindu Mbuku"
+    },
+    {
+      "raw_name": "Sen. Mutinda Maureen Tabitha, CBS",
+      "name": "Mutinda Maureen Tabitha",
+      "honorific": "CBS",
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-mutinda-maureen-tabitha-cbs",
+      "photo_alt": "Sen. Mutinda Maureen Tabitha, CBS"
+    },
+    {
+      "raw_name": "Sen. Mwaruma Johnes M, CBS",
+      "name": "Mwaruma Johnes M",
+      "honorific": "CBS",
+      "county": "Taita Taveta",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-mwaruma-johnes-m-cbs",
+      "photo_alt": "Sen. Mwaruma Johnes M, CBS"
+    },
+    {
+      "raw_name": "Sen. Mwenda Gataya Mo Fire",
+      "name": "Mwenda Gataya Mo Fire",
+      "honorific": null,
+      "county": "Tharaka Nithi",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-mwenda-gataya-mo-fire",
+      "photo_alt": "Sen. Mwenda Gataya Mo Fire"
+    },
+    {
+      "raw_name": "Sen. Nderitu John Kinyua",
+      "name": "Nderitu John Kinyua",
+      "honorific": null,
+      "county": "Laikipia",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-nderitu-john-kinyua",
+      "photo_alt": "Sen. Nderitu John Kinyua"
+    },
+    {
+      "raw_name": "Sen. Nyamu Karen Njeri",
+      "name": "Nyamu Karen Njeri",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-nyamu-karen-njeri",
+      "photo_alt": "Sen. Nyamu Karen Njeri"
+    },
+    {
+      "raw_name": "Sen. Oginga Oburu",
+      "name": "Oginga Oburu",
+      "honorific": null,
+      "county": "Siaya",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-oginga-oburu",
+      "photo_alt": "Sen. Oginga Oburu"
+    },
+    {
+      "raw_name": "Sen. Oketch Eddy Gicheru",
+      "name": "Oketch Eddy Gicheru",
+      "honorific": null,
+      "county": "Migori",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-oketch-eddy-gicheru",
+      "photo_alt": "Sen. Oketch Eddy Gicheru"
+    },
+    {
+      "raw_name": "Sen. Okoiti Andrew Omtatah",
+      "name": "Okoiti Andrew Omtatah",
+      "honorific": null,
+      "county": "Busia",
+      "party": "NRA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-okoiti-andrew-omtatah",
+      "photo_alt": "Sen. Okoiti Andrew Omtatah"
+    },
+    {
+      "raw_name": "Sen. Olekina Ledama",
+      "name": "Olekina Ledama",
+      "honorific": null,
+      "county": "Narok",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-olekina-ledama-0",
+      "photo_alt": "Sen. Olekina Ledama"
+    },
+    {
+      "raw_name": "Sen. Omar Mariam Sheikh",
+      "name": "Omar Mariam Sheikh",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDM",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-omar-mariam-sheikh",
+      "photo_alt": "Sen. Omar Mariam Sheikh"
+    },
+    {
+      "raw_name": "Sen. Onyonka Richard Momoima",
+      "name": "Onyonka Richard Momoima",
+      "honorific": null,
+      "county": "Kisii",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-onyonka-richard-momoima",
+      "photo_alt": "Sen. Onyonka Richard Momoima"
+    },
+    {
+      "raw_name": "Sen. Osotsi Godfrey Atieno",
+      "name": "Osotsi Godfrey Atieno",
+      "honorific": null,
+      "county": "Vihiga",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-osotsi-godfrey-atieno",
+      "photo_alt": "Sen. Osotsi Godfrey Atieno"
+    },
+    {
+      "raw_name": "Sen. Pesi Peris Tobiko",
+      "name": "Pesi Peris Tobiko",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-pesi-peris-tobiko",
+      "photo_alt": "Sen. Pesi Peris Tobiko"
+    },
+    {
+      "raw_name": "Sen. Prof. Margaret Jepkoech Kamar",
+      "name": "Prof. Margaret Jepkoech Kamar",
+      "honorific": null,
+      "county": "Nominated",
+      "party": "JP",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-prof-margaret-jepkoech-kamar",
+      "photo_alt": "Sen. Prof. Margaret Jepkoech Kamar"
+    },
+    {
+      "raw_name": "Sen. Prof. Tom Odhiambo Ojienda, SC, MP",
+      "name": "Prof. Tom Odhiambo Ojienda",
+      "honorific": "SC, MP",
+      "county": "Kisumu",
+      "party": "ODM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-prof-tom-odhiambo-ojienda-sc-mp",
+      "photo_alt": "Sen. Prof. Tom Odhiambo Ojienda, SC, MP"
+    },
+    {
+      "raw_name": "Sen. Recha Julius Murgor",
+      "name": "Recha Julius Murgor",
+      "honorific": null,
+      "county": "West Pokot",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-recha-julius-murgor",
+      "photo_alt": "Sen. Recha Julius Murgor"
+    },
+    {
+      "raw_name": "Sen. Roba Ali Ibrahim",
+      "name": "Roba Ali Ibrahim",
+      "honorific": null,
+      "county": "Mandera",
+      "party": "UDM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-roba-ali-ibrahim",
+      "photo_alt": "Sen. Roba Ali Ibrahim"
+    },
+    {
+      "raw_name": "Sen. Seki Lenku Ole Kanar",
+      "name": "Seki Lenku Ole Kanar",
+      "honorific": null,
+      "county": "Kajiado",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-seki-lenku-ole-kanar",
+      "photo_alt": "Sen. Seki Lenku Ole Kanar"
+    },
+    {
+      "raw_name": "Sen. Veronica Waheti Nduati, CBS",
+      "name": "Veronica Waheti Nduati",
+      "honorific": "CBS",
+      "county": "Nominated",
+      "party": "UDA",
+      "status": "Nominated",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-veronica-waheti-nduati-cbs",
+      "photo_alt": "Sen. Veronica Waheti Nduati, CBS"
+    },
+    {
+      "raw_name": "Sen. Wakili Hillary Kiprotich Sigei",
+      "name": "Wakili Hillary Kiprotich Sigei",
+      "honorific": null,
+      "county": "Bomet",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-wakili-hillary-kiprotich-sigei-cbs-mp",
+      "photo_alt": "Sen. Wakili Hillary Kiprotich Sigei"
+    },
+    {
+      "raw_name": "Sen. Wamatinga Wahome, CBS",
+      "name": "Wamatinga Wahome",
+      "honorific": "CBS",
+      "county": "Nyeri",
+      "party": "UDA",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-wamatinga-wahome-cbs",
+      "photo_alt": "Sen. Wamatinga Wahome, CBS"
+    },
+    {
+      "raw_name": "Sen. Wambua Enoch Kiio",
+      "name": "Wambua Enoch Kiio",
+      "honorific": null,
+      "county": "Kitui",
+      "party": "WDM",
+      "status": "Elected",
+      "profile_url": "https://www.parliament.go.ke/the-senate/sen-wambua-enoch-kiio-0",
+      "photo_alt": "Sen. Wambua Enoch Kiio"
+    }
+  ]
+}

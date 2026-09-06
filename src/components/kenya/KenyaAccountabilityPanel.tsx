@@ -299,7 +299,7 @@ function ComplianceTab({ rep }: { rep: Representative }) {
   const eaccInvestigations = eaccData?.investigations.filter(i =>
     i.representativeName.toLowerCase().includes(rep.fullName.toLowerCase().split(' ')[0])
   );
-  const hasEaccData = !!eaccDeclaration || eaccInvestigations?.length > 0;
+  const hasEaccData = !!eaccDeclaration || (eaccInvestigations?.length ?? 0) > 0;
 
   return (
     <div className="space-y-3">

@@ -44,4 +44,34 @@ model Feedback {
   sourceUrl        String?  // optional source/evidence URL
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
+
+  @@index([category])
+  @@index([status])
+  @@index([createdAt])
+  @@index([countyName])
+}
+
+// Admin-uploaded or link-submitted oversight resources (OAG, CoB, EACC, TI-Kenya).
+model Resource {
+  id          String   @id @default(cuid())
+  source      String   // "OAG" | "CoB" | "EACC" | "TI-Kenya" | "Other"
+  kind        String   // "document" | "video" | "link"
+  title       String
+  description String?
+  url         String
+  fileName    String?
+  fileSize    Int?
+  mimeType    String?
+  thumbnailUrl String?
+  durationLabel String?
+  fiscalYear  String?
+  countyName  String?
+  reportType  String?
+  published   Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([source, kind])
+  @@index([published])
 }

@@ -114,7 +114,10 @@ export function KenyaOversightHub({ countyCode }: KenyaOversightHubProps) {
             </DialogTitle>
           </DialogHeader>
           <ScrollArea className="px-6 pb-6 max-h-[60vh] overflow-y-auto">
-            {activeComponent && <activeComponent countyCode={countyCode} />}
+            {activeComponent && (() => {
+              const Component = activeComponent as React.ComponentType<{ countyCode?: number }>;
+              return <Component countyCode={countyCode} />;
+            })()}
           </ScrollArea>
         </DialogContent>
       </Dialog>

@@ -283,7 +283,7 @@ export interface BudgetQuarterlyEntry {
   developmentSpent: string | null;
   pendingBills: string | null;
   supplementaryBudgets: number;
-  virementAlerts: number;
+  virementAlerts: number | null;
   absorptionRate: number | null;
   source: string;
   sourceUrl: string;

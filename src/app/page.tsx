@@ -292,8 +292,8 @@ function Dashboard() {
                 <KenyaSearchAutocomplete
                   searchQuery={filters.searchQuery}
                   onSearchChange={(q) => handleFiltersChange({ ...filters, searchQuery: q })}
-                  onSelectRepresentative={(entry) => {
-                    handleSelectRepresentative(entry.rep);
+                  onSelectRepresentative={(rep) => {
+                    handleSelectRepresentative(rep);
                     setFiltersSheetOpen(false);
                   }}
                   onSelectCounty={(county) => {

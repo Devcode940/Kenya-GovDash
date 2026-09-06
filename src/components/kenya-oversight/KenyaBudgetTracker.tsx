@@ -130,7 +130,7 @@ export function KenyaBudgetTracker({ countyCode }: KenyaBudgetTrackerProps) {
   const countyName = latestQuarter.countyName;
 
   // Sum totals for virement and supplementary
-  const totalVirementAlerts = sortedQuarters.reduce((sum, q) => sum + q.virementAlerts, 0);
+  const totalVirementAlerts = sortedQuarters.reduce((sum, q) => sum + (q.virementAlerts ?? 0), 0);
   const maxSupplementary = Math.max(...sortedQuarters.map(q => q.supplementaryBudgets));
 
   return (
