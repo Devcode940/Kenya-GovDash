@@ -1,0 +1,41 @@
+# docker-compose.yml for Kenya GovDash
+# Self-hosted deployment with SQLite (persistent volume)
+
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: kenya-govdash
+    ports:
+      - "3000:3000"
+    environment:
+      # Database (SQLite — stored in ./data volume)
+      - DATABASE_URL=file:/app/data/govdash.db
+
+      # Auth (CHANGE THESE!)
+      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-$2b$10$zwCrCu9DgB4BvAaJUcPbPOkNnxa0HvNMBZfXH6XVqSYOl43PYkK2C}
+
+      # AI (optional)
+      - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
+
+      # Email (optional)
+      - RESEND_API_KEY=${RESEND_API_KEY:-}
+      - MAIL_FROM=${MAIL_FROM:-Kenya GovDash <noreply@localhost>}
+      - MAIL_REPLY_TO=${MAIL_REPLY_TO:-}
+
+      # Cron (optional)
+      - CRON_SECRET=${CRON_SECRET:-}
+
+      # Public URL
+      - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s

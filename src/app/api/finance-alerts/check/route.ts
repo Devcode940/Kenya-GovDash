@@ -3,17 +3,31 @@ import { isAuthenticated } from '@/lib/auth';
 import { processAlerts, checkAlerts } from '@/lib/finance-alerts';
 
 // POST /api/finance-alerts/check — process all pending alerts
-// Auth: admin OR external cron with x-cron-secret header
+// Auth (any one of):
+//   1. Vercel Cron (automatically sends Authorization: Bearer <CRON_SECRET>)
+//   2. External cron with x-cron-secret header matching CRON_SECRET
+//   3. Admin session cookie (isAuthenticated)
 export async function POST(request: NextRequest) {
-  const cronSecret = request.headers.get('x-cron-secret');
+  // Check Vercel Cron auth: Vercel sends "Authorization: Bearer <CRON_SECRET>"
+  const authHeader = request.headers.get('authorization');
   const expectedSecret = process.env.CRON_SECRET;
+  const cronSecretHeader = request.headers.get('x-cron-secret');
 
   let authorized = false;
-  if (expectedSecret && cronSecret === expectedSecret) {
+
+  // Method 1: Vercel Cron — Authorization: Bearer <secret>
+  if (expectedSecret && authHeader === `Bearer ${expectedSecret}`) {
     authorized = true;
-  } else {
+  }
+  // Method 2: External cron — x-cron-secret header
+  else if (expectedSecret && cronSecretHeader === expectedSecret) {
+    authorized = true;
+  }
+  // Method 3: Admin session
+  else {
     authorized = await isAuthenticated();
   }
+
   if (!authorized) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
@@ -32,8 +46,17 @@ export async function POST(request: NextRequest) {
 
 // GET — preview which alerts would fire (no side effects)
 export async function GET(request: NextRequest) {
-  const authed = await isAuthenticated();
-  if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  // Same auth as POST — allows Vercel Cron GET or admin
+  const authHeader = request.headers.get('authorization');
+  const expectedSecret = process.env.CRON_SECRET;
+  const cronSecretHeader = request.headers.get('x-cron-secret');
+
+  let authorized = false;
+  if (expectedSecret && authHeader === `Bearer ${expectedSecret}`) authorized = true;
+  else if (expectedSecret && cronSecretHeader === expectedSecret) authorized = true;
+  else authorized = await isAuthenticated();
+
+  if (!authorized) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
     const triggers = await checkAlerts();
