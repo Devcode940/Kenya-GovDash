@@ -187,3 +187,27 @@ model FinanceAlertLog {
   @@index([subscriptionId])
   @@index([sentAt])
 }
+
+// Whistleblower submissions — END-TO-END ENCRYPTED.
+// The server stores ciphertext only and cannot read report contents.
+// Envelope v1: AES-256-GCM data key (random per report) wrapped with the
+// admin RSA-OAEP-256 public key. Decryption happens exclusively offline via
+// scripts/whistleblower_decrypt.mjs holding the private key.
+// Plaintext metadata (reporter-consented, needed for triage): category,
+// status, ticketId, timestamps. Everything else is encrypted.
+model WhistleblowerSubmission {
+  id              String   @id @default(cuid())
+  ticketId        String   @unique // public ticket, e.g. WB-3F9A1C7E42B8
+  category        String   // plaintext routing metadata (see note above)
+  hasEvidence     Boolean  @default(false)
+  encryptedKey    String   // RSA-OAEP-wrapped AES key (base64)
+  iv              String   // AES-GCM IV for ciphertext (base64)
+  ciphertext      String   // AES-GCM report JSON (base64)
+  evidence        String?  // JSON array of encrypted files (base64 fields)
+  status          String   @default("submitted") // submitted | under_review | investigating | verified | dismissed
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([status])
+  @@index([createdAt])
+}

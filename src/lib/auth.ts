@@ -108,81 +108,16 @@ export const SESSION_COOKIE_NAME = COOKIE_NAME;
 // serverless use a shared store (Upstash/Vercel KV). Buckets are namespaced
 // per scope; entries are evicted (expiry + hard cap) to bound memory.
 
-type RateScope = 'login' | 'ai' | 'feedback' | 'feeds';
-const SCOPE_LIMITS: Record<RateScope, { max: number; windowMs: number }> = {
-  login: { max: 5, windowMs: 15 * 60 * 1000 },
-  ai: { max: 30, windowMs: 60 * 60 * 1000 },
-  feedback: { max: 10, windowMs: 60 * 60 * 1000 },
-  feeds: { max: 60, windowMs: 60 * 60 * 1000 },
-};
-const MAX_TRACKED_KEYS = 10_000;
-const PURGE_INTERVAL_MS = 60_000;
-
-const attempts = new Map<string, { count: number; resetAt: number }>();
-let lastPurge = 0;
-
-function purgeExpired(now: number): void {
-  if (now - lastPurge < PURGE_INTERVAL_MS) return;
-  lastPurge = now;
-  for (const [key, entry] of attempts) {
-    if (entry.resetAt <= now) attempts.delete(key);
-  }
-  while (attempts.size > MAX_TRACKED_KEYS) {
-    const oldest = attempts.keys().next();
-    if (oldest.done) break;
-    attempts.delete(oldest.value);
-  }
-}
-
-function rateLimitExceeded(resetAt: number) {
-  const retryAfter = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000));
-  return { retryAfter };
-}
-
-export function checkRateLimit(
-  ip: string,
-  scope: RateScope = 'login',
-): { allowed: boolean; remaining: number; resetAt: number } {
-  const now = Date.now();
-  purgeExpired(now);
-  const { max, windowMs } = SCOPE_LIMITS[scope];
-  const key = `${scope}:${ip}`;
-  const entry = attempts.get(key);
-  if (entry && now < entry.resetAt) {
-    return { allowed: entry.count < max, remaining: Math.max(0, max - entry.count), resetAt: entry.resetAt };
-  }
-  const resetAt = now + windowMs;
-  attempts.set(key, { count: 0, resetAt });
-  return { allowed: true, remaining: max, resetAt };
-}
-
-export function recordFailedAttempt(ip: string, scope: RateScope = 'login'): void {
-  const now = Date.now();
-  purgeExpired(now);
-  const key = `${scope}:${ip}`;
-  const entry = attempts.get(key) ?? { count: 0, resetAt: 0 };
-  entry.count += 1;
-  entry.resetAt = now + SCOPE_LIMITS[scope].windowMs;
-  attempts.set(key, entry);
-}
-
-/** Record a consumed attempt for quota scopes (ai, feedback). Sliding window. */
-export function recordAttempt(ip: string, scope: RateScope): void {
-  const now = Date.now();
-  purgeExpired(now);
-  const key = `${scope}:${ip}`;
-  const entry = attempts.get(key);
-  if (entry && now < entry.resetAt) {
-    entry.count += 1;
-    attempts.set(key, entry);
-  } else {
-    attempts.set(key, { count: 1, resetAt: now + SCOPE_LIMITS[scope].windowMs });
-  }
-}
-
-export function clearRateLimit(ip: string, scope: RateScope = 'login'): void {
-  attempts.delete(`${scope}:${ip}`);
-}
+// ==================== RATE LIMITING ====================
+// Implemented in ./rate-limit.ts (memory or shared Redis store).
+// Re-exported here so existing imports keep working.
+export {
+  checkRateLimit,
+  recordFailedAttempt,
+  recordAttempt,
+  clearRateLimit,
+} from './rate-limit';
+export type { RateScope } from './rate-limit';
 
 export function getClientIP(request: NextRequest | Request): string {
   if (TRUST_PROXY) {
@@ -198,7 +133,7 @@ export function getClientIP(request: NextRequest | Request): string {
 }
 
 export function rateLimitResponse(resetAt: number, scope: string): Response {
-  const { retryAfter } = rateLimitExceeded(resetAt);
+  const retryAfter = Math.max(1, Math.ceil((resetAt - Date.now()) / 1000));
   return Response.json(
     { error: `Rate limit exceeded for ${scope}. Try again in ${Math.ceil(retryAfter / 60)} minute(s).` },
     { status: 429, headers: { 'Retry-After': String(retryAfter) } },

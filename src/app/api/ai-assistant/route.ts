@@ -20,9 +20,9 @@ export const maxDuration = 60;
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIP(request);
-    const rate = checkRateLimit(ip, 'ai');
+    const rate = await checkRateLimit(ip, 'ai');
     if (!rate.allowed) return rateLimitResponse(rate.resetAt, 'ai-assistant');
-    recordAttempt(ip, 'ai');
+    await recordAttempt(ip, 'ai');
 
     let rawBody: unknown;
     try {

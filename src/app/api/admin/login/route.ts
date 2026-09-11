@@ -6,7 +6,7 @@ import { parseOr400, loginSchema } from '@/lib/validators';
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIP(request);
-    const rateLimit = checkRateLimit(ip);
+    const rateLimit = await checkRateLimit(ip);
 
     if (!rateLimit.allowed) {
       const retryAfter = Math.ceil((rateLimit.resetAt - Date.now()) / 1000);
@@ -28,12 +28,12 @@ export async function POST(request: NextRequest) {
     }
 
     if (!await verifyPassword(parsed.data.password)) {
-      recordFailedAttempt(ip);
+      await recordFailedAttempt(ip);
       return NextResponse.json({ success: false, error: 'Incorrect password' }, { status: 401 });
     }
 
     // Success — clear rate limit + create session
-    clearRateLimit(ip);
+    await clearRateLimit(ip);
     const token = createSessionToken();
     await setSessionCookie(token);
 

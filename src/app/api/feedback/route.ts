@@ -52,9 +52,9 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const ip = getClientIP(request);
-    const rate = checkRateLimit(ip, 'feedback');
+    const rate = await checkRateLimit(ip, 'feedback');
     if (!rate.allowed) return rateLimitResponse(rate.resetAt, 'feedback');
-    recordAttempt(ip, 'feedback');
+    await recordAttempt(ip, 'feedback');
 
     let rawBody: unknown;
     try {

@@ -42,7 +42,7 @@ A citizen oversight platform for Kenya's 47 counties — tracking government fin
 - **County comparison** (`/compare`) — 2-5 counties side-by-side with radar chart + CSV export
 - **Platform stats** (`/stats`) — transparency dashboard with engagement metrics
 - **Public feedback** — submit + browse citizen feedback with status timelines
-- **Secure whistleblower portal** — end-to-end encrypted (AES-GCM 256-bit) submissions
+- **Secure whistleblower portal** — end-to-end encrypted (RSA-OAEP + AES-256-GCM hybrid envelope; server stores ciphertext only; offline admin decryption; ticket tracking)
 
 ### AI Assistant
 - **Real LLM** powered by Mistral AI (or z-ai-web-dev-sdk fallback)
@@ -57,6 +57,7 @@ A citizen oversight platform for Kenya's 47 counties — tracking government fin
   - Finance & Audit snapshots (CRUD + CSV export)
   - CECM Name Verification (440 positions, progress tracking)
   - Auto-extract finance from PDFs (table parser + regex fallback)
+  - Whistleblower triage (ciphertext metadata, status workflow, encrypted export)
 
 ---
 
@@ -119,6 +120,13 @@ ADMIN_PASSWORD_HASH="$2b$12$Wlv2QBf72IMVuMw3ReyR2e2DFoIk6C7mLIt02iQFuLBP83OYc2yZ
 # Default password: fb0599a99117931085153a59
 # To set custom: generate hash with: bunx bcryptjs hash "your-password" 10
 JWT_SECRET="your-jwt-secret-change-me"
+
+# Whistleblower E2E encryption (generate offline — see scripts/whistleblower_gen_keys.mjs)
+WHISTLEBLOWER_PUBLIC_KEY=""
+
+# Shared rate-limit store for serverless (Upstash Redis REST; optional)
+RATE_LIMIT_KV_URL=""
+RATE_LIMIT_KV_TOKEN=""
 
 # AI Assistant (optional — at least one recommended)
 # Option 1: Mistral AI (get free key at https://console.mistral.ai/)
@@ -243,6 +251,9 @@ docker run -p 3000:3000 --env-file .env kenya-govdash
 | `/api/search` | GET | Site-wide search. Query: `?q=searchterm` |
 | `/api/stats` | GET | Platform statistics (counts, audit distribution) |
 | `/api/feedback` | GET, POST | Citizen feedback (list + submit) |
+| `/api/whistleblower` | POST | Submit E2E-encrypted report envelope |
+| `/api/whistleblower/pubkey` | GET | Admin RSA public key + fingerprint |
+| `/api/whistleblower/status` | GET | Track report by ticket (`?ticket=WB-…`) |
 | `/api/ai-assistant` | POST | AI chat. Body: `{ question, history }` |
 | `/api/finance-alerts/subscribe` | POST | Subscribe to finance alerts |
 | `/api/finance-alerts/unsubscribe` | GET | Unsubscribe (`?email=`) |
@@ -257,6 +268,7 @@ docker run -p 3000:3000 --env-file .env kenya-govdash
 | `/api/admin/cecm-verify` | GET, POST, DELETE | CECM name verification |
 | `/api/admin/extract-finance` | POST | Auto-extract finance from PDFs |
 | `/api/admin/refresh-parliament` | POST | Refresh parliament data from parliament.go.ke |
+| `/api/whistleblower/submissions` | GET, PATCH | List envelopes / update triage status (auth) |
 | `/api/finance-alerts/check` | POST | Process pending alerts (cron-triggerable) |
 
 ### Example API calls
@@ -368,7 +380,7 @@ All data is factual from publicly available official reports. Where data is not 
 
 - **Admin auth**: bcrypt password hashing + JWT in HTTP-only cookies
 - **Rate limiting**: IP-based login attempt throttling
-- **Whistleblower**: client-side AES-GCM 256-bit encryption (server never sees plaintext)
+- **Whistleblower**: hybrid E2E encryption (per-report AES-256-GCM data key wrapped with the admin RSA-OAEP-256 public key; ciphertext-only storage; private key never touches the server; offline decrypt via `scripts/whistleblower_decrypt.mjs`)
 - **CSRF**: SameSite cookie policy
 - **PWA**: Service worker excludes `/admin` routes from caching
 

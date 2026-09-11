@@ -106,6 +106,15 @@ export const liveFeedsQuerySchema = z.object({
   mode: z.enum(['live', 'static']).default('live'),
 });
 
+export const representativesQuerySchema = z.object({
+  q: z.string().trim().max(200).optional(),
+  type: z.string().trim().max(64).optional(),
+  county: z.string().trim().max(64).optional(),
+  coalition: z.string().trim().max(64).optional(),
+});
+
+export const pageParamSchema = z.coerce.number().int().min(1).max(10000).default(1);
+
 export const eaccFeedQuerySchema = liveFeedsQuerySchema.extend({
   repId: z.string().trim().max(128).optional(),
 });
@@ -285,4 +294,54 @@ export const cecmDeleteSchema = z.object({ cecmId: nonEmpty(128) });
 export const extractFinanceSchema = z.object({
   fileName: z.string().trim().min(1).max(255).optional(),
   saveToDb: z.boolean().default(false),
+});
+
+// ---------------------------------------------------------------------------
+// Whistleblower (end-to-end encrypted envelope v1)
+// ---------------------------------------------------------------------------
+
+export const WB_CATEGORIES = [
+  'embezzlement', 'bribery', 'nepotism', 'procurement_fraud', 'ghost_workers',
+  'pending_bills', 'project_abandonment', 'revenue_leakage', 'asset_grabbing', 'other',
+] as const;
+
+export const WB_STATUSES = ['submitted', 'under_review', 'investigating', 'verified', 'dismissed'] as const;
+
+export const WB_TICKET_RE = /^WB-[0-9A-F]{12}$/;
+
+/** Hard cap on submitted envelope bodies (also enforced via Content-Length). */
+export const WB_MAX_ENVELOPE_BYTES = Math.floor(4.5 * 1024 * 1024);
+
+const b64 = (max: number) => z.string().min(1).max(max);
+
+export const wbFileSchema = z.object({
+  name: z.string().trim().min(1).max(255),
+  type: z.string().trim().max(128),
+  size: z.number().int().min(1).max(2 * 1024 * 1024),
+  iv: b64(32),
+  ciphertext: b64( Math.ceil((2 * 1024 * 1024 + 16) * 4 / 3) + 16 ),
+});
+
+export const wbEnvelopeSchema = z.object({
+  version: z.literal(1),
+  keyId: z.string().trim().min(1).max(64),
+  category: z.enum(WB_CATEGORIES),
+  encryptedKey: b64(2048),
+  iv: b64(32),
+  ciphertext: b64(400 * 1024),
+  files: z.array(wbFileSchema).max(5).default([]),
+});
+
+export const wbStatusQuerySchema = z.object({
+  ticket: z.string().trim().regex(WB_TICKET_RE, 'Invalid ticket format (expected WB-XXXXXXXXXXXX)'),
+});
+
+export const wbAdminListSchema = z.object({
+  status: z.enum(WB_STATUSES).optional(),
+  limit: limitSchema,
+});
+
+export const wbStatusPatchSchema = z.object({
+  ticketId: z.string().trim().regex(WB_TICKET_RE, 'Invalid ticket format'),
+  status: z.enum(WB_STATUSES),
 });

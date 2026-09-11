@@ -12,9 +12,9 @@ export async function GET(request: NextRequest) {
 
   if (forceRefresh) {
     const ip = getClientIP(request);
-    const rate = checkRateLimit(ip, 'feeds');
+    const rate = await checkRateLimit(ip, 'feeds');
     if (!rate.allowed) return rateLimitResponse(rate.resetAt, 'live-feeds refresh');
-    recordAttempt(ip, 'feeds');
+    await recordAttempt(ip, 'feeds');
   }
 
   try {

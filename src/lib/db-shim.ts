@@ -169,6 +169,21 @@ const DDL: string[] = [
   `CREATE INDEX IF NOT EXISTS "FinanceAlertSubscription_active_idx" ON "FinanceAlertSubscription"("active")`,
   `CREATE INDEX IF NOT EXISTS "FinanceAlertLog_subscriptionId_idx" ON "FinanceAlertLog"("subscriptionId")`,
   `CREATE INDEX IF NOT EXISTS "FinanceAlertLog_sentAt_idx" ON "FinanceAlertLog"("sentAt")`,
+  `CREATE TABLE IF NOT EXISTS "WhistleblowerSubmission" (
+    "id" TEXT PRIMARY KEY,
+    "ticketId" TEXT NOT NULL UNIQUE,
+    "category" TEXT NOT NULL,
+    "hasEvidence" INTEGER NOT NULL DEFAULT 0,
+    "encryptedKey" TEXT NOT NULL,
+    "iv" TEXT NOT NULL,
+    "ciphertext" TEXT NOT NULL,
+    "evidence" TEXT,
+    "status" TEXT NOT NULL DEFAULT 'submitted',
+    "createdAt" TEXT NOT NULL,
+    "updatedAt" TEXT NOT NULL
+  )`,
+  `CREATE INDEX IF NOT EXISTS "WhistleblowerSubmission_status_idx" ON "WhistleblowerSubmission"("status")`,
+  `CREATE INDEX IF NOT EXISTS "WhistleblowerSubmission_createdAt_idx" ON "WhistleblowerSubmission"("createdAt")`,
 ];
 
 interface ModelMeta {
@@ -267,6 +282,16 @@ const METAS: Record<string, ModelMeta> = {
     {
       dates: ['sentAt'],
       defaults: { sentAt: nowIso },
+    },
+  ),
+  whistleblowerSubmission: meta(
+    'WhistleblowerSubmission',
+    ['id', 'ticketId', 'category', 'hasEvidence', 'encryptedKey', 'iv', 'ciphertext',
+      'evidence', 'status', 'createdAt', 'updatedAt'],
+    {
+      bools: ['hasEvidence'],
+      dates: ['createdAt', 'updatedAt'],
+      defaults: { hasEvidence: () => false, status: () => 'submitted' },
     },
   ),
 };

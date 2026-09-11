@@ -1,5 +1,8 @@
 // Representatives Directory — searchable directory of all Kenya elected officials:
 // Governors, Senators, Women Reps, MPs, and CECMs across all 47 counties.
+//
+// Filtering + pagination run server-side (URL-driven) so only one page of
+// results is serialized to the client instead of the full ~700-record set.
 
 import Link from 'next/link';
 import type { Metadata } from 'next';
@@ -8,6 +11,7 @@ import { RepresentativesBrowser } from '@/components/kenya/RepresentativesBrowse
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, Users, Landmark, User, Crown, Shield } from 'lucide-react';
+import { representativesQuerySchema, pageParamSchema } from '@/lib/validators';
 
 export const metadata: Metadata = {
   title: 'Representatives Directory — Kenya GovDash',
@@ -16,11 +20,22 @@ export const metadata: Metadata = {
 
 export const dynamic = 'force-dynamic';
 
-export default function RepresentativesPage() {
+export const PAGE_SIZE = 50;
+
+type RepEntry = Representative & { countyName: string; repType: string };
+
+interface PageProps {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}
+
+function firstParam(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function RepresentativesPage({ searchParams }: PageProps) {
   const counties = buildAllCountyData();
 
   // Aggregate all representatives
-  type RepEntry = Representative & { countyName: string; repType: string };
   const allReps: RepEntry[] = [];
 
   for (const c of counties) {
@@ -52,6 +67,48 @@ export default function RepresentativesPage() {
     acc[r.coalition] = (acc[r.coalition] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
+
+  // Filter options
+  const repTypes = Array.from(new Set(allReps.map(r => r.repType))).sort();
+  const countyNames = Array.from(new Set(allReps.map(r => r.countyName))).sort();
+  const coalitionNames = Array.from(new Set(allReps.map(r => r.coalition).filter(Boolean))).sort() as string[];
+
+  // Parse + validate URL params (lenient: unknown values fall back to 'all')
+  const raw = await searchParams;
+  const filterParsed = representativesQuerySchema.safeParse({
+    q: firstParam(raw.q),
+    type: firstParam(raw.type),
+    county: firstParam(raw.county),
+    coalition: firstParam(raw.coalition),
+  });
+  const filters = filterParsed.success ? filterParsed.data : {};
+  const pageParsed = pageParamSchema.safeParse(firstParam(raw.page));
+  const requestedPage = pageParsed.success ? pageParsed.data : 1;
+
+  const fType = filters.type && repTypes.includes(filters.type) ? filters.type : 'all';
+  const fCounty = filters.county && countyNames.includes(filters.county) ? filters.county : 'all';
+  const fCoalition = filters.coalition && coalitionNames.includes(filters.coalition) ? filters.coalition : 'all';
+  const fQuery = (filters.q || '').trim();
+
+  // Filter server-side
+  let filtered = allReps;
+  if (fType !== 'all') filtered = filtered.filter(r => r.repType === fType);
+  if (fCounty !== 'all') filtered = filtered.filter(r => r.countyName === fCounty);
+  if (fCoalition !== 'all') filtered = filtered.filter(r => r.coalition === fCoalition);
+  if (fQuery) {
+    const q = fQuery.toLowerCase();
+    filtered = filtered.filter(r =>
+      r.fullName?.toLowerCase().includes(q) ||
+      r.party?.toLowerCase().includes(q) ||
+      r.countyName?.toLowerCase().includes(q) ||
+      r.officialTitle?.toLowerCase().includes(q)
+    );
+  }
+
+  const total = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const page = Math.min(requestedPage, totalPages);
+  const paged = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-background to-muted/30">
@@ -145,8 +202,20 @@ export default function RepresentativesPage() {
           </CardContent>
         </Card>
 
-        {/* Browser / search UI */}
-        <RepresentativesBrowser reps={allReps} />
+        {/* Browser / search UI (server-paginated via URL params) */}
+        <RepresentativesBrowser
+          reps={paged}
+          total={total}
+          page={page}
+          totalPages={totalPages}
+          q={fQuery}
+          repType={fType}
+          county={fCounty}
+          coalition={fCoalition}
+          repTypes={repTypes}
+          counties={countyNames}
+          coalitions={coalitionNames}
+        />
 
         {/* Footer */}
         <p className="text-center text-xs text-muted-foreground">
