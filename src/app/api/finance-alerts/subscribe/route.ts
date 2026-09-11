@@ -1,32 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { randomBytes } from 'crypto';
+import { parseOr400, alertSubscribeSchema } from '@/lib/validators';
 
 // POST /api/finance-alerts/subscribe — create new alert subscription
 // Body: { email, countyName, metric, threshold?, direction? }
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
-    const email = (body.email || '').trim().toLowerCase();
-    const countyName = (body.countyName || '').trim();
-    const metric = body.metric;
-    const threshold = body.threshold != null ? Number(body.threshold) : null;
-    const direction = body.direction || 'below';
-
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: 'Valid email required' }, { status: 400 });
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-    if (!countyName) {
-      return NextResponse.json({ error: 'countyName required' }, { status: 400 });
-    }
-    const validMetrics = ['overallAbsorption', 'developmentAbsorption', 'auditOpinion', 'pendingBills'];
-    if (!validMetrics.includes(metric)) {
-      return NextResponse.json({ error: 'Invalid metric' }, { status: 400 });
-    }
+    const parsed = parseOr400(alertSubscribeSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { email, countyName, metric, threshold, direction } = parsed.data;
 
     // Dedupe — if subscription exists (same email + county + metric + threshold), reactivate
     const existing = await db.financeAlertSubscription.findFirst({
-      where: { email, countyName, metric, threshold },
+      where: { email, countyName, metric, threshold: threshold ?? null },
     });
 
     const confirmToken = randomBytes(24).toString('hex');
@@ -51,7 +44,7 @@ export async function POST(request: NextRequest) {
         email,
         countyName,
         metric,
-        threshold,
+        threshold: threshold ?? null,
         direction,
         active: true,
         confirmToken,

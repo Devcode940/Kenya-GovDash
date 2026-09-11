@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { isAuthenticated } from '@/lib/auth';
+import {
+  parseOr400,
+  searchParamsToObject,
+  snapshotQuerySchema,
+  snapshotCreateSchema,
+  snapshotUpdateSchema,
+  idParamSchema,
+} from '@/lib/validators';
 
 // GET /api/admin/finance-audit — list all snapshots (auth required for unpublished)
 export async function GET(request: NextRequest) {
   const authed = await isAuthenticated();
-  const searchParams = request.nextUrl.searchParams;
-  const level = searchParams.get('level');
-  const countyName = searchParams.get('countyName');
-  const fiscalYear = searchParams.get('fiscalYear');
-  const source = searchParams.get('source');
-  const publishedOnly = !authed && searchParams.get('published') !== 'false';
+  const parsed = parseOr400(snapshotQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { level, countyName, fiscalYear, source, published } = parsed.data;
+  const publishedOnly = !authed && published !== 'false';
 
   const where: Record<string, unknown> = {};
   if (level) where.level = level;
@@ -34,49 +40,46 @@ export async function POST(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const body = await request.json();
-    const { fiscalYear, level, countyName, source } = body;
-    if (!fiscalYear || !level || !source) {
-      return NextResponse.json({ error: 'fiscalYear, level, and source are required' }, { status: 400 });
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-    const validSources = ['OAG', 'CoB', 'CoG', 'KNBS', 'Other'];
-    if (!validSources.includes(source)) {
-      return NextResponse.json({ error: 'Invalid source' }, { status: 400 });
-    }
-    if (level === 'county' && !countyName) {
-      return NextResponse.json({ error: 'countyName required for county-level snapshots' }, { status: 400 });
-    }
+    const parsed = parseOr400(snapshotCreateSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const body = parsed.data;
 
     const snapshot = await db.financeAuditSnapshot.create({
       data: {
-        fiscalYear,
-        level,
-        countyName: level === 'national' ? null : (countyName || null),
-        source,
-        approvedBudget: body.approvedBudget || null,
-        supplementaryBudget: body.supplementaryBudget || null,
-        actualExpenditure: body.actualExpenditure || null,
-        recurrentExpenditure: body.recurrentExpenditure || null,
-        developmentExpenditure: body.developmentExpenditure || null,
-        equitableShare: body.equitableShare || null,
-        ownSourceRevenue: body.ownSourceRevenue || null,
-        osrTarget: body.osrTarget || null,
-        conditionalGrants: body.conditionalGrants || null,
-        overallAbsorption: body.overallAbsorption || null,
-        recurrentAbsorption: body.recurrentAbsorption || null,
-        developmentAbsorption: body.developmentAbsorption || null,
-        auditOpinion: body.auditOpinion || null,
-        auditSource: body.auditSource || null,
-        auditUrl: body.auditUrl || null,
-        pendingBills: body.pendingBills || null,
-        pendingBillsStart: body.pendingBillsStart || null,
-        totalDebt: body.totalDebt || null,
-        domesticDebt: body.domesticDebt || null,
-        foreignDebt: body.foreignDebt || null,
-        complianceScore: body.complianceScore || null,
-        notes: body.notes || null,
-        sourceUrl: body.sourceUrl || null,
-        published: body.published ?? true,
+        fiscalYear: body.fiscalYear,
+        level: body.level,
+        countyName: body.level === 'national' ? null : (body.countyName ?? null),
+        source: body.source,
+        approvedBudget: body.approvedBudget ?? null,
+        supplementaryBudget: body.supplementaryBudget ?? null,
+        actualExpenditure: body.actualExpenditure ?? null,
+        recurrentExpenditure: body.recurrentExpenditure ?? null,
+        developmentExpenditure: body.developmentExpenditure ?? null,
+        equitableShare: body.equitableShare ?? null,
+        ownSourceRevenue: body.ownSourceRevenue ?? null,
+        osrTarget: body.osrTarget ?? null,
+        conditionalGrants: body.conditionalGrants ?? null,
+        overallAbsorption: body.overallAbsorption ?? null,
+        recurrentAbsorption: body.recurrentAbsorption ?? null,
+        developmentAbsorption: body.developmentAbsorption ?? null,
+        auditOpinion: body.auditOpinion ?? null,
+        auditSource: body.auditSource ?? null,
+        auditUrl: body.auditUrl ?? null,
+        pendingBills: body.pendingBills ?? null,
+        pendingBillsStart: body.pendingBillsStart ?? null,
+        totalDebt: body.totalDebt ?? null,
+        domesticDebt: body.domesticDebt ?? null,
+        foreignDebt: body.foreignDebt ?? null,
+        complianceScore: body.complianceScore ?? null,
+        notes: body.notes ?? null,
+        sourceUrl: body.sourceUrl ?? null,
+        published: body.published,
       },
     });
 
@@ -93,21 +96,19 @@ export async function PATCH(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const body = await request.json();
-    const { id, published, ...fields } = body;
-    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const parsed = parseOr400(snapshotUpdateSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { id, published, ...fields } = parsed.data;
 
     const update: Record<string, unknown> = {};
-    for (const key of [
-      'approvedBudget', 'supplementaryBudget', 'actualExpenditure', 'recurrentExpenditure', 'developmentExpenditure',
-      'equitableShare', 'ownSourceRevenue', 'osrTarget', 'conditionalGrants',
-      'overallAbsorption', 'recurrentAbsorption', 'developmentAbsorption',
-      'auditOpinion', 'auditSource', 'auditUrl',
-      'pendingBills', 'pendingBillsStart',
-      'totalDebt', 'domesticDebt', 'foreignDebt',
-      'complianceScore', 'notes', 'sourceUrl',
-    ]) {
-      if (fields[key] !== undefined) update[key] = fields[key] === '' ? null : fields[key];
+    for (const [key, value] of Object.entries(fields)) {
+      if (value !== undefined) update[key] = value;
     }
     if (typeof published === 'boolean') update.published = published;
 
@@ -133,10 +134,10 @@ export async function DELETE(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const id = request.nextUrl.searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+    const parsed = parseOr400(idParamSchema, searchParamsToObject(request.nextUrl.searchParams));
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
-    await db.financeAuditSnapshot.delete({ where: { id } });
+    await db.financeAuditSnapshot.delete({ where: { id: parsed.data.id } });
     return NextResponse.json({ message: 'Deleted' });
   } catch {
     return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });

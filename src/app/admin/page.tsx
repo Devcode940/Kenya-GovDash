@@ -69,8 +69,9 @@ import {
 } from 'lucide-react';
 import { FinanceAuditPanel } from '@/components/admin/FinanceAuditPanel';
 import { CecmVerificationPanel } from '@/components/admin/CecmVerificationPanel';
+import { WhistleblowerPanel } from '@/components/admin/WhistleblowerPanel';
 
-type AdminSection = 'resources' | 'finance_audit' | 'cecm_verify';
+type AdminSection = 'resources' | 'finance_audit' | 'cecm_verify' | 'whistleblower';
 
 // ==================== TYPES ====================
 
@@ -1871,6 +1872,7 @@ export default function AdminPage() {
               { id: 'resources', label: 'Oversight Resources', icon: Library },
               { id: 'finance_audit', label: 'Finance & Audit', icon: TrendingUp },
               { id: 'cecm_verify', label: 'CECM Verification', icon: Shield },
+              { id: 'whistleblower', label: 'Whistleblower', icon: Lock },
             ] as { id: AdminSection; label: string; icon: React.ElementType }[]).map(s => {
               const active = adminSection === s.id;
               return (
@@ -1895,6 +1897,9 @@ export default function AdminPage() {
         )}
         {adminSection === 'cecm_verify' && (
           <section className="mt-6"><CecmVerificationPanel /></section>
+        )}
+        {adminSection === 'whistleblower' && (
+          <section className="mt-6"><WhistleblowerPanel /></section>
         )}
 
         {adminSection === 'resources' && (

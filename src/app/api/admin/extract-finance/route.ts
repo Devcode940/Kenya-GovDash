@@ -4,6 +4,7 @@ import { db } from '@/lib/db';
 import { extractFinanceFromPdf } from '@/lib/finance-extractor';
 import { readdir, stat } from 'fs/promises';
 import path from 'path';
+import { parseOr400, extractFinanceSchema } from '@/lib/validators';
 
 export const maxDuration = 300; // 5 min for batch extraction
 
@@ -15,19 +16,29 @@ export async function POST(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const body = await request.json().catch(() => ({}));
-    const { fileName, saveToDb = false } = body;
+    const rawBody: unknown = await request.json().catch(() => ({}));
+    const parsed = parseOr400(extractFinanceSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { fileName, saveToDb } = parsed.data;
 
     const uploadDir = path.join(process.cwd(), 'upload');
     let pdfFiles: string[] = [];
 
     if (fileName) {
-      // Single file
-      const filePath = path.join(uploadDir, fileName);
+      // Single file — confined to uploadDir (basename + containment check).
+      const safeName = path.basename(fileName);
+      if (safeName !== fileName || !safeName.toLowerCase().endsWith('.pdf')) {
+        return NextResponse.json({ error: 'Invalid fileName' }, { status: 400 });
+      }
+      const filePath = path.join(uploadDir, safeName);
+      const resolved = path.resolve(filePath);
+      if (!resolved.startsWith(path.resolve(uploadDir) + path.sep)) {
+        return NextResponse.json({ error: 'Invalid fileName' }, { status: 400 });
+      }
       try {
-        const s = await stat(filePath);
-        if (s.isFile() && fileName.toLowerCase().endsWith('.pdf')) {
-          pdfFiles = [filePath];
+        const s = await stat(resolved);
+        if (s.isFile()) {
+          pdfFiles = [resolved];
         } else {
           return NextResponse.json({ error: 'File not found or not a PDF' }, { status: 404 });
         }

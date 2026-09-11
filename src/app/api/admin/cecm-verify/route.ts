@@ -2,14 +2,22 @@ import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { isAuthenticated } from '@/lib/auth';
 import { buildAllCountyData } from '@/lib/kenya-data';
+import {
+  parseOr400,
+  searchParamsToObject,
+  cecmQuerySchema,
+  cecmVerifySchema,
+  cecmDeleteSchema,
+} from '@/lib/validators';
 
 // GET /api/admin/cecm-verify — list all CECMs with verification status
 // Public: returns verification stats only
 // Auth: returns full list with verifications
 export async function GET(request: NextRequest) {
   const authed = await isAuthenticated();
-  const searchParams = request.nextUrl.searchParams;
-  const countyName = searchParams.get('countyName');
+  const parsed = parseOr400(cecmQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { countyName } = parsed.data;
 
   // Get all CECMs from data layer
   const counties = buildAllCountyData();
@@ -86,12 +94,15 @@ export async function POST(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const body = await request.json();
-    const { cecmId, countyName, portfolio, verifiedName, source, notes } = body;
-
-    if (!cecmId || !verifiedName) {
-      return NextResponse.json({ error: 'cecmId and verifiedName required' }, { status: 400 });
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
+    const parsed = parseOr400(cecmVerifySchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { cecmId, countyName, portfolio, verifiedName, source, notes } = parsed.data;
 
     const verification = await db.cecmVerification.upsert({
       where: { cecmId },
@@ -126,10 +137,10 @@ export async function DELETE(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const cecmId = request.nextUrl.searchParams.get('cecmId');
-    if (!cecmId) return NextResponse.json({ error: 'cecmId required' }, { status: 400 });
+    const parsed = parseOr400(cecmDeleteSchema, searchParamsToObject(request.nextUrl.searchParams));
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
 
-    await db.cecmVerification.delete({ where: { cecmId } });
+    await db.cecmVerification.delete({ where: { cecmId: parsed.data.cecmId } });
     return NextResponse.json({ message: 'Verification removed' });
   } catch {
     return NextResponse.json({ error: 'Failed to delete' }, { status: 500 });

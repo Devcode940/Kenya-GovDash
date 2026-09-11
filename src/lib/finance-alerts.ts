@@ -3,6 +3,7 @@
 
 import { db } from './db';
 import { ALL_COUNTY_FINANCE } from './finance-audit-data';
+import { buildUnsubscribeUrl } from './unsubscribe-token';
 
 export interface AlertCheck {
   subscriptionId: string;
@@ -116,12 +117,20 @@ export async function processAlerts(): Promise<{ triggered: number; failed: numb
       });
 
       // Send email (or log in dev)
+      const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000').replace(/\/$/, '');
+      let manageLine: string;
+      try {
+        manageLine = `Unsubscribe: ${buildUnsubscribeUrl(t.email, t.subscriptionId)}`;
+      } catch {
+        // Signed links require JWT_SECRET; fall back to the manage page.
+        manageLine = `Manage your subscriptions: ${baseUrl}/finance-audit`;
+      }
       console.log(`\n========== FINANCE ALERT EMAIL ==========`);
       console.log(`To: ${t.email}`);
       console.log(`Subject: Kenya GovDash Alert — ${t.countyName} County`);
       console.log(`---`);
       console.log(t.message);
-      console.log(`\nManage your subscriptions: ${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/finance-audit`);
+      console.log(`\n${manageLine}`);
       console.log(`==========================================\n`);
 
       triggered++;

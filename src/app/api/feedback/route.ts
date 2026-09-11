@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { db } from '@/lib/db';
+import { checkRateLimit, getClientIP, rateLimitResponse, recordAttempt } from '@/lib/auth';
+import { parseOr400, searchParamsToObject, feedbackQuerySchema, feedbackCreateSchema } from '@/lib/validators';
 
 // GET: List all feedback (with optional filters)
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const representativeId = searchParams.get('representativeId');
-    const countyName = searchParams.get('countyName');
-    const category = searchParams.get('category');
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50');
+    const parsed = parseOr400(feedbackQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { representativeId, countyName, category, status, limit } = parsed.data;
 
-    const where: Record<string, string | undefined> = {};
+    const where: Record<string, string> = {};
     if (representativeId) where.representativeId = representativeId;
     if (countyName) where.countyName = countyName;
     if (category) where.category = category;
@@ -49,43 +48,23 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST: Submit new feedback
+// POST: Submit new feedback (rate-limited per IP)
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    const ip = getClientIP(request);
+    const rate = await checkRateLimit(ip, 'feedback');
+    if (!rate.allowed) return rateLimitResponse(rate.resetAt, 'feedback');
+    await recordAttempt(ip, 'feedback');
 
-    // Validate required fields
-    if (!body.category || !body.title || !body.description) {
-      return NextResponse.json(
-        { error: 'Category, title, and description are required' },
-        { status: 400 }
-      );
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
     }
-
-    // Validate category
-    const validCategories = ['Complaint', 'Suggestion', 'Observation', 'Question', 'Appreciation'];
-    if (!validCategories.includes(body.category)) {
-      return NextResponse.json(
-        { error: `Invalid category. Must be one of: ${validCategories.join(', ')}` },
-        { status: 400 }
-      );
-    }
-
-    // Validate title length
-    if (body.title.length > 200) {
-      return NextResponse.json(
-        { error: 'Title must be under 200 characters' },
-        { status: 400 }
-      );
-    }
-
-    // Validate description length
-    if (body.description.length > 5000) {
-      return NextResponse.json(
-        { error: 'Description must be under 5000 characters' },
-        { status: 400 }
-      );
-    }
+    const parsed = parseOr400(feedbackCreateSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const body = parsed.data;
 
     const feedback = await db.feedback.create({
       data: {
@@ -97,9 +76,9 @@ export async function POST(request: NextRequest) {
         submitterName: body.isAnonymous ? null : (body.submitterName || null),
         submitterEmail: body.isAnonymous ? null : (body.submitterEmail || null),
         submitterCounty: body.submitterCounty || null,
-        isAnonymous: body.isAnonymous ?? true,
+        isAnonymous: body.isAnonymous,
         status: 'Submitted',
-        priority: body.priority || 'Normal',
+        priority: body.priority,
         sourceUrl: body.sourceUrl || null,
       },
     });
