@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { parseOr400, searchParamsToObject, parliamentQuerySchema } from '@/lib/validators';
 import { PARLIAMENT_MPS_TOTAL, getParliamentMPsForCounty } from '@/lib/kenya-parliament-mps';
 import { PARLIAMENT_SENATORS_TOTAL, getParliamentSenatorForCounty, getNominatedSenators } from '@/lib/kenya-parliament-senators';
 import { PARLIAMENT_WOMEN_REPS_TOTAL, getParliamentWomanRepForCounty } from '@/lib/kenya-parliament-women-reps';
@@ -18,9 +19,9 @@ const COUNTY_NAMES = [
 
 // GET /api/parliament — public parliament data (MPs, Senators, Women Reps)
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const type = searchParams.get('type') || 'all';
-  const county = searchParams.get('county');
+  const parsed = parseOr400(parliamentQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { type, county } = parsed.data;
 
   const result: any = {
     source: 'Parliament of Kenya (parliament.go.ke)',

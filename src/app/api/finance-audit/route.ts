@@ -7,6 +7,7 @@ import {
   type CountyFinanceRecord,
   type AuditOpinionType,
 } from '@/lib/finance-audit-data';
+import { parseOr400, searchParamsToObject, financeAuditQuerySchema } from '@/lib/validators';
 
 export const dynamic = 'force-dynamic';
 
@@ -155,11 +156,9 @@ function dbToCountyRecord(s: any): CountyFinanceRecord {
 // GET /api/finance-audit — public finance + audit data
 // Merges curated static data with published DB snapshots (DB overrides static).
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const level = searchParams.get('level') || 'all';
-  const county = searchParams.get('county');
-  const fy = searchParams.get('fy') || '2023/24';
-  const format = searchParams.get('format') || 'json';
+  const parsed = parseOr400(financeAuditQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const { level, county, fy, format } = parsed.data;
 
   // Fetch published DB snapshots
   let dbSnapshots: any[] = [];

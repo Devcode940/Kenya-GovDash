@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyPassword, createSessionToken, setSessionCookie, isAuthenticated, checkRateLimit, recordFailedAttempt, clearRateLimit, getClientIP } from '@/lib/auth';
+import { parseOr400, loginSchema } from '@/lib/validators';
 
 // POST /api/admin/login — verify password, create JWT session cookie
 export async function POST(request: NextRequest) {
@@ -15,14 +16,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
-    const password = body.password as string;
-
-    if (!password || typeof password !== 'string') {
-      return NextResponse.json({ success: false, error: 'Password is required' }, { status: 400 });
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ success: false, error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const parsed = parseOr400(loginSchema, rawBody);
+    if (!parsed.ok) {
+      return NextResponse.json({ success: false, error: parsed.error }, { status: 400 });
     }
 
-    if (!await verifyPassword(password)) {
+    if (!await verifyPassword(parsed.data.password)) {
       recordFailedAttempt(ip);
       return NextResponse.json({ success: false, error: 'Incorrect password' }, { status: 401 });
     }

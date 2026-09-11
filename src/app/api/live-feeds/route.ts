@@ -1,10 +1,21 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { getAllFeeds, getAllStaticFeeds } from '@/lib/live-feeds/aggregator';
+import { checkRateLimit, getClientIP, rateLimitResponse, recordAttempt } from '@/lib/auth';
+import { parseOr400, searchParamsToObject, liveFeedsQuerySchema, liveFeedsRefreshSchema } from '@/lib/validators';
 
-export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url);
+export async function GET(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  const parsed = parseOr400(liveFeedsQuerySchema, searchParamsToObject(searchParams));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
   const forceRefresh = searchParams.get('force') === 'true';
-  const mode = searchParams.get('mode') || 'live';
+  const { mode } = parsed.data;
+
+  if (forceRefresh) {
+    const ip = getClientIP(request);
+    const rate = checkRateLimit(ip, 'feeds');
+    if (!rate.allowed) return rateLimitResponse(rate.resetAt, 'live-feeds refresh');
+    recordAttempt(ip, 'feeds');
+  }
 
   try {
     if (mode === 'static') {
@@ -41,11 +52,22 @@ export async function GET(request: Request) {
   }
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
+  const ip = getClientIP(request);
+  const rate = checkRateLimit(ip, 'feeds');
+  if (!rate.allowed) return rateLimitResponse(rate.resetAt, 'live-feeds refresh');
+  recordAttempt(ip, 'feeds');
+
   try {
-    const body = await request.json();
-    const source = body.source as string | undefined;
-    const force = body.force !== false;
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const parsed = parseOr400(liveFeedsRefreshSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { source, force } = parsed.data;
 
     if (!source) {
       // Refresh all sources
@@ -55,7 +77,7 @@ export async function POST(request: Request) {
     }
 
     const { refreshFeed } = await import('@/lib/live-feeds/aggregator');
-    const result = await refreshFeed(source as any, force);
+    const result = await refreshFeed(source, force);
     return NextResponse.json(result);
   } catch (err) {
     return NextResponse.json(

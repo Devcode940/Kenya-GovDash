@@ -51,7 +51,7 @@ A citizen oversight platform for Kenya's 47 counties — tracking government fin
 - Rule-based fallback when no LLM is configured
 
 ### Admin Console (`/admin`)
-- **Password:** `kenya-oversight-2026` (change via `ADMIN_PASSWORD_HASH` env var)
+- **Password:** `fb0599a99117931085153a59` (dev default only — production refuses to start without `ADMIN_PASSWORD_HASH` + `JWT_SECRET` set)
 - **Sections:**
   - Oversight Resources (OAG / CoB / CoG / EACC / TI-Kenya / Other)
   - Finance & Audit snapshots (CRUD + CSV export)
@@ -115,8 +115,8 @@ DATABASE_URL="file:./dev.db"
 # For production: DATABASE_URL="postgresql://user:pass@host:port/dbname"
 
 # Admin auth
-ADMIN_PASSWORD_HASH="$2b$10$zwCrCu9DgB4BvAaJUcPbPOkNnxa0HvNMBZfXH6XVqSYOl43PYkK2C"
-# Default password: kenya-oversight-2026
+ADMIN_PASSWORD_HASH="$2b$12$Wlv2QBf72IMVuMw3ReyR2e2DFoIk6C7mLIt02iQFuLBP83OYc2yZO"
+# Default password: fb0599a99117931085153a59
 # To set custom: generate hash with: bunx bcryptjs hash "your-password" 10
 JWT_SECRET="your-jwt-secret-change-me"
 
@@ -426,7 +426,7 @@ Data is licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 ## 📞 Support
 
 - **Issues**: [github.com/Devcode940/Kenya-GovDash/issues](https://github.com/Devcode940/Kenya-GovDash/issues)
-- **Admin password**: `kenya-oversight-2026` (change in production!)
+- **Admin password**: `fb0599a99117931085153a59` (dev default; production requires `ADMIN_PASSWORD_HASH` + `JWT_SECRET` env vars or auth endpoints fail closed)
 - **API docs**: Visit `/api/stats` for platform statistics
 
 ---

@@ -2,19 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { buildAllCountyData } from '@/lib/kenya-data';
 import { ALL_COUNTY_FINANCE, NATIONAL_FINANCE } from '@/lib/finance-audit-data';
 import { db } from '@/lib/db';
+import { parseOr400, searchParamsToObject, searchQuerySchema } from '@/lib/validators';
 
 export const dynamic = 'force-dynamic';
 
 // GET /api/search?q=...
 // Searches across: counties, representatives, finance data, feedback, ingested reports
 export async function GET(request: NextRequest) {
-  const searchParams = request.nextUrl.searchParams;
-  const q = (searchParams.get('q') || '').trim().toLowerCase();
-  const limit = parseInt(searchParams.get('limit') || '20');
-
-  if (!q || q.length < 2) {
-    return NextResponse.json({ error: 'Query must be at least 2 characters' }, { status: 400 });
-  }
+  const parsed = parseOr400(searchQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+  if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+  const q = parsed.data.q.toLowerCase();
+  const limit = parsed.data.limit;
 
   const results = {
     counties: [] as any[],

@@ -1,21 +1,33 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
+import { stat } from 'fs/promises';
+import path from 'path';
 import { isAuthenticated } from '@/lib/auth';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 // POST /api/admin/refresh-parliament (AUTH REQUIRED)
 // Triggers a full re-scrape of parliament.go.ke for MPs, Senators, and Woman Reps.
+// Executes the repo-local script without a shell; fails loudly if not installed.
 export async function POST(_request: NextRequest) {
   const authed = await isAuthenticated();
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const REFRESH_SCRIPT = '/home/z/my-project/scripts/refresh_parliament_data.sh';
-    const TIMEOUT_MS = 10 * 60 * 1000;
+    const scriptPath = path.join(process.cwd(), 'scripts', 'refresh_parliament_data.sh');
+    try {
+      const s = await stat(scriptPath);
+      if (!s.isFile()) throw new Error('not a file');
+    } catch {
+      return NextResponse.json(
+        { success: false, error: 'Refresh script not installed on this server (scripts/refresh_parliament_data.sh)' },
+        { status: 501 },
+      );
+    }
 
-    const { stdout } = await execAsync(`bash ${REFRESH_SCRIPT}`, {
+    const TIMEOUT_MS = 10 * 60 * 1000;
+    const { stdout } = await execFileAsync('bash', [scriptPath], {
       timeout: TIMEOUT_MS,
       maxBuffer: 5 * 1024 * 1024,
       env: { ...process.env, PATH: `/usr/local/bin:/usr/bin:/bin:${process.env.PATH || ''}` },

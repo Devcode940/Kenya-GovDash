@@ -3,14 +3,22 @@ import { db } from '@/lib/db';
 import { unlink } from 'fs/promises';
 import path from 'path';
 import { isAuthenticated } from '@/lib/auth';
+import {
+  parseOr400,
+  searchParamsToObject,
+  resourceQuerySchema,
+  resourceCreateSchema,
+  resourceUpdateSchema,
+  idParamSchema,
+} from '@/lib/validators';
 
 // GET — list resources (auth required for unpublished=true filter)
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const source = searchParams.get('source');
-    const kind = searchParams.get('kind');
-    const publishedOnly = searchParams.get('published') !== 'false';
+    const parsed = parseOr400(resourceQuerySchema, searchParamsToObject(request.nextUrl.searchParams));
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { source, kind, published } = parsed.data;
+    const publishedOnly = published !== 'false';
 
     const where: Record<string, unknown> = {};
     if (source) where.source = source;
@@ -34,15 +42,16 @@ export async function POST(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const body = await request.json();
-    const source = (body.source || '').trim();
-    const title = (body.title || '').trim();
-    const url = (body.url || '').trim();
-
-    if (!source || !title || !url) return NextResponse.json({ error: 'Source, title, and URL are required' }, { status: 400 });
-    const validSources = ['OAG', 'CoB', 'CoG', 'EACC', 'TI-Kenya', 'Other'];
-    if (!validSources.includes(source)) return NextResponse.json({ error: `Invalid source` }, { status: 400 });
-    try { new URL(url); } catch { return NextResponse.json({ error: 'Invalid URL' }, { status: 400 }); }
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const parsed = parseOr400(resourceCreateSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const body = parsed.data;
+    const { source, title, url } = body;
 
     let kind: 'document' | 'video' | 'link' = body.kind || 'link';
     if (!body.kind) {
@@ -61,7 +70,20 @@ export async function POST(request: NextRequest) {
     }
 
     const resource = await db.resource.create({
-      data: { source, kind, title, description: body.description?.trim() || null, url: finalUrl, thumbnailUrl, durationLabel: body.durationLabel || null, fiscalYear: body.fiscalYear?.trim() || null, countyName: body.countyName?.trim() || null, reportType: body.reportType?.trim() || null, published: body.published ?? true, sortOrder: body.sortOrder || 0 },
+      data: {
+        source,
+        kind,
+        title,
+        description: body.description || null,
+        url: finalUrl,
+        thumbnailUrl,
+        durationLabel: body.durationLabel || null,
+        fiscalYear: body.fiscalYear || null,
+        countyName: body.countyName || null,
+        reportType: body.reportType || null,
+        published: body.published,
+        sortOrder: body.sortOrder,
+      },
     });
 
     return NextResponse.json({ resource, message: `Added ${kind}: ${title}` }, { status: 201 });
@@ -76,15 +98,20 @@ export async function DELETE(request: NextRequest) {
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const id = new URL(request.url).searchParams.get('id');
-    if (!id) return NextResponse.json({ error: 'Resource id is required' }, { status: 400 });
+    const parsed = parseOr400(idParamSchema, searchParamsToObject(request.nextUrl.searchParams));
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { id } = parsed.data;
 
     const resource = await db.resource.findUnique({ where: { id } });
     if (!resource) return NextResponse.json({ error: 'Resource not found' }, { status: 404 });
 
     if (resource.url.startsWith('/uploads/')) {
-      const filePath = path.join(process.cwd(), 'public', resource.url);
-      try { await unlink(filePath); } catch { /* file may already be gone */ }
+      const uploadsDir = path.join(process.cwd(), 'public', 'uploads');
+      const resolved = path.resolve(path.join(process.cwd(), 'public', resource.url));
+      // Containment: refuse deletions escaping the uploads directory.
+      if (resolved.startsWith(uploadsDir + path.sep)) {
+        try { await unlink(resolved); } catch { /* file may already be gone */ }
+      }
     }
 
     await db.resource.delete({ where: { id } });
@@ -94,15 +121,21 @@ export async function DELETE(request: NextRequest) {
   }
 }
 
-// PATCH — toggle published (AUTH REQUIRED)
+// PATCH — toggle published / sort order (AUTH REQUIRED)
 export async function PATCH(request: NextRequest) {
   const authed = await isAuthenticated();
   if (!authed) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
   try {
-    const body = await request.json();
-    const { id, published, sortOrder } = body;
-    if (!id) return NextResponse.json({ error: 'Resource id is required' }, { status: 400 });
+    let rawBody: unknown;
+    try {
+      rawBody = await request.json();
+    } catch {
+      return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+    }
+    const parsed = parseOr400(resourceUpdateSchema, rawBody);
+    if (!parsed.ok) return NextResponse.json({ error: parsed.error }, { status: 400 });
+    const { id, published, sortOrder } = parsed.data;
 
     const update: Record<string, unknown> = {};
     if (typeof published === 'boolean') update.published = published;

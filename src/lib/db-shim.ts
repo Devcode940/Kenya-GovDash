@@ -17,7 +17,7 @@
  * are not implemented.
  */
 
-import { DatabaseSync } from 'node:sqlite';
+import { DatabaseSync, type SQLInputValue } from 'node:sqlite';
 import { randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
@@ -275,13 +275,13 @@ const METAS: Record<string, ModelMeta> = {
 // Value conversion (JS <-> SQLite)
 // ---------------------------------------------------------------------------
 
-function toDb(m: ModelMeta, col: string, value: any): unknown {
-  if (value === undefined) return undefined;
-  if (value === null) return null;
+function toDb(m: ModelMeta, col: string, value: any): SQLInputValue {
+  if (value === undefined || value === null) return null;
   if (m.bools.has(col)) return value ? 1 : 0;
   if (m.dates.has(col)) return value instanceof Date ? value.toISOString() : String(value);
   if (value instanceof Date) return value.toISOString();
-  return value;
+  if (typeof value === 'string' || typeof value === 'number' || typeof value === 'bigint') return value;
+  return String(value);
 }
 
 function fromDb(m: ModelMeta, col: string, value: any): any {
@@ -328,7 +328,7 @@ function escapeLike(s: string): string {
 // WHERE clause builder (supports the operators the app uses)
 // ---------------------------------------------------------------------------
 
-function buildCondition(m: ModelMeta, col: string, value: any, params: unknown[]): string {
+function buildCondition(m: ModelMeta, col: string, value: any, params: SQLInputValue[]): string {
   const c = `"${col}"`;
   // Scalar (incl. null) — `IS` handles NULL correctly, unlike `=`
   if (!isPlainObject(value)) {
@@ -404,7 +404,7 @@ function buildCondition(m: ModelMeta, col: string, value: any, params: unknown[]
   return parts.length > 0 ? parts.join(' AND ') : '1 = 1';
 }
 
-function buildWhere(m: ModelMeta, where: Record<string, any> | undefined, params: unknown[]): string {
+function buildWhere(m: ModelMeta, where: Record<string, any> | undefined, params: SQLInputValue[]): string {
   if (!where || Object.keys(where).length === 0) return '';
   const parts: string[] = [];
   for (const [key, value] of Object.entries(where)) {
@@ -457,6 +457,44 @@ function notFoundError(table: string): Error {
   return Object.assign(new Error(`No ${table} found`), { code: 'P2025' });
 }
 
+// Prisma requires unique `where` for update()/delete(). Enforce single-row match.
+function assertUniqueMatch(sqlite: DatabaseSync, m: ModelMeta, where: Record<string, any> | undefined): void {
+  const params: SQLInputValue[] = [];
+  const w = buildWhere(m, where, params);
+  const row = sqlite.prepare(
+    `SELECT COUNT(*) AS n FROM "${m.table}"${w ? ` WHERE ${w}` : ''}`,
+  ).get(...params) as { n: number };
+  if (Number(row.n) > 1) {
+    throw Object.assign(
+      new Error(`Multiple ${m.table} records match; where must be unique`),
+      { code: 'P2025' },
+    );
+  }
+}
+
+// LIMIT/OFFSET with Prisma-compatible negative-take semantics
+// (negative take reverses ordering and takes abs()).
+function buildPaging(orderSql: string, args: Record<string, any>): { orderSql: string; limitOffset: string } {
+  const takeNum = args.take == null ? null : Math.trunc(Number(args.take));
+  const skipNum = args.skip == null ? null : Math.max(0, Math.trunc(Number(args.skip)));
+  if (takeNum != null && Number.isNaN(takeNum)) throw new Error('[db-shim] take must be a number');
+  if (skipNum != null && Number.isNaN(skipNum)) throw new Error('[db-shim] skip must be a number');
+  let order = orderSql;
+  let limit = takeNum;
+  if (takeNum != null && takeNum < 0) {
+    limit = Math.abs(takeNum);
+    order = order
+      .split(',')
+      .map(p => (p.trim().endsWith('DESC') ? p.replace(/DESC\s*$/, 'ASC') : p.replace(/ASC\s*$/, 'DESC')))
+      .join(',');
+  }
+  let limitOffset = '';
+  if (limit != null) limitOffset += ` LIMIT ${limit}`;
+  else if (skipNum != null) limitOffset += ` LIMIT -1`;
+  if (skipNum != null) limitOffset += ` OFFSET ${skipNum}`;
+  return { orderSql: order, limitOffset };
+}
+
 // ---------------------------------------------------------------------------
 // Model delegate
 // ---------------------------------------------------------------------------
@@ -465,15 +503,13 @@ function makeDelegate(sqlite: DatabaseSync, m: ModelMeta) {
   const t = `"${m.table}"`;
 
   async function findMany(args: Record<string, any> = {}): Promise<Record<string, any>[]> {
-    const params: unknown[] = [];
+    const params: SQLInputValue[] = [];
     let sql = `SELECT * FROM ${t}`;
     const w = buildWhere(m, args.where, params);
     if (w) sql += ` WHERE ${w}`;
-    const o = buildOrderBy(m, args.orderBy);
-    if (o) sql += ` ORDER BY ${o}`;
-    if (args.take != null) sql += ` LIMIT ${Number(args.take)}`;
-    else if (args.skip != null) sql += ` LIMIT -1`;
-    if (args.skip != null) sql += ` OFFSET ${Number(args.skip)}`;
+    const paging = buildPaging(buildOrderBy(m, args.orderBy), args);
+    if (paging.orderSql) sql += ` ORDER BY ${paging.orderSql}`;
+    sql += paging.limitOffset;
     const rows = sqlite.prepare(sql).all(...params) as Record<string, any>[];
     return rows.map(r => applySelect(mapRow(m, r), args.select));
   }
@@ -508,9 +544,10 @@ function makeDelegate(sqlite: DatabaseSync, m: ModelMeta) {
   async function update(args: Record<string, any>): Promise<Record<string, any>> {
     const existing = await findFirst({ where: args.where });
     if (!existing) throw notFoundError(m.table);
+    assertUniqueMatch(sqlite, m, args.where);
     const data = stripUndefined({ ...(args.data || {}) });
     const sets: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLInputValue[] = [];
     for (const [k, v] of Object.entries(data)) {
       if (!m.columns.has(k) || k === 'id') continue;
       sets.push(`"${k}" = ?`);
@@ -521,7 +558,7 @@ function makeDelegate(sqlite: DatabaseSync, m: ModelMeta) {
       params.push(nowIso());
     }
     if (sets.length > 0) {
-      const wParams: unknown[] = [];
+      const wParams: SQLInputValue[] = [];
       const w = buildWhere(m, args.where, wParams);
       sqlite.prepare(`UPDATE ${t} SET ${sets.join(', ')} WHERE ${w || '1 = 1'}`).run(...params, ...wParams);
     }
@@ -532,7 +569,7 @@ function makeDelegate(sqlite: DatabaseSync, m: ModelMeta) {
   async function updateMany(args: Record<string, any>): Promise<{ count: number }> {
     const data = stripUndefined({ ...(args.data || {}) });
     const sets: string[] = [];
-    const params: unknown[] = [];
+    const params: SQLInputValue[] = [];
     for (const [k, v] of Object.entries(data)) {
       if (!m.columns.has(k) || k === 'id') continue;
       sets.push(`"${k}" = ?`);
@@ -543,29 +580,40 @@ function makeDelegate(sqlite: DatabaseSync, m: ModelMeta) {
       params.push(nowIso());
     }
     if (sets.length === 0) return { count: 0 };
-    const wParams: unknown[] = [];
+    const wParams: SQLInputValue[] = [];
     const w = buildWhere(m, args.where, wParams);
     const info = sqlite.prepare(`UPDATE ${t} SET ${sets.join(', ')}${w ? ` WHERE ${w}` : ''}`).run(...params, ...wParams);
     return { count: Number(info.changes) };
   }
 
   async function upsert(args: Record<string, any>): Promise<Record<string, any>> {
-    const existing = await findFirst({ where: args.where });
-    if (existing) return update({ where: { id: existing.id }, data: args.update || {} });
-    return create({ data: args.create || {} });
+    // Atomic find-then-act: IMMEDIATE lock serializes concurrent upserts.
+    sqlite.exec('BEGIN IMMEDIATE');
+    try {
+      const existing = await findFirst({ where: args.where });
+      const result = existing
+        ? await update({ where: { id: existing.id }, data: args.update || {} })
+        : await create({ data: args.create || {} });
+      sqlite.exec('COMMIT');
+      return result;
+    } catch (err) {
+      try { sqlite.exec('ROLLBACK'); } catch { /* already rolled back */ }
+      throw err;
+    }
   }
 
   async function remove(args: Record<string, any>): Promise<Record<string, any>> {
     const existing = await findFirst({ where: args.where });
     if (!existing) throw notFoundError(m.table);
-    const wParams: unknown[] = [];
+    assertUniqueMatch(sqlite, m, args.where);
+    const wParams: SQLInputValue[] = [];
     const w = buildWhere(m, args.where, wParams);
     sqlite.prepare(`DELETE FROM ${t} WHERE ${w || '1 = 1'}`).run(...wParams);
     return existing;
   }
 
   async function count(args: Record<string, any> = {}): Promise<number> {
-    const params: unknown[] = [];
+    const params: SQLInputValue[] = [];
     let sql = `SELECT COUNT(*) AS n FROM ${t}`;
     const w = buildWhere(m, args.where, params);
     if (w) sql += ` WHERE ${w}`;
@@ -576,16 +624,14 @@ function makeDelegate(sqlite: DatabaseSync, m: ModelMeta) {
   async function groupBy(args: Record<string, any>): Promise<Record<string, any>[]> {
     const by: string[] = (Array.isArray(args.by) ? args.by : [args.by]).filter((b: string) => m.columns.has(b));
     if (by.length === 0) throw new Error('[db-shim] groupBy requires at least one valid `by` field');
-    const params: unknown[] = [];
+    const params: SQLInputValue[] = [];
     let sql = `SELECT ${by.map(b => `"${b}"`).join(', ')}, COUNT(*) AS __count FROM ${t}`;
     const w = buildWhere(m, args.where, params);
     if (w) sql += ` WHERE ${w}`;
     sql += ` GROUP BY ${by.map(b => `"${b}"`).join(', ')}`;
-    const o = buildOrderBy(m, args.orderBy);
-    if (o) sql += ` ORDER BY ${o}`;
-    if (args.take != null) sql += ` LIMIT ${Number(args.take)}`;
-    else if (args.skip != null) sql += ` LIMIT -1`;
-    if (args.skip != null) sql += ` OFFSET ${Number(args.skip)}`;
+    const paging = buildPaging(buildOrderBy(m, args.orderBy), args);
+    if (paging.orderSql) sql += ` ORDER BY ${paging.orderSql}`;
+    sql += paging.limitOffset;
     const rows = sqlite.prepare(sql).all(...params) as Record<string, any>[];
     return rows.map(r => {
       const out: Record<string, any> = {};

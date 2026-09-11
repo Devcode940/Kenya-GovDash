@@ -161,11 +161,12 @@ export function KenyaWhistleblower() {
           <p className="text-sm text-muted-foreground">
             Report dishonesty with public funds — embezzlement, bribery, procurement fraud,
             ghost workers, pending bills, project abandonment, revenue leakage, and asset grabbing.
-            Anonymous reporting protected under the Whistleblower Protection Act.
+            Pilot notice: secure transmission is not yet available, so reports are kept as drafts
+            on this device only and are never sent. Do not rely on this portal for sensitive reports yet.
           </p>
           <div className="flex items-center gap-2 mt-2 flex-wrap">
-            <Badge className="bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200 text-[10px] gap-1">
-              <Lock className="h-2.5 w-2.5" /> Encrypted
+            <Badge className="bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-200 text-[10px] gap-1">
+              <AlertTriangle className="h-2.5 w-2.5" /> Pilot — local drafts only
             </Badge>
             <Badge className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 text-[10px] gap-1">
               <Shield className="h-2.5 w-2.5" /> Anonymous Option
