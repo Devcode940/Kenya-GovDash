@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { ThemeProvider } from "next-themes";
 import { LanguageProvider } from "@/lib/i18n";
 import { ServiceWorkerRegister } from "@/components/ServiceWorkerRegister";
+import { PwaInstallPrompt } from "@/components/kenya/PwaInstallPrompt";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -21,6 +22,16 @@ export const metadata: Metadata = {
   description: "Interactive dashboard for Kenya government representative hierarchy, performance tracking, and accountability oversight. Factual, source-cited, data-gap transparent.",
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
+  },
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "Kenya GovDash",
+  },
+  applicationName: "Kenya GovDash",
+  formatDetection: {
+    telephone: false,
   },
 };
 
@@ -44,6 +55,7 @@ export default function RootLayout({
             {children}
             <Toaster />
             <ServiceWorkerRegister />
+            <PwaInstallPrompt />
           </LanguageProvider>
         </ThemeProvider>
       </body>

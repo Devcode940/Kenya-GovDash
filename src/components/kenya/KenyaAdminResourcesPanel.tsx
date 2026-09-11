@@ -42,7 +42,7 @@ interface Resource {
 }
 
 interface KenyaAdminResourcesPanelProps {
-  source: 'OAG' | 'CoB' | 'EACC' | 'TI-Kenya' | 'Other';
+  source: 'OAG' | 'CoB' | 'CoG' | 'EACC' | 'TI-Kenya' | 'Other';
   limit?: number;
 }
 
@@ -95,6 +95,7 @@ function formatDate(iso: string): string {
 const SOURCE_LABELS: Record<KenyaAdminResourcesPanelProps['source'], string> = {
   OAG: 'Office of the Auditor-General',
   CoB: 'Controller of Budget',
+  CoG: 'Council of Governors',
   EACC: 'Ethics and Anti-Corruption Commission',
   'TI-Kenya': 'Transparency International Kenya',
   Other: 'Other Sources',

@@ -11,6 +11,7 @@ import {
   MERU_MPS, MERU_EXTRA_OFFICIALS,
   MACHAKOS_MPS, MACHAKOS_EXTRA_OFFICIALS,
 } from './kenya-detailed-counties';
+import { ALL_COUNTY_CECMS } from './kenya-all-county-cecms';
 
 // ==================== TYPES ====================
 
@@ -1168,6 +1169,12 @@ export function buildAllCountyData(): CountyData[] {
       countyData.constituencyMPs = MERU_MPS;
     } else if (gov.countyName === 'Machakos') {
       countyData.constituencyMPs = MACHAKOS_MPS;
+    }
+
+    // Attach CECMs for ALL counties (from kenya-all-county-cecms.ts)
+    // For Nairobi/Mombasa/Kisumu, CECMs are already set above — skip
+    if (!countyData.cecms && ALL_COUNTY_CECMS[gov.countyName]) {
+      countyData.cecms = ALL_COUNTY_CECMS[gov.countyName];
     }
 
     return countyData;

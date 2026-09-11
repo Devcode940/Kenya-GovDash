@@ -40,7 +40,7 @@ export async function POST(request: NextRequest) {
     const url = (body.url || '').trim();
 
     if (!source || !title || !url) return NextResponse.json({ error: 'Source, title, and URL are required' }, { status: 400 });
-    const validSources = ['OAG', 'CoB', 'EACC', 'TI-Kenya', 'Other'];
+    const validSources = ['OAG', 'CoB', 'CoG', 'EACC', 'TI-Kenya', 'Other'];
     if (!validSources.includes(source)) return NextResponse.json({ error: `Invalid source` }, { status: 400 });
     try { new URL(url); } catch { return NextResponse.json({ error: 'Invalid URL' }, { status: 400 }); }
 

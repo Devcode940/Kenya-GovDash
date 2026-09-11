@@ -320,7 +320,7 @@ export const KIAMBU_EXTRA_OFFICIALS = {
 // organograms; individual CECM names are marked "verification pending" where the
 // current office-holder cannot be confirmed from official county publications.
 
-interface CecmSpec {
+export interface CecmSpec {
   id: string;
   portfolio: string;
   fullName?: string; // Omitted → "verification pending"
@@ -328,7 +328,7 @@ interface CecmSpec {
   countyCode: number;
 }
 
-function buildCecms(specs: CecmSpec[]): Representative[] {
+export function buildCecms(specs: CecmSpec[]): Representative[] {
   return specs.map(spec => makeSubordinateRep({
     id: spec.id,
     fullName: spec.fullName ? `Hon. ${spec.fullName}` : `CECM — ${spec.portfolio} (verification pending)`,

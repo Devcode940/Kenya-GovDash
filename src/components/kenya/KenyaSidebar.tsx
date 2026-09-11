@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch, FileSearch, Building2, MessageCircle, Plane, Network, DollarSign, Gavel, Phone, FileCheck, PieChart, Landmark, Trophy, Bell, Award } from 'lucide-react';
+import { Home, MapPin, FileText, Scale, Rss, Newspaper, Video, BookOpen, Users, Sparkles, ChevronRight, ShieldAlert, Flame, ClipboardCheck, Shield, ScanSearch, FileSearch, Building2, MessageCircle, Plane, Network, DollarSign, Gavel, Phone, FileCheck, PieChart, Landmark, Trophy, Bell, Award, TrendingUp, ExternalLink, GitCompare, Search, BarChart3 } from 'lucide-react';
 
 interface KenyaSidebarProps {
   activeSection: string;
@@ -13,6 +13,15 @@ const SIDEBAR_SECTIONS = [
     { id: 'home', label: 'Home', icon: <Home className="h-4 w-4" /> },
     { id: 'counties', label: 'Counties', icon: <MapPin className="h-4 w-4" /> },
     { id: 'profile', label: 'Profile', icon: <FileText className="h-4 w-4" /> },
+  ]},
+  { title: 'Finance & Audit', items: [
+    { id: 'finance_audit', label: 'Finance & Audit Dashboard', icon: <TrendingUp className="h-4 w-4" />, external: true },
+  ]},
+  { title: 'Directories', items: [
+    { id: 'representatives', label: 'Representatives Directory', icon: <Users className="h-4 w-4" />, external: true, href: '/representatives' },
+    { id: 'compare', label: 'County Comparison', icon: <GitCompare className="h-4 w-4" />, external: true, href: '/compare' },
+    { id: 'search', label: 'Site Search', icon: <Search className="h-4 w-4" />, external: true, href: '/search' },
+    { id: 'stats', label: 'Platform Stats', icon: <BarChart3 className="h-4 w-4" />, external: true, href: '/stats' },
   ]},
   { title: 'Constitution & Law', items: [
     { id: 'constitution', label: 'Constitution', icon: <Scale className="h-4 w-4" /> },
@@ -67,8 +76,20 @@ export function KenyaSidebar({ activeSection, onNavigate }: KenyaSidebarProps) {
             <div className="px-4 py-1">
               <p className="text-[10px] font-semibold text-muted-foreground/60 uppercase tracking-wider">{section.title}</p>
             </div>
-            {section.items.map((item) => {
+            {section.items.map((item: any) => {
               const isActive = activeSection === item.id;
+              // External links open in same tab via href
+              if (item.external) {
+                return (
+                  <a key={item.id} href={item.href || '/finance-audit'}
+                    className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors text-left ${
+                      isActive ? 'bg-primary/10 text-primary font-medium border-r-2 border-primary' : 'text-muted-foreground hover:text-foreground hover:bg-accent/50'
+                    }`}>
+                    {item.icon}<span className="flex-1">{item.label}</span>
+                    <ExternalLink className="h-3 w-3 opacity-50" />
+                  </a>
+                );
+              }
               return (
                 <button key={item.id} onClick={() => onNavigate(item.id)}
                   className={`w-full flex items-center gap-2 px-4 py-2 text-sm transition-colors text-left ${

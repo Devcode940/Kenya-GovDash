@@ -246,6 +246,7 @@ function LiveFeedStatusMini() {
   const feeds = [
     { id: 'oag', label: 'OAG', color: 'bg-blue-500' },
     { id: 'cob', label: 'CoB', color: 'bg-emerald-500' },
+    { id: 'cog', label: 'CoG', color: 'bg-indigo-500' },
     { id: 'ti-kenya', label: 'TI-Kenya', color: 'bg-orange-500' },
     { id: 'eacc', label: 'EACC', color: 'bg-purple-500' },
   ];

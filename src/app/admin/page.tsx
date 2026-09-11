@@ -64,7 +64,13 @@ import {
   Lock,
   X,
   MoreHorizontal,
+  Landmark,
+  TrendingUp,
 } from 'lucide-react';
+import { FinanceAuditPanel } from '@/components/admin/FinanceAuditPanel';
+import { CecmVerificationPanel } from '@/components/admin/CecmVerificationPanel';
+
+type AdminSection = 'resources' | 'finance_audit' | 'cecm_verify';
 
 // ==================== TYPES ====================
 
@@ -89,7 +95,7 @@ interface Resource {
   updatedAt: string;
 }
 
-type SourceType = 'OAG' | 'CoB' | 'EACC' | 'TI-Kenya' | 'Other';
+type SourceType = 'OAG' | 'CoB' | 'CoG' | 'EACC' | 'TI-Kenya' | 'Other';
 
 interface RefreshStatus {
   state: 'idle' | 'running' | 'success' | 'error';
@@ -100,7 +106,7 @@ interface RefreshStatus {
 
 // ==================== CONSTANTS ====================
 
-const SOURCES: SourceType[] = ['OAG', 'CoB', 'EACC', 'TI-Kenya', 'Other'];
+const SOURCES: SourceType[] = ['OAG', 'CoB', 'CoG', 'EACC', 'TI-Kenya', 'Other'];
 
 const SOURCE_META: Record<
   SourceType,
@@ -125,6 +131,13 @@ const SOURCE_META: Record<
     badgeClass: 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-200 dark:border-amber-800',
     buttonClass: 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-200 dark:hover:bg-amber-900',
     icon: <FileText className="h-4 w-4" />,
+  },
+  CoG: {
+    label: 'CoG',
+    description: 'Council of Governors',
+    badgeClass: 'bg-indigo-100 text-indigo-900 border-indigo-300 dark:bg-indigo-950 dark:text-indigo-200 dark:border-indigo-800',
+    buttonClass: 'border-indigo-300 bg-indigo-50 text-indigo-900 hover:bg-indigo-100 dark:border-indigo-800 dark:bg-indigo-950 dark:text-indigo-200 dark:hover:bg-indigo-900',
+    icon: <Landmark className="h-4 w-4" />,
   },
   EACC: {
     label: 'EACC',
@@ -1552,6 +1565,7 @@ export default function AdminPage() {
   const [activeTab, setActiveTab] = useState<'library' | 'upload' | 'link'>(
     'library',
   );
+  const [adminSection, setAdminSection] = useState<AdminSection>('resources');
 
   const [resources, setResources] = useState<Resource[]>([]);
   const [loadingResources, setLoadingResources] = useState(false);
@@ -1850,6 +1864,41 @@ export default function AdminPage() {
         {/* Refresh status card */}
         <RefreshParliamentCard status={refreshStatus} />
 
+        {/* Section nav */}
+        <section aria-label="Admin section" className="mt-6">
+          <div className="flex flex-wrap gap-1 rounded-lg border bg-card p-1">
+            {([
+              { id: 'resources', label: 'Oversight Resources', icon: Library },
+              { id: 'finance_audit', label: 'Finance & Audit', icon: TrendingUp },
+              { id: 'cecm_verify', label: 'CECM Verification', icon: Shield },
+            ] as { id: AdminSection; label: string; icon: React.ElementType }[]).map(s => {
+              const active = adminSection === s.id;
+              return (
+                <button
+                  key={s.id}
+                  type="button"
+                  onClick={() => setAdminSection(s.id)}
+                  className={`flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition focus:outline-none focus:ring-2 focus:ring-ring ${
+                    active ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-200' : 'hover:bg-muted/40 text-muted-foreground'
+                  }`}
+                >
+                  <s.icon className="h-4 w-4" />
+                  {s.label}
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {adminSection === 'finance_audit' && (
+          <section className="mt-6"><FinanceAuditPanel /></section>
+        )}
+        {adminSection === 'cecm_verify' && (
+          <section className="mt-6"><CecmVerificationPanel /></section>
+        )}
+
+        {adminSection === 'resources' && (
+          <>
         {/* Source selector */}
         <section aria-label="Source selector" className="mt-6">
           <h2 className="mb-2 text-sm font-medium text-muted-foreground">
@@ -1972,6 +2021,8 @@ export default function AdminPage() {
             </Tabs>
           </CardContent>
         </Card>
+          </>
+        )}
 
         {/* Footer */}
         <footer className="mt-8 border-t pt-4 text-center text-xs text-muted-foreground">

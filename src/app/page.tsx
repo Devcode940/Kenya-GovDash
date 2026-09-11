@@ -36,6 +36,7 @@ import { KenyaBottomNav, KenyaTopTabBar, type BottomNavTab, type TopTab } from '
 import { KenyaSidebar, SIDEBAR_SECTIONS_EXPORTED } from '@/components/kenya/KenyaSidebar';
 import { KenyaRightSidebar } from '@/components/kenya/KenyaRightSidebar';
 import { KenyaCommandPalette } from '@/components/kenya/KenyaCommandPalette';
+import { KenyaBottomNav3 } from '@/components/kenya/KenyaBottomNav3';
 import { useLanguage } from '@/lib/i18n';
 
 // Dynamic imports — feature panels are code-split via next/dynamic so each
@@ -559,6 +560,11 @@ function Dashboard() {
         onSelectCounty={(countyName) => { const county = allCounties.find(c => c.name === countyName); if (county) handleSelectCounty(county); }}
         onSelectSection={(sectionId) => setMobileTab(sectionId as MobileTab)}
         counties={allCounties.map(c => ({ name: c.name, governor: c.governor, senator: c.senator, womanRep: c.womanRep, constituencyMPs: c.constituencyMPs }))} />
+
+      {/* Mobile bottom nav — 3 buttons: Home, AI, Profile */}
+      <KenyaBottomNav3 activeTab="home" onTabChange={() => {}} />
+      {/* Spacer to prevent content being hidden behind bottom nav on mobile */}
+      <div className="h-14 md:hidden" />
     </div>
   );
 }

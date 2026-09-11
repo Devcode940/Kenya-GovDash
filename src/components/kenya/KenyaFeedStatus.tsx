@@ -91,6 +91,7 @@ export function KenyaFeedStatusBar() {
   const sources = [
     { id: 'oag', name: 'OAG', url: 'https://oagkenya.go.ke/category/reports/', status: 'cached' as FeedStatus },
     { id: 'cob', name: 'CoB', url: 'https://cob.go.ke/reports/', status: 'cached' as FeedStatus },
+    { id: 'cog', name: 'CoG', url: 'https://cog.go.ke/reports/', status: 'cached' as FeedStatus },
     { id: 'ti-kenya', name: 'TI-Kenya', url: 'https://tikenya.org/publications/', status: 'cached' as FeedStatus },
     { id: 'eacc', name: 'EACC', url: 'https://eacc.go.ke/reports/', status: 'cached' as FeedStatus },
   ];

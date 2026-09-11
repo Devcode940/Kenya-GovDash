@@ -51,10 +51,10 @@ model Feedback {
   @@index([countyName])
 }
 
-// Admin-uploaded or link-submitted oversight resources (OAG, CoB, EACC, TI-Kenya).
+// Admin-uploaded or link-submitted oversight resources (OAG, CoB, CoG, EACC, TI-Kenya).
 model Resource {
   id          String   @id @default(cuid())
-  source      String   // "OAG" | "CoB" | "EACC" | "TI-Kenya" | "Other"
+  source      String   // "OAG" | "CoB" | "CoG" | "EACC" | "TI-Kenya" | "Other"
   kind        String   // "document" | "video" | "link"
   title       String
   description String?
@@ -74,4 +74,116 @@ model Resource {
 
   @@index([source, kind])
   @@index([published])
+}
+
+// Structured finance + audit metrics per fiscal year, per county (or null = national).
+// Sourced from OAG audit reports, CoB BIRRs, CoG reports, and KNBS.
+// Used by the /finance-audit dashboard.
+model FinanceAuditSnapshot {
+  id              String   @id @default(cuid())
+  fiscalYear      String   // e.g. "2023/24"
+  level           String   // "national" | "county"
+  countyName      String?  // null when level = "national"
+  source          String   // "OAG" | "CoB" | "CoG" | "KNBS" | "Other"
+
+  // Budget (Kshs millions)
+  approvedBudget       Float?
+  supplementaryBudget  Float?
+  actualExpenditure    Float?
+  recurrentExpenditure Float?
+  developmentExpenditure Float?
+
+  // Revenue (Kshs millions)
+  equitableShare       Float?
+  ownSourceRevenue     Float?
+  osrTarget            Float?
+  conditionalGrants    Float?
+
+  // Absorption rates (%)
+  overallAbsorption    Float?
+  recurrentAbsorption  Float?
+  developmentAbsorption Float?
+
+  // Audit opinion (county-level only)
+  auditOpinion         String?  // "Unmodified" | "Qualified" | "Adverse" | "Disclaimer"
+  auditSource          String?
+  auditUrl             String?
+
+  // Pending bills (Kshs millions)
+  pendingBills         Float?
+  pendingBillsStart    Float?
+
+  // Debt (Kshs millions)
+  totalDebt            Float?
+  domesticDebt         Float?
+  foreignDebt          Float?
+
+  // Compliance score (0-100) — derived from CoG reports
+  complianceScore      Float?
+
+  notes                String?
+  sourceUrl            String?
+  published            Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([fiscalYear, level, countyName, source])
+  @@index([fiscalYear])
+  @@index([countyName])
+  @@index([level])
+  @@index([source])
+}
+
+// CECM name verifications — admin-curated verified names for CECM positions
+model CecmVerification {
+  id              String   @id @default(cuid())
+  cecmId          String   @unique // matches the rep.id from kenya-all-county-cecms.ts
+  countyName      String
+  portfolio       String
+  verifiedName    String
+  verifiedBy      String?
+  verifiedAt      DateTime @default(now())
+  source          String?  // e.g. "County Gazette Notice", "County Assembly approval record"
+  notes           String?
+
+  @@index([countyName])
+  @@index([cecmId])
+}
+
+// Finance alert subscriptions — citizens + researchers subscribe to alerts
+// when a county's absorption drops below threshold or audit opinion worsens.
+model FinanceAlertSubscription {
+  id              String   @id @default(cuid())
+  email           String   // subscriber email
+  countyName      String   // county to monitor (or "national")
+  metric          String   // "overallAbsorption" | "developmentAbsorption" | "auditOpinion" | "pendingBills"
+  threshold       Float?   // numeric threshold (e.g., 50.0 for absorption %)
+  direction       String   @default("below") // "below" | "above" (for pendingBills: "above" triggers when bills exceed threshold)
+  active          Boolean  @default(true)
+  lastTriggeredAt DateTime?
+  lastTriggeredValue Float?
+  confirmToken    String?
+  confirmedAt     DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([email])
+  @@index([countyName])
+  @@index([active])
+}
+
+// Audit log of triggered alerts (for transparency + dedup)
+model FinanceAlertLog {
+  id              String   @id @default(cuid())
+  subscriptionId  String
+  email           String
+  countyName      String
+  metric          String
+  triggerValue    Float
+  threshold       Float?
+  message         String
+  sentAt          DateTime @default(now())
+
+  @@index([subscriptionId])
+  @@index([sentAt])
 }

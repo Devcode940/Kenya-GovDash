@@ -1,0 +1,59 @@
+{
+  "name": "Kenya Government Accountability Dashboard",
+  "short_name": "Kenya GovDash",
+  "description": "Citizen oversight dashboard for Kenya's 47 counties — finance, audit, representatives, and feedback.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#047857",
+  "theme_color": "#047857",
+  "orientation": "portrait-primary",
+  "categories": ["government", "news", "finance", "productivity"],
+  "lang": "en-KE",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "/logo.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Finance Dashboard",
+      "short_name": "Finance",
+      "description": "View national + county finance data",
+      "url": "/finance-audit",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Representatives",
+      "short_name": "Reps",
+      "description": "Browse all elected officials",
+      "url": "/representatives",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Search",
+      "short_name": "Search",
+      "description": "Search counties, reps, finance data",
+      "url": "/search",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    },
+    {
+      "name": "Stats",
+      "short_name": "Stats",
+      "description": "Platform statistics",
+      "url": "/stats",
+      "icons": [{ "src": "/logo.svg", "sizes": "any" }]
+    }
+  ],
+  "screenshots": [],
+  "prefer_related_applications": false
+}
