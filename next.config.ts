@@ -6,8 +6,8 @@ const nextConfig: NextConfig = {
     ignoreBuildErrors: false,
   },
   reactStrictMode: true,
-  // Allow cross-origin requests from the preview URL
-  allowedDevOrigins: ["*.space-z.ai"],
+  // Allow cross-origin requests from preview URLs
+  allowedDevOrigins: ["*.space-z.ai", "*.e2b.app"],
   // Keep native binaries out of Turbopack's bundler (Vercel production)
   serverExternalPackages: [
     "sqlite-vec",
