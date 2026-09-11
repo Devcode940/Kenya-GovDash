@@ -9,6 +9,7 @@ import {
   getAggregateStats,
   getCountiesWithFinanceData,
 } from '@/lib/finance-audit-data';
+import { mistralChat, isMistralConfigured, getActiveProvider } from '@/lib/mistral-ai';
 
 export const maxDuration = 60;
 
@@ -51,7 +52,19 @@ ${context}
 
 Answer in clear, helpful language. If asked about a specific county, provide the most recent fiscal year data available. Format responses with bullet points where appropriate.`;
 
-    // Try real LLM first
+    // Try Mistral AI first (if configured)
+    if (isMistralConfigured()) {
+      try {
+        const reply = await mistralChat(systemPrompt, question, history);
+        if (reply) {
+          return NextResponse.json({ answer: reply, question, source: 'mistral' });
+        }
+      } catch (mistralErr) {
+        console.warn('[ai-assistant] Mistral failed, trying z-ai:', mistralErr);
+      }
+    }
+
+    // Try z-ai-web-dev-sdk as fallback
     try {
       const ZAI = (await import('z-ai-web-dev-sdk')).default;
       const zai = await ZAI.create();
@@ -73,13 +86,13 @@ Answer in clear, helpful language. If asked about a specific county, provide the
 
       const reply = response.choices?.[0]?.message?.content;
       if (reply) {
-        return NextResponse.json({ answer: reply, question, source: 'llm' });
+        return NextResponse.json({ answer: reply, question, source: 'z-ai' });
       }
     } catch (llmErr) {
-      console.warn('[ai-assistant] LLM failed, falling back to rule-based:', llmErr);
+      console.warn('[ai-assistant] z-ai failed, falling back to rule-based:', llmErr);
     }
 
-    // Fallback to rule-based answers
+    // Final fallback: rule-based answers
     const fallbackAnswer = answerQuestionRuleBased(question.toLowerCase());
     return NextResponse.json({ answer: fallbackAnswer, question, source: 'rule-based' });
   } catch (err) {
