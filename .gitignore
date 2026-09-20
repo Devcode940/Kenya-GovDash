@@ -12,6 +12,11 @@ node_modules
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/playwright/.cache/
+/blob-report/
+/playwright/.tmp/
 
 # next.js
 /.next/

@@ -351,13 +351,33 @@ Kenya-GovDash/
 
 ## 🧪 Testing
 
-```bash
-# Unit tests
-bunx vitest run
+Unit tests use **Vitest** and E2E tests use **Playwright**. Both run automatically on every push via `.github/workflows/ci.yml`.
 
-# E2E tests (starts dev server automatically)
-bash scripts/run_e2e.sh
+```bash
+# Unit tests (one-shot)
+bun run test
+
+# Unit tests (watch mode)
+bun run test:watch
+
+# Coverage report (HTML + lcov)
+bun run test:cov
+
+# Typecheck only
+bun run typecheck
+
+# Lint only
+bun run lint
+
+# E2E (Playwright auto-starts the dev server)
+bun run e2e:install   # one-time: install Chromium for Playwright
+bun run e2e
 ```
+
+Test layout:
+
+- `tests/unit/` — pure-logic unit tests (finance data, alerts, validators).
+- `tests/e2e/` — Playwright specs against the running app.
 
 ---
 
