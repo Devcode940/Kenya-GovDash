@@ -1,0 +1,20 @@
+{
+  "meta": {
+    "title": "County Budget Transparency Survey 2025 (Bajeti Hub)",
+    "source": "Bajeti Hub CBTS 2025",
+    "sourceUrl": "https://bajetihub.org/",
+    "note": "Score out of 100. Higher = more transparent budget documents."
+  },
+  "nationalAverage": 65,
+  "topCounties": [
+    {"countyName": "Makueni", "score": 89},
+    {"countyName": "Nyeri", "score": 88},
+    {"countyName": "Nakuru", "score": 87},
+    {"countyName": "Busia", "score": 85}
+  ],
+  "lowestPublished": [
+    {"countyName": "Kilifi", "score": 40},
+    {"countyName": "Migori", "score": 36},
+    {"countyName": "Marsabit", "score": 24}
+  ]
+}

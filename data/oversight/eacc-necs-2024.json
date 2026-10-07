@@ -1,0 +1,41 @@
+{
+  "meta": {
+    "title": "EACC National Ethics and Corruption Survey 2024 — county highlights",
+    "source": "Ethics and Anti-Corruption Commission (NECS 2024)",
+    "sample": "5,960 households across 47 counties (Nov–Dec 2024)",
+    "published": "2025-08",
+    "note": "Curated public highlights. Full NECS tables should be ingested from official EACC PDF when available."
+  },
+  "nationalHighlights": [
+    "Giving of bribes (52.1%) was the most common form of corruption witnessed in public offices.",
+    "County land survey/housing, inspectorate, and county executive services ranked among most corruption-prone.",
+    "Job seekers at county executives paid an average bribe of about Kshs 243,651 (survey finding)."
+  ],
+  "highestAverageBribeCounties": [
+    {"countyName": "Uasin Gishu", "avgBribeKes": 25873, "rank": 1},
+    {"countyName": "Baringo", "avgBribeKes": 16156, "rank": 2},
+    {"countyName": "Embu", "avgBribeKes": 12878, "rank": 3},
+    {"countyName": "Homa Bay", "avgBribeKes": 12381, "rank": 4},
+    {"countyName": "Bomet", "avgBribeKes": 11650, "rank": 5},
+    {"countyName": "Kakamega", "avgBribeKes": 10013, "rank": 6},
+    {"countyName": "Tana River", "avgBribeKes": 9582, "rank": 7},
+    {"countyName": "Kiambu", "avgBribeKes": 7982, "rank": 8},
+    {"countyName": "Nyamira", "avgBribeKes": 7748, "rank": 9},
+    {"countyName": "Wajir", "avgBribeKes": 7275, "rank": 10}
+  ],
+  "highestBriberyPrevalence": [
+    {"countyName": "Elgeyo-Marakwet", "prevalencePct": 100},
+    {"countyName": "Marsabit", "prevalencePct": 100},
+    {"countyName": "Wajir", "prevalencePct": 100}
+  ],
+  "lowestBriberyIncidenceIndex": [
+    {"countyName": "Makueni", "incidenceIndex": 0.61, "note": "Lowest bribery incidence among counties in published coverage"},
+    {"countyName": "Kajiado", "incidenceIndex": 0.69},
+    {"countyName": "Nakuru", "incidenceIndex": 0.72},
+    {"countyName": "Siaya", "incidenceIndex": 0.72}
+  ],
+  "highIncidenceExamples": [
+    {"countyName": "Kwale", "incidenceIndex": 1.09},
+    {"countyName": "Kilifi", "incidenceIndex": 1.03}
+  ]
+}

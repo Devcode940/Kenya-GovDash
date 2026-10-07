@@ -1,0 +1,96 @@
+{
+  "meta": {
+    "title": "Kenya GovDash oversight source registry",
+    "purpose": "Canonical list of sources to ingest for county + representative profiles",
+    "lastUpdated": "2026-10-07"
+  },
+  "sources": [
+    {
+      "id": "cob",
+      "name": "Controller of Budget",
+      "swahili": "Mdhibiti wa Bajeti",
+      "tracks": ["pesa za ugatuzi", "equitable share", "absorption", "OSR", "pending bills", "BIRR"],
+      "hubUrl": "https://cob.go.ke/publications/consolidated-county-budget-implementation-review-reports/",
+      "ingest": "pdf-birr",
+      "priority": 1
+    },
+    {
+      "id": "oag",
+      "name": "Office of the Auditor-General",
+      "swahili": "Ofisi ya Mkaguzi Mkuu wa Hesabu",
+      "tracks": ["audit opinion", "irregular expenditure", "pending bills", "county audit reports"],
+      "hubUrl": "https://www.oagkenya.go.ke/",
+      "ingest": "pdf-audit",
+      "priority": 1
+    },
+    {
+      "id": "eacc",
+      "name": "Ethics and Anti-Corruption Commission",
+      "swahili": "Tume ya Maadili na Kupambana na Ufisadi",
+      "tracks": ["bribery incidence", "NECS survey", "investigations", "asset declaration compliance", "integrity"],
+      "hubUrl": "https://eacc.go.ke/",
+      "ingest": "survey-static + live-feed",
+      "priority": 1
+    },
+    {
+      "id": "ti-kenya",
+      "name": "Transparency International Kenya",
+      "tracks": ["County Governance Status Report", "Kenya Bribery Index", "CBTS budget transparency"],
+      "hubUrl": "https://tikenya.org/",
+      "reports": [
+        "https://tikenya.org/2025/07/17/county-governance-status-report-cgsr-2025/",
+        "https://tikenya.org/2025/07/17/kenya-bribery-index-2025/"
+      ],
+      "ingest": "report-catalog + live-feed",
+      "priority": 1
+    },
+    {
+      "id": "cra",
+      "name": "Commission on Revenue Allocation",
+      "tracks": ["equitable share formula", "revenue basis", "equalisation fund"],
+      "hubUrl": "https://cra.go.ke/",
+      "ingest": "cara-dora",
+      "priority": 2
+    },
+    {
+      "id": "cog",
+      "name": "Council of Governors",
+      "tracks": ["compliance score", "maendeleo / devolution status", "county performance"],
+      "hubUrl": "https://cog.go.ke/",
+      "ingest": "manual-curated",
+      "priority": 2
+    },
+    {
+      "id": "knbs",
+      "name": "Kenya National Bureau of Statistics",
+      "tracks": ["population", "poverty", "GCP", "demographics"],
+      "hubUrl": "https://www.knbs.or.ke/",
+      "ingest": "census-static",
+      "priority": 2
+    },
+    {
+      "id": "parliament",
+      "name": "Parliament of Kenya",
+      "tracks": ["MPs", "Senators", "Women Reps", "Hansard"],
+      "hubUrl": "https://www.parliament.go.ke/",
+      "ingest": "parliament-refresh-api",
+      "priority": 2
+    },
+    {
+      "id": "iebc",
+      "name": "Independent Electoral and Boundaries Commission",
+      "tracks": ["election results", "votes", "party"],
+      "hubUrl": "https://www.iebc.or.ke/",
+      "ingest": "manual-curated",
+      "priority": 3
+    },
+    {
+      "id": "bajeti-hub",
+      "name": "Bajeti Hub (County Budget Transparency Survey)",
+      "tracks": ["budget transparency score", "document availability"],
+      "hubUrl": "https://bajetihub.org/",
+      "ingest": "cbts-static",
+      "priority": 2
+    }
+  ]
+}
