@@ -1,5 +1,10 @@
 # docker-compose.yml for Kenya GovDash
 # Self-hosted deployment with SQLite (persistent volume)
+#
+# REQUIRED: create a .env file with at least:
+#   JWT_SECRET=<openssl rand -hex 32>
+#   ADMIN_PASSWORD_HASH=<bcrypt hash of your password>
+# The container will not start admin auth without these.
 
 version: '3.8'
 
@@ -13,9 +18,9 @@ services:
       # Database (SQLite — stored in ./data volume)
       - DATABASE_URL=file:/app/data/govdash.db
 
-      # Auth (CHANGE THESE!)
-      - JWT_SECRET=${JWT_SECRET:-change-me-in-production}
-      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:-$2b$10$zwCrCu9DgB4BvAaJUcPbPOkNnxa0HvNMBZfXH6XVqSYOl43PYkK2C}
+      # Auth — MUST be provided via host .env (no insecure defaults)
+      - JWT_SECRET=${JWT_SECRET:?Set JWT_SECRET in .env (openssl rand -hex 32)}
+      - ADMIN_PASSWORD_HASH=${ADMIN_PASSWORD_HASH:?Set ADMIN_PASSWORD_HASH in .env}
 
       # AI (optional)
       - MISTRAL_API_KEY=${MISTRAL_API_KEY:-}
@@ -30,6 +35,9 @@ services:
 
       # Public URL
       - NEXT_PUBLIC_BASE_URL=${NEXT_PUBLIC_BASE_URL:-http://localhost:3000}
+
+      # Trust reverse proxy headers when behind Caddy/nginx
+      - TRUST_PROXY=${TRUST_PROXY:-1}
     volumes:
       - ./data:/app/data
     restart: unless-stopped

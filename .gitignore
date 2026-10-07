@@ -12,6 +12,8 @@ node_modules
 
 # testing
 /coverage
+/playwright-report
+/test-results
 
 # next.js
 /.next/
@@ -23,6 +25,10 @@ node_modules
 # misc
 .DS_Store
 *.pem
+*.p12
+*.key
+wb-keys/
+**/wb-keys/
 
 # debug
 npm-debug.log*
@@ -30,12 +36,13 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — never commit secrets
+.env
+.env.*
+!.env.example
 
 # vercel
 .vercel
-
 
 # typescript
 *.tsbuildinfo
@@ -46,15 +53,26 @@ local-*
 *.log
 dev.log
 dev.out.log
+server.log
 test
 prompt
 
-server.log
-# Skills directory
+# Skills directory secrets
 /skills/.env
+
+# Databases — never commit live DB files
 *.db
+*.db-journal
+*.sqlite
+*.sqlite3
 /db/
-dev.log
-server.log
+/data/
+dev.db
+
+# Tool / agent artefacts
 /tool-results/
 ghp_*
+.zscripts/dev.pid
+
+# OS
+Thumbs.db
