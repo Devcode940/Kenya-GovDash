@@ -51,7 +51,7 @@ A citizen oversight platform for Kenya's 47 counties — tracking government fin
 - Rule-based fallback when no LLM is configured
 
 ### Admin Console (`/admin`)
-- **Password:** `fb0599a99117931085153a59` (dev default only — production refuses to start without `ADMIN_PASSWORD_HASH` + `JWT_SECRET` set)
+- **Auth:** set `ADMIN_PASSWORD_HASH` + `JWT_SECRET` in `.env` (required in every environment; no default credentials)
 - **Sections:**
   - Oversight Resources (OAG / CoB / CoG / EACC / TI-Kenya / Other)
   - Finance & Audit snapshots (CRUD + CSV export)
@@ -115,11 +115,11 @@ Create a `.env` file in the project root:
 DATABASE_URL="file:./dev.db"
 # For production: DATABASE_URL="postgresql://user:pass@host:port/dbname"
 
-# Admin auth
-ADMIN_PASSWORD_HASH="$2b$12$Wlv2QBf72IMVuMw3ReyR2e2DFoIk6C7mLIt02iQFuLBP83OYc2yZO"
-# Default password: fb0599a99117931085153a59
-# To set custom: generate hash with: bunx bcryptjs hash "your-password" 10
-JWT_SECRET="your-jwt-secret-change-me"
+# Admin auth (REQUIRED — no defaults)
+# Generate: node -e "console.log(require('bcryptjs').hashSync('your-strong-password', 12))"
+ADMIN_PASSWORD_HASH=""
+# Generate: openssl rand -hex 32
+JWT_SECRET=""
 
 # Whistleblower E2E encryption (generate offline — see scripts/whistleblower_gen_keys.mjs)
 WHISTLEBLOWER_PUBLIC_KEY=""
@@ -176,7 +176,7 @@ The AI assistant uses a 3-tier fallback:
 # 3. Set environment variables in Vercel dashboard:
 #    DATABASE_URL = "libsql://your-db.turso.io?authToken=your-token"
 #    JWT_SECRET = "generate-random-secret"
-#    ADMIN_PASSWORD_HASH = "$2b$10$..." (from bcryptjs)
+#    ADMIN_PASSWORD_HASH = (bcrypt hash — generate with node -e "console.log(require('bcryptjs').hashSync('your-password', 12))")
 #    MISTRAL_API_KEY = "your-key" (optional)
 #    NEXT_PUBLIC_BASE_URL = "https://your-app.vercel.app"
 
@@ -378,7 +378,7 @@ All data is factual from publicly available official reports. Where data is not 
 
 ## 🔐 Security
 
-- **Admin auth**: bcrypt password hashing + JWT in HTTP-only cookies
+- **Admin auth**: bcrypt password hashing + JWT in HTTP-only cookies (credentials required; no shipped defaults)
 - **Rate limiting**: IP-based login attempt throttling
 - **Whistleblower**: hybrid E2E encryption (per-report AES-256-GCM data key wrapped with the admin RSA-OAEP-256 public key; ciphertext-only storage; private key never touches the server; offline decrypt via `scripts/whistleblower_decrypt.mjs`)
 - **CSRF**: SameSite cookie policy
@@ -438,7 +438,7 @@ Data is licensed under [CC-BY-4.0](https://creativecommons.org/licenses/by/4.0/)
 ## 📞 Support
 
 - **Issues**: [github.com/Devcode940/Kenya-GovDash/issues](https://github.com/Devcode940/Kenya-GovDash/issues)
-- **Admin password**: `fb0599a99117931085153a59` (dev default; production requires `ADMIN_PASSWORD_HASH` + `JWT_SECRET` env vars or auth endpoints fail closed)
+- **Admin auth**: set `ADMIN_PASSWORD_HASH` + `JWT_SECRET` in `.env` (see Configuration). No default credentials are shipped.
 - **API docs**: Visit `/api/stats` for platform statistics
 
 ---
