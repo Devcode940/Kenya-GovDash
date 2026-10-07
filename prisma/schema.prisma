@@ -5,6 +5,21 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// ---------------------------------------------------------------------------
+// Database provider (pick ONE — Prisma allows only one provider at a time)
+//
+// DEFAULT / recommended (local + Vercel + Turso):
+//   provider = "sqlite"
+//   DATABASE_URL="file:./dev.db"                          # local
+//   DATABASE_URL="libsql://YOUR-DB.turso.io?authToken=..." # production Turso
+//
+// Option B — Supabase / any PostgreSQL (Vercel + Supabase):
+//   1. Change provider below to "postgresql"
+//   2. Set DATABASE_URL to Supabase URI (pooler for app, direct for db push)
+//   3. Run: npx prisma generate && npx prisma db push
+//   Example:
+//     postgresql://postgres.REF:PASS@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true
+// ---------------------------------------------------------------------------
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")

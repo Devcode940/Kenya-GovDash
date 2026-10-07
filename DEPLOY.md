@@ -135,6 +135,7 @@ bun scripts/ingest_pdfs.ts
 ## 🗄️ Option B: Vercel + Supabase (PostgreSQL)
 
 Use this if you need PostgreSQL features (full-text search, JSON queries, etc.).
+Default schema is **SQLite** (Turso-compatible). Supabase requires changing the provider once.
 
 ### Step 1: Create Supabase Project
 
@@ -143,7 +144,11 @@ Use this if you need PostgreSQL features (full-text search, JSON queries, etc.).
 3. Set database password (save it!)
 4. Wait for project to provision (~2 min)
 5. Go to **Settings → Database → Connection string**
-6. Copy the **URI** format: `postgresql://postgres.<ref>:<password>@<host>:5432/postgres`
+6. Copy **two** URIs if available:
+   - **Direct** (port 5432, host `db.<ref>.supabase.co`) — use for `prisma db push`
+   - **Pooler / Transaction** (port 6543) — use for the running app and Vercel
+
+URL-encode special characters in the password (e.g. `@` → `%40`).
 
 ### Step 2: Update Prisma Schema
 
@@ -151,23 +156,50 @@ Edit `prisma/schema.prisma`:
 
 ```prisma
 datasource db {
-  provider = "postgresql"
+  provider = "postgresql"   // was "sqlite"
   url      = env("DATABASE_URL")
 }
 ```
 
-### Step 3: Push Schema
+Commit this change so Vercel builds against Postgres.
+
+### Step 3: Push Schema (direct URL)
 
 ```bash
-export DATABASE_URL="postgresql://postgres.xxx:password@aws-0-region.supabase.co:5432/postgres"
+export DATABASE_URL="postgresql://postgres.REF:PASSWORD@db.REF.supabase.co:5432/postgres"
 
-bunx prisma generate
-bunx prisma db push
+npx prisma generate   # or: bunx prisma generate
+npx prisma db push
 ```
 
-### Step 4: Deploy to Vercel
+Confirm tables in Supabase **Table Editor** (Feedback, Resource, FinanceAuditSnapshot, …).
 
-Same as Option A Step 3, but set `DATABASE_URL` to the Supabase connection string.
+### Step 4: Local `.env`
+
+```bash
+# Prefer pooler for the Next.js app
+DATABASE_URL="postgresql://postgres.REF:PASSWORD@aws-0-REGION.pooler.supabase.com:6543/postgres?pgbouncer=true"
+JWT_SECRET="..."              # openssl rand -hex 32
+ADMIN_PASSWORD_HASH="..."     # bcrypt hash of admin password
+NEXT_PUBLIC_BASE_URL="http://localhost:3000"
+```
+
+### Step 5: Vercel environment variables
+
+**Project → Settings → Environment Variables** (Production + Preview):
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | Supabase **pooler** URI |
+| `JWT_SECRET` | `openssl rand -hex 32` |
+| `ADMIN_PASSWORD_HASH` | bcrypt hash of your admin password |
+| `NEXT_PUBLIC_BASE_URL` | `https://your-app.vercel.app` |
+| `MISTRAL_API_KEY` | optional |
+| `CRON_SECRET` | optional |
+
+Deploy / redeploy. Open `/admin` and log in with the plain password you hashed.
+
+**Note:** Vercel disk is ephemeral — PDF uploads under `upload/` and `public/uploads/` do not persist. Use repo files, Supabase Storage, or external object storage for production PDFs.
 
 ---
 
