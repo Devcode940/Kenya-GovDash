@@ -4,8 +4,8 @@
  */
 
 import { buildAllCountyData, getCountyDemographics, type CountyData, type Representative } from '@/lib/kenya-data';
-import { ALL_COUNTY_FINANCE, type CountyFinanceRecord } from '@/lib/finance-audit-data';
-import { getEquitableShareSeries } from '@/lib/devolution-finance';
+import { ALL_COUNTY_FINANCE, getCountyTimeSeries, type CountyFinanceRecord } from '@/lib/finance-audit-data';
+import { getEquitableShareSeries, getAggregateCountyBudgetTrends, cumulativeEquitableShare } from '@/lib/devolution-finance';
 import sourceRegistry from '../../data/oversight/source-registry.json';
 import eaccNecs from '../../data/oversight/eacc-necs-2024.json';
 import cbts2025 from '../../data/oversight/cbts-2025.json';
@@ -39,6 +39,9 @@ export type CountyProfile = {
     latest?: CountyFinanceRecord;
     history: CountyFinanceRecord[];
     nationalEquitableShareLatest?: { fiscalYear: string; equitableShareBillion: number };
+    equitableShareSeries: ReturnType<typeof getEquitableShareSeries>;
+    aggregateCountyBudgetTrends: ReturnType<typeof getAggregateCountyBudgetTrends>;
+    cumulativeEquitableShareBillion: number;
   };
   oversight: CountyOversightSnapshot;
   links: {
@@ -132,7 +135,7 @@ export function buildCountyProfile(name: string): CountyProfile | null {
   const county = findCountyByName(name);
   if (!county) return null;
 
-  const history = ALL_COUNTY_FINANCE.filter((r) => r.countyName === county.name);
+  const history = getCountyTimeSeries(county.name);
 
   const latest =
     history.find((r) => r.fiscalYear === '2023/24') ||
@@ -150,6 +153,9 @@ export function buildCountyProfile(name: string): CountyProfile | null {
       latest,
       history,
       nationalEquitableShareLatest,
+      equitableShareSeries: series,
+      aggregateCountyBudgetTrends: getAggregateCountyBudgetTrends(),
+      cumulativeEquitableShareBillion: cumulativeEquitableShare(),
     },
     oversight: buildOversight(county.name),
     links: {

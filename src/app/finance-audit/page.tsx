@@ -24,6 +24,13 @@ import {
   getAvailableFiscalYears,
   type AuditOpinionType,
 } from '@/lib/finance-audit-data';
+import {
+  getEquitableShareSeries,
+  getAggregateCountyBudgetTrends,
+  getPreDevolutionContext,
+  cumulativeEquitableShare,
+  COB_COUNTY_BIRR_HUB,
+} from '@/lib/devolution-finance';
 import { FinanceCharts } from '@/components/kenya/FinanceCharts';
 import { FinanceAlertForm } from '@/components/kenya/FinanceAlertForm';
 import { ChevronLeft, Landmark, TrendingUp, AlertTriangle, CheckCircle2, Award, Database, ExternalLink } from 'lucide-react';
@@ -332,11 +339,85 @@ export default function FinanceAuditPage() {
           <FinanceCharts />
         </section>
 
+        
+        <section>
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base">Pesa za ugatuzi — County equitable share (all 47)</CardTitle>
+              <CardDescription>
+                CRA/CARA national allocations FY 2013/14 → latest · cumulative ~Kshs {cumulativeEquitableShare().toFixed(0)}B
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
+                      <th className="p-2 text-left">Fiscal Year</th>
+                      <th className="p-2 text-right">Equitable share (Kshs B)</th>
+                      <th className="p-2 text-left">Source</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[...getEquitableShareSeries()].reverse().map((r) => (
+                      <tr key={r.fiscalYear} className="border-b hover:bg-muted/40">
+                        <td className="p-2 font-medium">{r.fiscalYear}</td>
+                        <td className="p-2 text-right tabular-nums font-semibold">{r.equitableShareBillion}</td>
+                        <td className="p-2 text-xs text-muted-foreground">{r.source}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div>
+                <h3 className="mb-2 text-sm font-semibold">Aggregate county budgets (OAG summaries)</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b bg-muted/40 text-xs uppercase text-muted-foreground">
+                        <th className="p-2 text-left">FY</th>
+                        <th className="p-2 text-right">Approved (Kshs B)</th>
+                        <th className="p-2 text-right">Actual revenue (B)</th>
+                        <th className="p-2 text-right">Performance %</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {[...(getAggregateCountyBudgetTrends() as Array<{ fiscalYear: string; approvedBudgetBillion?: number; actualRevenueBillion?: number; budgetPerformancePct?: number }> )].reverse().map((r) => (
+                        <tr key={r.fiscalYear} className="border-b hover:bg-muted/40">
+                          <td className="p-2 font-medium">{r.fiscalYear}</td>
+                          <td className="p-2 text-right tabular-nums">{r.approvedBudgetBillion ?? '—'}</td>
+                          <td className="p-2 text-right tabular-nums">{r.actualRevenueBillion ?? '—'}</td>
+                          <td className="p-2 text-right tabular-nums">{r.budgetPerformancePct != null ? `${r.budgetPerformancePct}%` : '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+              {getPreDevolutionContext().length > 0 && (
+                <div>
+                  <h3 className="mb-2 text-sm font-semibold">Pre-devolution context (before FY 2013/14)</h3>
+                  <ul className="space-y-1 text-xs text-muted-foreground">
+                    {getPreDevolutionContext().map((r) => (
+                      <li key={r.fiscalYear}>
+                        <span className="font-medium text-foreground">{r.fiscalYear}</span>: {r.note}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <a href={COB_COUNTY_BIRR_HUB} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm text-emerald-700 hover:underline dark:text-emerald-300">
+                CoB County BIRR publications <ExternalLink className="h-3 w-3" />
+              </a>
+            </CardContent>
+          </Card>
+        </section>
+
         {/* === HISTORICAL NATIONAL TRENDS === */}
         <section>
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">National Budget Trends — 3-Year Comparison</CardTitle>
+              <CardTitle className="text-base">National Government Budget Trends — All Available FYs</CardTitle>
               <CardDescription>Source: OAG Audit Reports + National Treasury</CardDescription>
             </CardHeader>
             <CardContent>

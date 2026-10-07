@@ -183,7 +183,7 @@ export function CountyComparison() {
   const leaderboard = useMemo(() => {
     if (selected.length === 0) return [];
     return selected.map((c, i) => {
-      const fin = ALL_COUNTY_FINANCE.find(r => r.countyName === c && r.fiscalYear === '2023/24');
+      const fin = ALL_COUNTY_FINANCE.filter(r => r.countyName === c).sort((a,b) => b.fiscalYear.localeCompare(a.fiscalYear))[0];
       const scores = [
         fin?.overallAbsorption,
         fin?.developmentAbsorption,

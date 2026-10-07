@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { isAuthenticated } from '@/lib/auth';
 import { getIngestStatusSummary, listIngestSources, runOversightIngest } from '@/lib/auto-ingest';
+import { getFinanceCoverage } from '@/lib/finance-audit-data';
+import { storageStatus } from '@/lib/storage';
 
 /**
  * GET  /api/admin/ingest-oversight — public status of oversight ingest pipeline
@@ -8,6 +10,7 @@ import { getIngestStatusSummary, listIngestSources, runOversightIngest } from '@
  */
 
 export async function GET() {
+  const coverage = getFinanceCoverage();
   return NextResponse.json({
     endpoint: '/api/admin/ingest-oversight',
     methods: {
@@ -16,6 +19,12 @@ export async function GET() {
     },
     status: getIngestStatusSummary(),
     sources: listIngestSources(),
+    financeCoverage: {
+      countiesWithData: coverage.length,
+      targetCounties: 47,
+      counties: coverage,
+    },
+    storage: storageStatus(),
   });
 }
 

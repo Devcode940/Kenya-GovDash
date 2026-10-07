@@ -68,10 +68,11 @@ import {
   TrendingUp,
 } from 'lucide-react';
 import { FinanceAuditPanel } from '@/components/admin/FinanceAuditPanel';
+import { OversightIngestPanel } from '@/components/admin/OversightIngestPanel';
 import { CecmVerificationPanel } from '@/components/admin/CecmVerificationPanel';
 import { WhistleblowerPanel } from '@/components/admin/WhistleblowerPanel';
 
-type AdminSection = 'resources' | 'finance_audit' | 'cecm_verify' | 'whistleblower';
+type AdminSection = 'resources' | 'finance_audit' | 'oversight_ingest' | 'cecm_verify' | 'whistleblower';
 
 // ==================== TYPES ====================
 
@@ -1871,6 +1872,7 @@ export default function AdminPage() {
             {([
               { id: 'resources', label: 'Oversight Resources', icon: Library },
               { id: 'finance_audit', label: 'Finance & Audit', icon: TrendingUp },
+              { id: 'oversight_ingest', label: 'Oversight ingest', icon: Shield },
               { id: 'cecm_verify', label: 'CECM Verification', icon: Shield },
               { id: 'whistleblower', label: 'Whistleblower', icon: Lock },
             ] as { id: AdminSection; label: string; icon: React.ElementType }[]).map(s => {
@@ -1891,6 +1893,10 @@ export default function AdminPage() {
             })}
           </div>
         </section>
+
+        {adminSection === 'oversight_ingest' && (
+          <OversightIngestPanel />
+        )}
 
         {adminSection === 'finance_audit' && (
           <section className="mt-6"><FinanceAuditPanel /></section>

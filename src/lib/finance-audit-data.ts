@@ -337,3 +337,18 @@ export function getCountiesWithFinanceData(): string[] {
   ALL_COUNTY_FINANCE.forEach(r => names.add(r.countyName));
   return Array.from(names).sort();
 }
+
+/** Per-county fiscal years present in ALL_COUNTY_FINANCE (coverage gap tracker). */
+export function getFinanceCoverage(): { countyName: string; fiscalYears: string[]; yearCount: number }[] {
+  const map = new Map<string, Set<string>>();
+  for (const r of ALL_COUNTY_FINANCE) {
+    if (!map.has(r.countyName)) map.set(r.countyName, new Set());
+    map.get(r.countyName)!.add(r.fiscalYear);
+  }
+  return [...map.entries()]
+    .map(([countyName, years]) => {
+      const fiscalYears = [...years].sort();
+      return { countyName, fiscalYears, yearCount: fiscalYears.length };
+    })
+    .sort((a, b) => a.countyName.localeCompare(b.countyName));
+}

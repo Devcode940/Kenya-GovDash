@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { CountyFinanceHistoryBlock } from '@/components/kenya/CountyFinanceHistoryBlock';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -396,6 +397,14 @@ export function KenyaCountyInfoPanel({
           )}
         </CardContent>
       </Card>
+
+
+      <CountyFinanceHistoryBlock
+        countyName={county.name}
+        variant="compact"
+        showNationalSeries
+        showDrilldownLink
+      />
 
       {/* 3. Budget Allocation FY 2024/25 */}
       <Card>

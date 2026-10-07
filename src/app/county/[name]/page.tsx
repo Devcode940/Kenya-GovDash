@@ -21,11 +21,11 @@ import {
   MapPin,
   Users,
   Landmark,
-  Wallet,
   ShieldAlert,
   ExternalLink,
   FileText,
 } from 'lucide-react';
+import { CountyFinanceHistoryBlock } from '@/components/kenya/CountyFinanceHistoryBlock';
 
 interface PageProps {
   params: Promise<{ name: string }>;
@@ -67,9 +67,8 @@ export default async function CountyHubPage({ params }: PageProps) {
   const profile = buildCountyProfile(name);
   if (!profile) notFound();
 
-  const { county, demographics, leaders, finance, oversight, links } = profile;
+  const { county, demographics, leaders, oversight, links } = profile;
   const gov = county.governor;
-  const latest = finance.latest;
 
   return (
     <div className="min-h-[100dvh] bg-gradient-to-b from-background to-muted/30">
@@ -167,90 +166,14 @@ export default async function CountyHubPage({ params }: PageProps) {
           </Card>
         )}
 
-        {/* Pesa za ugatuzi */}
-        <Card id="pesa">
-          <CardHeader>
-            <div className="flex items-center gap-2">
-              <Wallet className="h-4 w-4 text-emerald-600" />
-              <CardTitle className="text-base">Pesa za ugatuzi — Finance & audit</CardTitle>
-            </div>
-            <CardDescription>
-              County budget execution from CoB / OAG curated snapshots
-              {latest ? ` · FY ${latest.fiscalYear}` : ' · data gap for this county'}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {latest ? (
-              <>
-                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                  <Stat label="Approved budget" value={formatKesMillions(latest.approvedBudget)} />
-                  <Stat label="Equitable share" value={formatKesMillions(latest.equitableShare)} />
-                  <Stat
-                    label="OSR collected"
-                    value={formatKesMillions(latest.ownSourceRevenue ?? null)}
-                  />
-                  <Stat
-                    label="Overall absorption"
-                    value={
-                      latest.overallAbsorption != null ? `${latest.overallAbsorption}%` : 'N/A'
-                    }
-                  />
-                  <Stat
-                    label="Development absorption"
-                    value={
-                      latest.developmentAbsorption != null
-                        ? `${latest.developmentAbsorption}%`
-                        : 'N/A'
-                    }
-                  />
-                  <Stat
-                    label="Pending bills"
-                    value={formatKesMillions(latest.pendingBills ?? null)}
-                  />
-                </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="text-xs text-muted-foreground">Audit opinion:</span>
-                  <Badge
-                    variant="outline"
-                    className={
-                      latest.auditOpinion === 'Unmodified'
-                        ? 'border-emerald-500 text-emerald-700'
-                        : latest.auditOpinion === 'Qualified'
-                          ? 'border-amber-500 text-amber-700'
-                          : 'border-rose-500 text-rose-700'
-                    }
-                  >
-                    {latest.auditOpinion}
-                  </Badge>
-                  {latest.complianceScore != null && (
-                    <Badge variant="secondary">CoG compliance ~{latest.complianceScore}</Badge>
-                  )}
-                  <span className="text-xs text-muted-foreground">Source: {latest.source}</span>
-                </div>
-              </>
-            ) : (
-              <p className="text-sm text-muted-foreground">
-                No curated county finance snapshot yet. National equitable share series and CoB
-                reports are still available below.
-              </p>
-            )}
-            {finance.nationalEquitableShareLatest && (
-              <p className="text-xs text-muted-foreground">
-                National county equitable share (all 47): Kshs{' '}
-                {finance.nationalEquitableShareLatest.equitableShareBillion}B in FY{' '}
-                {finance.nationalEquitableShareLatest.fiscalYear} (CRA/CARA).
-              </p>
-            )}
-            <Link
-              href={links.financeDrilldown}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-sm font-medium text-emerald-700 hover:underline dark:text-emerald-300"
-            >
-              Open finance drill-down & charts <ExternalLink className="h-3 w-3" />
-            </Link>
-          </CardContent>
-        </Card>
+        <CountyFinanceHistoryBlock
+          countyName={county.name}
+          variant="full"
+          showNationalSeries
+          showDrilldownLink
+        />
+
+
 
         {/* Leaders */}
         <Card id="leaders">
