@@ -76,7 +76,7 @@ Go to **Vercel Dashboard → your project → Settings → Environment Variables
 |---|---|---|
 | `DATABASE_URL` | `libsql://kenya-govdash-xxx.turso.io?authToken=eyJhbGci...` | ✅ Yes |
 | `JWT_SECRET` | Generate with `openssl rand -hex 32` | ✅ Yes |
-| `ADMIN_PASSWORD_HASH` | `$2b$12$Wlv2QBf72IMVuMw3ReyR2e2DFoIk6C7mLIt02iQFuLBP83OYc2yZO` (default: fb0599a99117931085153a59) | ✅ Yes |
+| `ADMIN_PASSWORD_HASH` | Generate: `node -e "console.log(require('bcryptjs').hashSync('your-strong-password', 12))"` | ✅ Yes |
 | `NEXT_PUBLIC_BASE_URL` | `https://kenya-govdash.vercel.app` (your Vercel URL) | ✅ Yes |
 | `MISTRAL_API_KEY` | Your Mistral AI key from [console.mistral.ai](https://console.mistral.ai/) | Optional |
 | `RESEND_API_KEY` | Your Resend key from [resend.com](https://resend.com/) | Optional |
@@ -116,7 +116,7 @@ Schedule: */15 * * * *
 After deployment, you can ingest PDFs via the admin UI:
 
 1. Go to `https://your-app.vercel.app/admin`
-2. Login with password `fb0599a99117931085153a59`
+2. Login with the password you hashed into `ADMIN_PASSWORD_HASH`
 3. Click "Ingested PDFs" tab → "Upload PDF"
 4. Upload CoB/OAG PDF reports
 5. Text is extracted automatically + indexed for search
@@ -232,7 +232,8 @@ services:
 ```bash
 # Create .env with secrets
 echo 'JWT_SECRET='$(openssl rand -hex 32) >> .env
-echo 'ADMIN_PASSWORD_HASH=$2b$12$Wlv2QBf72IMVuMw3ReyR2e2DFoIk6C7mLIt02iQFuLBP83OYc2yZO' >> .env
+echo 'ADMIN_PASSWORD_HASH='$(node -e "console.log(require('bcryptjs').hashSync(require('crypto').randomBytes(16).toString('hex'), 12))") >> .env
+# Or set a known password hash: node -e "console.log(require('bcryptjs').hashSync('your-password', 12))"
 
 # Build + run
 docker-compose up -d
