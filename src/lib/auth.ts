@@ -1,5 +1,9 @@
 // ==================== AUTH LIBRARY ====================
-// bcrypt password hashing + JWT session cookies. Fail-closed in production.
+// bcrypt password hashing + JWT session cookies. Fail-closed always.
+// ADMIN_PASSWORD_HASH and JWT_SECRET must be set in every environment.
+// Never commit real credentials. Generate hashes with:
+//   node -e "console.log(require('bcryptjs').hashSync('your-password', 12))"
+//   openssl rand -hex 32
 
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -13,18 +17,13 @@ const IS_PROD = process.env.NODE_ENV === 'production';
 // Set TRUST_PROXY=1 only when a reverse proxy overwrites X-Forwarded-For (Vercel, Caddyfile in this repo).
 const TRUST_PROXY = process.env.TRUST_PROXY === '1';
 
-// Dev-only fallback hash. Production refuses to start without ADMIN_PASSWORD_HASH.
-// Rotate immediately if ever exposed: hashPassword() a new secret and set ADMIN_PASSWORD_HASH.
-const DEV_PASSWORD_HASH = '$2b$12$Wlv2QBf72IMVuMw3ReyR2e2DFoIk6C7mLIt02iQFuLBP83OYc2yZO';
-
 function getPasswordHash(): string {
   const hash = process.env.ADMIN_PASSWORD_HASH;
   if (hash && hash.length === 60 && hash.startsWith('$2')) return hash;
-  if (IS_PROD) {
-    throw new Error('[auth] FATAL: ADMIN_PASSWORD_HASH unset. Refusing default credentials in production.');
-  }
-  console.warn('[auth] ADMIN_PASSWORD_HASH unset — dev-only default credential active.');
-  return DEV_PASSWORD_HASH;
+  throw new Error(
+    '[auth] FATAL: ADMIN_PASSWORD_HASH must be set (bcrypt $2… hash, 60 chars). ' +
+      'Generate: node -e "console.log(require(\'bcryptjs\').hashSync(\'your-password\', 12))"',
+  );
 }
 
 export async function verifyPassword(plainPassword: string): Promise<boolean> {
@@ -44,11 +43,9 @@ export function hashPassword(plainPassword: string): string {
 function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (secret && secret.length >= 32) return secret;
-  if (IS_PROD) {
-    throw new Error('[auth] FATAL: JWT_SECRET must be set (>=32 chars) in production.');
-  }
-  console.warn('[auth] JWT_SECRET unset — dev-only fallback secret active.');
-  return 'dev-only-insecure-fallback-secret-do-not-deploy';
+  throw new Error(
+    '[auth] FATAL: JWT_SECRET must be set (>=32 chars). Generate: openssl rand -hex 32',
+  );
 }
 
 interface SessionPayload {
@@ -102,11 +99,6 @@ export async function isAuthenticated(): Promise<boolean> {
 }
 
 export const SESSION_COOKIE_NAME = COOKIE_NAME;
-
-// ==================== RATE LIMITING ====================
-// In-memory, per-instance. Correct on single-instance Docker/Caddy; on
-// serverless use a shared store (Upstash/Vercel KV). Buckets are namespaced
-// per scope; entries are evicted (expiry + hard cap) to bound memory.
 
 // ==================== RATE LIMITING ====================
 // Implemented in ./rate-limit.ts (memory or shared Redis store).
