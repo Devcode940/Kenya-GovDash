@@ -1,0 +1,31 @@
+{
+  "meta": {
+    "title": "Kenya devolution finance report catalog (CoB County BIRR + OAG)",
+    "hubUrl": "https://cob.go.ke/publications/consolidated-county-budget-implementation-review-reports/",
+    "nationalHubUrl": "https://cob.go.ke/publications/national-government-budget-implementation-review-reports/",
+    "oagUrl": "https://www.oagkenya.go.ke/",
+    "note": "Download links on cob.go.ke use WordPress download manager; open the hub and select the titled report. Annual reports preferred for full-year figures.",
+    "lastUpdated": "2026-10-07"
+  },
+  "reports": [
+    {"fiscalYear": "2025/26", "period": "annual", "title": "County Governments Budget Implementation Review Report for the Financial Year 2025/26", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2025/26", "period": "9-months", "title": "County Governments Budget Implementation Review Report for the first nine months of FY 2025/26", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2025/26", "period": "half-year", "title": "County Governments Budget Implementation Review Report First Half of FY 2025/26", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2025/26", "period": "q1", "title": "County Governments Budget Implementation Review Report First Quarter of FY 2025/26", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2024/25", "period": "annual", "title": "County Governments Budget Implementation Review Report FY 2024/25", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2024/25", "period": "9-months", "title": "County Governments Budget Implementation Review Report the first nine months of FY 2024/25", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2024/25", "period": "annual-audit-summary", "title": "Auditor-General's Summary Report on County Governments 2024/2025", "publisher": "OAG", "url": "https://www.oagkenya.go.ke/wp-content/uploads/2026/05/AUDITOR-GENERALS-SUMMARY-REPORT-ON-COUNTY-GOVERNMENTS-2024-2025.pdf", "status": "published"},
+    {"fiscalYear": "2023/24", "period": "annual", "title": "County Governments Budget Implementation Review Report for the Financial Year 2023/24", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2023/24", "period": "annual-audit-summary", "title": "Auditor-General's Summary Report on County Governments 2023/2024", "publisher": "OAG", "url": "https://www.oagkenya.go.ke/wp-content/uploads/2025/04/Auditor-Generals-summary-Report-on-County-Governments-2023-2024.pdf", "status": "published"},
+    {"fiscalYear": "2022/23", "period": "annual", "title": "County Governments Budget Implementation Review Report for the Financial Year FY 2022/23", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2021/22", "period": "annual", "title": "County Governments Annual Budget Implementation Review Report for the FY 2021/22", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2020/21", "period": "annual", "title": "Annual County Governments Budget Implementation Review Report FY 2020/21", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2019/20", "period": "annual", "title": "County Governments Budget Implementation Review Report for the FY 2019/20", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2018/19", "period": "annual", "title": "Annual County Governments Budget Implementation Review Report FY 2018/19", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2017/18", "period": "annual", "title": "Annual County Governments Budget Implementation Review Report for FY 2017/18", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2016/17", "period": "annual", "title": "Annual County Governments Budget Implementation Review Report FY 2016/17", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2015/16", "period": "annual", "title": "Annual County Budget Implementation Review Report FY 2015-16", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2014/15", "period": "annual", "title": "Annual County Governments Budget Implementation Review Report FY 2014/15", "publisher": "CoB", "hub": "county-birr", "status": "published"},
+    {"fiscalYear": "2013/14", "period": "q1", "title": "County Budget Implementation Review Report First Quarter FY 2013-2014", "publisher": "CoB", "hub": "county-birr", "status": "published", "notes": "Early devolution reporting"}
+  ]
+}

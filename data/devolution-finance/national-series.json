@@ -1,0 +1,63 @@
+{
+  "meta": {
+    "title": "Kenya devolution finance — national aggregate series",
+    "note": "County governments began operations in FY 2013/14 under the 2010 Constitution. Pre-2013 figures are national/local-authority context only, not county equitable share.",
+    "currency": "KES",
+    "units": {
+      "equitableShare": "billions",
+      "countyBudgets": "billions"
+    },
+    "primarySources": [
+      "Commission on Revenue Allocation (CRA)",
+      "Division of Revenue Acts (DORA) / County Allocation of Revenue Acts (CARA)",
+      "Office of the Controller of Budget (CoB) County BIRR",
+      "Office of the Auditor-General (OAG) county summary reports"
+    ],
+    "lastUpdated": "2026-10-07",
+    "coverage": "FY 2010/11 context → FY 2025/26"
+  },
+  "preDevolutionContext": [
+    {
+      "fiscalYear": "2010/11",
+      "level": "national",
+      "note": "Pre-devolution. Constitution of Kenya 2010 promulgated August 2010. No county equitable share yet.",
+      "dataAvailable": false
+    },
+    {
+      "fiscalYear": "2011/12",
+      "level": "national",
+      "note": "Transition Authority era; local authorities still in place.",
+      "dataAvailable": false
+    },
+    {
+      "fiscalYear": "2012/13",
+      "level": "transition",
+      "equitableShareBillion": 9.8,
+      "note": "Transition County Appropriation Act 2013 — first Q under devolution framework (~Kshs 9.7–9.8B transfers). Full county equitable share starts FY 2013/14.",
+      "source": "CoB / National Treasury transition transfers; Africa Check synthesis of CoB reports",
+      "dataAvailable": true
+    }
+  ],
+  "countyEquitableShareSeries": [
+    {"fiscalYear": "2013/14", "equitableShareBillion": 190.0, "source": "CRA / DORA; CoB Annual CG-BIRR", "sourceUrl": "https://cob.go.ke/publications/consolidated-county-budget-implementation-review-reports/", "confidence": "high"},
+    {"fiscalYear": "2014/15", "equitableShareBillion": 226.7, "source": "CRA Table 4.1 ordinary revenue & county allocation series", "confidence": "high"},
+    {"fiscalYear": "2015/16", "equitableShareBillion": 259.8, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2016/17", "equitableShareBillion": 280.3, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2017/18", "equitableShareBillion": 302.0, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2018/19", "equitableShareBillion": 314.0, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2019/20", "equitableShareBillion": 316.5, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2020/21", "equitableShareBillion": 316.5, "source": "CRA / DORA (COVID-constrained)", "confidence": "high"},
+    {"fiscalYear": "2021/22", "equitableShareBillion": 370.0, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2022/23", "equitableShareBillion": 370.0, "source": "CRA / DORA", "confidence": "high"},
+    {"fiscalYear": "2023/24", "equitableShareBillion": 385.4, "source": "CRA recommendation series; CoB CG-BIRR FY 2023/24", "confidence": "high"},
+    {"fiscalYear": "2024/25", "equitableShareBillion": 387.4, "source": "Division of Revenue (Amendment) Act 2024 / CARA; OAG County Summary 2024/25", "notes": "Baseline equitable share commonly cited as 387.4B.", "confidence": "high"},
+    {"fiscalYear": "2025/26", "equitableShareBillion": 415.0, "source": "County Allocation of Revenue Act 2025; CoB NG-BIRR FY 2025/26", "notes": "CARA 2025 totals Kshs 415.0B.", "confidence": "high"}
+  ],
+  "aggregateCountyBudgetTrends": [
+    {"fiscalYear": "2020/21", "approvedBudgetBillion": 536.1, "source": "OAG County Governments Summary (multi-year tables)"},
+    {"fiscalYear": "2021/22", "approvedBudgetBillion": 550.3, "source": "OAG County Governments Summary"},
+    {"fiscalYear": "2022/23", "approvedBudgetBillion": 525.1, "source": "OAG County Governments Summary"},
+    {"fiscalYear": "2023/24", "approvedBudgetBillion": 571.3, "actualRevenueBillion": 462.5, "budgetPerformancePct": 81, "source": "OAG Auditor-General Summary Report on County Governments 2023/2024"},
+    {"fiscalYear": "2024/25", "approvedBudgetBillion": 607.5, "source": "OAG Auditor-General Summary Report on County Governments 2024/2025"}
+  ]
+}
