@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -310,6 +311,29 @@ export function KenyaCountyInfoPanel({
           </CardContent>
         )}
       </Card>
+
+
+      {/* Open full county hub (new tab) */}
+      <div className="flex flex-wrap gap-2">
+        <Link
+          href={`/county/${encodeURIComponent(county.name)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md border border-emerald-400 bg-emerald-50 px-3 py-2 text-sm font-medium text-emerald-900 hover:bg-emerald-100 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100 dark:hover:bg-emerald-900"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Open full {county.name} County page
+        </Link>
+        <Link
+          href={`/finance-audit/county/${encodeURIComponent(county.name)}`}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1.5 rounded-md border px-3 py-2 text-sm hover:bg-muted"
+        >
+          <ExternalLink className="h-3.5 w-3.5" />
+          Pesa za ugatuzi
+        </Link>
+      </div>
 
       {/* 2. Demographics & Population */}
       <Card>

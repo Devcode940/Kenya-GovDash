@@ -6,6 +6,7 @@ import Link from 'next/link';
 import type { Metadata } from 'next';
 import { buildAllCountyData, getCoalitionColor, getScoreColor, type Representative } from '@/lib/kenya-data';
 import { ALL_COUNTY_FINANCE } from '@/lib/finance-audit-data';
+import { getEaccStaticFeed, getEaccInvestigationsForRep } from '@/lib/live-feeds/eacc-service';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -132,8 +133,8 @@ export default async function RepresentativeDetailPage({ params }: PageProps) {
             <div className="mt-3 flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
               <span className="flex items-center gap-1">
                 <MapPin className="h-4 w-4" />
-                <a href={`/county/${encodeURIComponent(countyName)}`} className="hover:underline">
-                  {countyName} County
+                <a href={`/county/${encodeURIComponent(countyName)}`} target="_blank" rel="noopener noreferrer" className="hover:underline">
+                  {countyName} County ↗
                 </a>
               </span>
               {rep.termStart && (
@@ -306,6 +307,40 @@ export default async function RepresentativeDetailPage({ params }: PageProps) {
           </Card>
         )}
 
+
+        {/* Integrity & oversight (EACC public case highlights) */}
+        {(() => {
+          const eaccFeed = getEaccStaticFeed();
+          const investigations = getEaccInvestigationsForRep(rep.fullName, eaccFeed);
+          if (!investigations.length) return null;
+          return (
+            <Card className="border-amber-200 dark:border-amber-900">
+              <CardHeader>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  Integrity & oversight
+                </CardTitle>
+                <CardDescription>Public EACC case highlights (curated static feed — not a complete register)</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {investigations.map((inv) => (
+                  <div key={inv.caseNumber} className="rounded-lg border border-amber-200 bg-amber-50/40 p-3 text-sm dark:border-amber-900 dark:bg-amber-950/20">
+                    <div className="font-medium">{inv.allegationType}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {inv.caseNumber} · {inv.status} · since {inv.initiatedDate}
+                    </div>
+                    {inv.sourceUrl && (
+                      <a href={inv.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-1 inline-block text-xs text-emerald-700 hover:underline dark:text-emerald-300">
+                        Source ↗
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          );
+        })()}
+
         {/* County Finance Summary (link to finance drill-down) */}
         {financeData && (
           <Card className="border-emerald-200 dark:border-emerald-900">
@@ -317,8 +352,8 @@ export default async function RepresentativeDetailPage({ params }: PageProps) {
                     {countyName} County · FY 2023/24 · Absorption: {financeData.overallAbsorption}% · Audit: {financeData.auditOpinion}
                   </p>
                 </div>
-                <a href={`/finance-audit/county/${encodeURIComponent(countyName)}`} className="text-sm text-emerald-700 hover:underline dark:text-emerald-300">
-                  View →
+                <a href={`/finance-audit/county/${encodeURIComponent(countyName)}`} target="_blank" rel="noopener noreferrer" className="text-sm text-emerald-700 hover:underline dark:text-emerald-300">
+                  View finance ↗
                 </a>
               </div>
             </CardContent>
@@ -327,8 +362,8 @@ export default async function RepresentativeDetailPage({ params }: PageProps) {
 
         {/* Footer links */}
         <div className="flex flex-wrap gap-2 text-sm">
-          <a href={`/county/${encodeURIComponent(countyName)}`} className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 hover:bg-muted">
-            <MapPin className="h-3 w-3" />{countyName} County dashboard
+          <a href={`/county/${encodeURIComponent(countyName)}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md border border-emerald-300 px-3 py-1.5 text-emerald-800 hover:bg-emerald-50 dark:border-emerald-800 dark:text-emerald-200">
+            <MapPin className="h-3 w-3" />Open full {countyName} County page ↗
           </a>
           <a href="/representatives" className="inline-flex items-center gap-1 rounded-md border px-3 py-1.5 hover:bg-muted">
             ← Back to directory
